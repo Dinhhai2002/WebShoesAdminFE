@@ -1,7 +1,7 @@
 import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
-import { PaymentStatusEnum } from "src/utils/enum/PaymentStatusEnum";
-import { StatusOrderEnum } from "src/utils/enum/StatusOrderEnum";
+import { StatusOrderEnum } from "../../utils/enum/StatusOrderEnum";
+import { PaymentStatusEnum } from "../../utils/enum/PaymentStatusEnum";
 
 // Types
 interface ProductDetail {
@@ -43,6 +43,16 @@ export interface Order {
     status: StatusOrderEnum;
     created_at: string;
     order_detail: OrderDetail[];
+    address_id: number;
+    shipping_name: string;
+    shipping_phone: string;
+    shipping_ward_id: number;
+    shipping_ward_name: string;
+    shipping_district_id: number;
+    shipping_district_name: string;
+    shipping_city_id: number;
+    shipping_city_name: string;
+    shipping_address: string;
 }
 
 interface OrderQueryParams {
@@ -64,6 +74,7 @@ interface CreateOrderRequest {
     discount_amount: number;
     total_price: number;
     payment_method: number;
+    address_id: number;
 }
 
 interface ChangeStatusRequest {
@@ -123,10 +134,20 @@ class OrderApi extends BaseApiService {
         }
     }
 
-    // Create a new order
-    async create(order: CreateOrderRequest): Promise<ApiResponse<string>> {
+    // Cancel order with additional checks
+    async cancelOrder(id: number): Promise<ApiResponse<Order>> {
         try {
-            const response: AxiosResponse<ApiResponse<string>> = await this.api.post("/order/create", order);
+            const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/cancel`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Create a new order
+    async create(order: CreateOrderRequest): Promise<ApiResponse<Order | string>> {
+        try {
+            const response: AxiosResponse<ApiResponse<Order | string>> = await this.api.post("/order/create", order);
             return response.data;
         } catch (error) {
             throw error;
