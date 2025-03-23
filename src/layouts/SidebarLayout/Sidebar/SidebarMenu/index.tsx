@@ -26,6 +26,8 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import StraightenIcon from '@mui/icons-material/Straighten';
 import TextureIcon from '@mui/icons-material/Texture';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import DiscountIcon from '@mui/icons-material/Discount';
+import BarChartIcon  from '@mui/icons-material/BarChart';
 
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
@@ -354,10 +356,21 @@ function SidebarMenu() {
                   Quản lý đơn hàng
                 </Button>
               </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
+                  to="/management/voucher"
+                  startIcon={<DiscountIcon />}
+                >
+                  Quản lý Voucher
+                </Button>
+              </ListItem>
             </List>
           </SubMenuWrapper>
         </List>
-        {/* <List
+        <List
           component="div"
           subheader={
             <ListSubheader component="div" disableSticky>
@@ -373,25 +386,14 @@ function SidebarMenu() {
                   component={RouterLink}
                   onClick={closeSidebar}
                   to="/statistical/amount"
-                  startIcon={<AccountCircleTwoToneIcon />}
+                  startIcon={<BarChartIcon />}
                 >
                   Doanh thu
                 </Button>
               </ListItem>
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/statistical/do-exam"
-                  startIcon={<AccountCircleTwoToneIcon />}
-                >
-                  Số lượng người dùng làm bài thi
-                </Button>
-              </ListItem>
             </List>
           </SubMenuWrapper>
-        </List> */}
+        </List>
         <List
           component="div"
           subheader={

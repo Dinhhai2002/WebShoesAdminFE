@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
+import handleResponseApi from "../handleResponseApi/handleResponseApi";
 
 export interface Color {
     id: number;
@@ -40,6 +41,7 @@ class ColorApi extends BaseApiService {
                     limit: params.limit || 10
                 }
             });
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
             throw error;
@@ -50,6 +52,7 @@ class ColorApi extends BaseApiService {
     async findOne(id: number): Promise<ApiResponse<Color>> {
         try {
             const response: AxiosResponse<ApiResponse<Color>> = await this.api.get(`/color/${id}`);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
             throw error;
@@ -60,6 +63,7 @@ class ColorApi extends BaseApiService {
     async changeStatus(id: number): Promise<ApiResponse<Color>> {
         try {
             const response: AxiosResponse<ApiResponse<Color>> = await this.api.post(`/color/${id}/change-status`);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
             throw error;
@@ -72,6 +76,7 @@ class ColorApi extends BaseApiService {
     }): Promise<ApiResponse<Color>> {
         try {
             const response: AxiosResponse<ApiResponse<Color>> = await this.api.post("/color/create", color);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
             throw error;
@@ -84,6 +89,7 @@ class ColorApi extends BaseApiService {
     }): Promise<ApiResponse<Color>> {
         try {
             const response: AxiosResponse<ApiResponse<Color>> = await this.api.post(`/color/${id}/update`, color);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
             throw error;

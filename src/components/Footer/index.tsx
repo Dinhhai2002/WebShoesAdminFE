@@ -17,7 +17,7 @@ function Footer() {
         justifyContent="space-between"
       >
         <Box>
-          <Typography variant="subtitle1">ENGLISH CENTER</Typography>
+          <Typography variant="subtitle1">Web Shoes</Typography>
         </Box>
         <Typography
           sx={{
@@ -31,7 +31,7 @@ function Footer() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Trần Đình Hải
+            Web Shoes
           </Link>
         </Typography>
       </Box>

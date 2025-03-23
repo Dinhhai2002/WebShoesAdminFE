@@ -9,11 +9,11 @@ import SuspenseLoader from 'src/components/SuspenseLoader';
 import RecentBrandsTable from 'src/content/applications/Brand/RecentBrandsTable';
 
 const Loader = (Component) => (props) =>
-  (
-    <Suspense fallback={<SuspenseLoader />}>
-      <Component {...props} />
-    </Suspense>
-  );
+(
+  <Suspense fallback={<SuspenseLoader />}>
+    <Component {...props} />
+  </Suspense>
+);
 
 // Pages
 
@@ -72,6 +72,18 @@ const ApplicationsStaffOrder = Loader(
   lazy(() => import('src/content/applications/OrderStore'))
 );
 
+const ApplicationsVoucher = Loader(
+  lazy(() => import('src/content/applications/Voucher'))
+);
+
+const StatisticalAmountView = Loader(
+  lazy(() => import('src/content/statistical'))
+);
+
+const Profile = Loader(
+  lazy(() => import('src/content/applications/Profile'))
+);
+
 // Components
 
 // Status
@@ -92,7 +104,12 @@ const routes: RouteObject[] = [
   {
     path: '',
     element: <SidebarLayout />,
-    children: []
+    children: [
+      {
+        path: '',
+        element: <Overview />
+      },
+    ]
   },
   {
     path: '',
@@ -111,7 +128,11 @@ const routes: RouteObject[] = [
       {
         path: '',
         element: <Navigate to="amount" replace />
-      }
+      },
+      {
+        path: 'amount',
+        element: <StatisticalAmountView />
+      },
     ]
   },
   {
@@ -171,15 +192,23 @@ const routes: RouteObject[] = [
         element: <ApplicationsStaffOrder />
       },
       {
+        path: 'voucher',
+        element: <ApplicationsVoucher />
+      },
+      {
         path: 'profile',
         children: [
           {
             path: '',
             element: <Navigate to="details" replace />
+          },
+          {
+            path: 'details',
+            element: <Profile />
           }
         ]
       },
-      
+
     ]
   },
 

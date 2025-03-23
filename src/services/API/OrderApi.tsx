@@ -2,6 +2,7 @@ import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
 import { StatusOrderEnum } from "../../utils/enum/StatusOrderEnum";
 import { PaymentStatusEnum } from "../../utils/enum/PaymentStatusEnum";
+import handleResponseApi from "../handleResponseApi/handleResponseApi";
 
 interface ProductDetail {
     id: number;
@@ -130,8 +131,13 @@ class OrderApi extends BaseApiService {
     }
 
     async changeStatus(id: number, status: number): Promise<ApiResponse<Order>> {
-        const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/change-status`, { status });
-        return response.data;
+        try {
+            const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/change-status`, { status });
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
     async cancelOrder(id: number): Promise<ApiResponse<Order>> {

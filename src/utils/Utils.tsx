@@ -27,14 +27,12 @@ class Utils {
 
   public getRole(id: number) {
     switch (id) {
-      case 0:
-        return 'Người dùng';
       case 1:
-        return 'Học sinh';
+        return 'Người dùng';
       case 2:
-        return 'Giáo viên';
-      case 3:
         return 'Admin';
+      case 3:
+        return 'Nhân viên';
       default:
         return 'Người dùng';
     }

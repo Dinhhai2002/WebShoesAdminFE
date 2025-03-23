@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
+import handleResponseApi from "../handleResponseApi/handleResponseApi";
 
 export interface Banner {
     id: number;
@@ -53,9 +54,10 @@ class BannerApi extends BaseApiService {
     async findOne(id: number): Promise<ApiResponse<Banner>> {
         try {
             const response: AxiosResponse<ApiResponse<Banner>> = await this.api.get(`/banner/${id}`);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -63,9 +65,10 @@ class BannerApi extends BaseApiService {
     async changeStatus(id: number): Promise<ApiResponse<Banner>> {
         try {
             const response: AxiosResponse<ApiResponse<Banner>> = await this.api.post(`/banner/${id}/change-status`);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -79,9 +82,10 @@ class BannerApi extends BaseApiService {
                     'Content-Type': 'multipart/form-data'
                 }
             });
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -89,9 +93,10 @@ class BannerApi extends BaseApiService {
     async update(id: number, url: string): Promise<ApiResponse<Banner>> {
         try {
             const response: AxiosResponse<ApiResponse<Banner>> = await this.api.post(`/banner/${id}/update`, { url });
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 }

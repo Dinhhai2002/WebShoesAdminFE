@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
+import handleResponseApi from "../handleResponseApi/handleResponseApi";
 
 export interface Brand {
     id: number;
@@ -90,9 +91,10 @@ class BrandApi extends BaseApiService {
     async create(brand: CRUDBrandRequest): Promise<ApiResponse<Brand>> {
         try {
             const response: AxiosResponse<ApiResponse<Brand>> = await this.api.post("/brand/create", brand);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -100,9 +102,10 @@ class BrandApi extends BaseApiService {
     async update(id: number, brand: CRUDBrandRequest): Promise<ApiResponse<Brand>> {
         try {
             const response: AxiosResponse<ApiResponse<Brand>> = await this.api.post(`/brand/${id}/update`, brand);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -121,9 +124,10 @@ class BrandApi extends BaseApiService {
                     }
                 }
             );
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 }

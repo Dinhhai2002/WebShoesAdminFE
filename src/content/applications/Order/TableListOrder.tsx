@@ -105,6 +105,8 @@ function TableListOrder({
         return 'success';
       case PaymentStatusEnum.FAILED:
         return 'error';
+      case PaymentStatusEnum.CANCELLED:
+        return 'error';
       default:
         return 'info';
     }
@@ -120,6 +122,8 @@ function TableListOrder({
         return 'Đã thanh toán';
       case PaymentStatusEnum.FAILED:
         return 'Thanh toán thất bại';
+      case PaymentStatusEnum.CANCELLED:
+        return 'Đã hủy';
       default:
         return 'Không xác định';
     }

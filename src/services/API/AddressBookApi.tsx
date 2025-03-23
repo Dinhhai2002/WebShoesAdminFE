@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
+import handleResponseApi from "../handleResponseApi/handleResponseApi";
 
 export interface AddressBook {
     id: number;
@@ -67,9 +68,10 @@ class AddressBookApi extends BaseApiService {
                     limit: params.limit
                 }
             });
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -84,9 +86,10 @@ class AddressBookApi extends BaseApiService {
                     limit: params.limit
                 }
             });
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -94,9 +97,10 @@ class AddressBookApi extends BaseApiService {
     async findOne(id: number): Promise<ApiResponse<AddressBook>> {
         try {
             const response: AxiosResponse<ApiResponse<AddressBook>> = await this.api.get(`/address-book/${id}`);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -104,9 +108,10 @@ class AddressBookApi extends BaseApiService {
     async create(addressBook: AddressBookRequest): Promise<ApiResponse<AddressBook>> {
         try {
             const response: AxiosResponse<ApiResponse<AddressBook>> = await this.api.post("/address-book/create", addressBook);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -114,9 +119,10 @@ class AddressBookApi extends BaseApiService {
     async update(id: number, addressBook: AddressBookRequest): Promise<ApiResponse<AddressBook>> {
         try {
             const response: AxiosResponse<ApiResponse<AddressBook>> = await this.api.post(`/address-book/${id}/update`, addressBook);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -124,9 +130,10 @@ class AddressBookApi extends BaseApiService {
     async changeStatus(id: number): Promise<ApiResponse<AddressBook>> {
         try {
             const response: AxiosResponse<ApiResponse<AddressBook>> = await this.api.post(`/address-book/${id}/change-status`);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -136,7 +143,7 @@ class AddressBookApi extends BaseApiService {
             const response: AxiosResponse<ApiResponse<AddressBook>> = await this.api.post(`/address-book/${id}/set-default`);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 }

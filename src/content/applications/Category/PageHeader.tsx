@@ -72,7 +72,7 @@ function PageHeader({ setChangeData, changeData }) {
   };
 
   return (
-    <Grid container justifyContent="space-between" alignItems="center">
+    <Grid maxWidth="xl" container justifyContent="space-between" alignItems="center">
       <Grid item></Grid>
       <Grid item>
         <Button

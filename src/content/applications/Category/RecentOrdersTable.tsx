@@ -142,12 +142,11 @@ export const RecentOrdersTable = ({
 
   return (
     <CategoryContext.Provider value={{ onChangeValue }}>
-      <Card>
-        <ToastContainer />
+      <Card sx={{ width: '100%' }}>
         <CardHeader
           action={
             <Box
-              width={600}
+              width={'100%'}
               sx={{ display: 'flex', justifyContent: 'space-between' }}
             >
               <Search

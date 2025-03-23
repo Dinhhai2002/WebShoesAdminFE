@@ -75,7 +75,7 @@ export default function Login() {
           .getUser()
           .then((data: any) => {
             localStorage.setItem('user', JSON.stringify(data.data));
-            if (data.data.role === 1) {
+            if (data.data.role !== 1) {
               window.location.href = '/';
             } else {
               toast.error(`Tài khoản không có quyền truy cập vào hệ thống!`);

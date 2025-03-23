@@ -13,14 +13,8 @@ export interface Product {
     average_rating: number;
     created_at: string;
     updated_at: string;
-    brand?: {
-        id: number;
-        name: string;
-    };
-    category?: {
-        id: number;
-        name: string;
-    };
+    brand_name: string;
+    category_name: string;
 }
 
 interface ProductListResponse {
@@ -53,7 +47,7 @@ interface CreateProductRequest {
     average_rating: number;
 }
 
-interface UpdateProductRequest extends Partial<CreateProductRequest> {}
+interface UpdateProductRequest extends Partial<CreateProductRequest> { }
 
 class ProductApi extends BaseApiService {
     constructor(token?: string) {
@@ -122,7 +116,7 @@ class ProductApi extends BaseApiService {
         try {
             const formData = new FormData();
             formData.append('file', file);
-            
+
             const response: AxiosResponse<ApiResponse<Product>> = await this.api.post(
                 `/product/${id}/image`,
                 formData,
