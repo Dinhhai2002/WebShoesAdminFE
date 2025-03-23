@@ -6,6 +6,14 @@ export interface Brand {
     name: string;
     image_url: string;
     status: number;
+    created_at: string;
+    updated_at: string;
+}
+
+interface BrandListResponse {
+    limit: number;
+    list: Brand[];
+    total_record: number;
 }
 
 interface BrandQueryParams {
@@ -15,20 +23,15 @@ interface BrandQueryParams {
     limit?: number;
 }
 
-interface BrandListResponse {
-    limit: number;
-    list: Brand[];
-    total_record: number;
-}
-
 interface ApiResponse<T> {
     status: number;
     message: string;
     data: T;
 }
 
-export interface CRUDBrandRequest {
+interface CRUDBrandRequest {
     name: string;
+    image_url: string;
 }
 
 class BrandApi extends BaseApiService {
@@ -42,11 +45,21 @@ class BrandApi extends BaseApiService {
             const response: AxiosResponse<ApiResponse<BrandListResponse>> = await this.api.get("/brand", {
                 params: {
                     key_search: params.key_search || "",
-                    status: params.status || -1,
+                    status: params.status,
                     page: params.page || 1,
                     limit: params.limit || 10
                 }
             });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Get all brands for dropdowns
+    async getAll(): Promise<ApiResponse<Brand[]>> {
+        try {
+            const response: AxiosResponse<ApiResponse<Brand[]>> = await this.api.get("/brand/all");
             return response.data;
         } catch (error) {
             throw error;
@@ -87,6 +100,27 @@ class BrandApi extends BaseApiService {
     async update(id: number, brand: CRUDBrandRequest): Promise<ApiResponse<Brand>> {
         try {
             const response: AxiosResponse<ApiResponse<Brand>> = await this.api.post(`/brand/${id}/update`, brand);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Upload brand image
+    async uploadImage(id: number, file: File): Promise<ApiResponse<Brand>> {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const response: AxiosResponse<ApiResponse<Brand>> = await this.api.post(
+                `/brand/${id}/image`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
             return response.data;
         } catch (error) {
             throw error;

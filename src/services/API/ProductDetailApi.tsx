@@ -56,7 +56,10 @@ export interface CRUDProductDetailRequest {
     category_id: number;
     price: number;
     stock: number;
+    image_url: string;
 }
+
+interface UpdateProductDetailRequest extends Partial<CRUDProductDetailRequest> {}
 
 class ProductDetailApi extends BaseApiService {
     constructor(token?: string) {
@@ -75,7 +78,7 @@ class ProductDetailApi extends BaseApiService {
                     brand_id: params.brand_id || -1,
                     category_id: params.category_id || -1,
                     key_search: params.key_search || "",
-                    status: params.status || -1,
+                    status: params.status,
                     page: params.page || 1,
                     limit: params.limit || 10
                 }
@@ -117,7 +120,7 @@ class ProductDetailApi extends BaseApiService {
     }
 
     // Update an existing product detail
-    async update(id: number, productDetail: CRUDProductDetailRequest): Promise<ApiResponse<ProductDetail>> {
+    async update(id: number, productDetail: UpdateProductDetailRequest): Promise<ApiResponse<ProductDetail>> {
         try {
             const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.post(`/product-detail/${id}/update`, productDetail);
             return response.data;
@@ -125,6 +128,26 @@ class ProductDetailApi extends BaseApiService {
             throw error;
         }
     }
+
+     async uploadImage(id: number, file: File): Promise<ApiResponse<ProductDetail>> {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.post(
+                    `/product-detail/${id}/image`,
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
+                );
+                return response.data;
+            } catch (error) {
+                throw error;
+            }
+        }
 }
 
 const token = localStorage.getItem("token") || undefined;

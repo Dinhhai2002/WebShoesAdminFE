@@ -38,7 +38,7 @@ class BannerApi extends BaseApiService {
             const response: AxiosResponse<ApiResponse<BannerListResponse>> = await this.api.get("/banner", {
                 params: {
                     key_search: params.key_search || "",
-                    status: params.status || -1,
+                    status: params.status,
                     page: params.page || 1,
                     limit: params.limit || 10
                 }

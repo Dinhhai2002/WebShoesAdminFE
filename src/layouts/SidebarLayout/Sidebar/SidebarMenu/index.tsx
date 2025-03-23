@@ -14,7 +14,18 @@ import { SidebarContext } from 'src/contexts/SidebarContext';
 
 import AccountCircleTwoToneIcon from '@mui/icons-material/AccountCircleTwoTone';
 import BrightnessLowTwoToneIcon from '@mui/icons-material/BrightnessLowTwoTone';
-import TableChartTwoToneIcon from '@mui/icons-material/TableChartTwoTone';
+import CategoryIcon from '@mui/icons-material/Category';
+import ImageIcon from '@mui/icons-material/Image';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
+import PeopleAltTwoToneIcon from '@mui/icons-material/PeopleAltTwoTone';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import StraightenIcon from '@mui/icons-material/Straighten';
+import TextureIcon from '@mui/icons-material/Texture';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
 
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
@@ -131,9 +142,9 @@ const SubMenuWrapper = styled(Box)(
                 background: ${theme.colors.alpha.trueWhite[100]};
                 opacity: 0;
                 transition: ${theme.transitions.create([
-                  'transform',
-                  'opacity'
-                ])};
+    'transform',
+    'opacity'
+  ])};
                 width: 6px;
                 height: 6px;
                 transform: scale(0);
@@ -167,11 +178,11 @@ function SidebarMenu() {
       <MenuWrapper>
         <List
           component="div"
-          // subheader={
-          //   <ListSubheader component="div" disableSticky>
-          //     Dashboards
-          //   </ListSubheader>
-          // }
+        // subheader={
+        //   <ListSubheader component="div" disableSticky>
+        //     Dashboards
+        //   </ListSubheader>
+        // }
         >
           <SubMenuWrapper>
             <List component="div">
@@ -211,35 +222,13 @@ function SidebarMenu() {
         >
           <SubMenuWrapper>
             <List component="div">
-              {/* <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/user"
-                  startIcon={<TableChartTwoToneIcon />}
-                >
-                  Người dùng
-                </Button>
-              </ListItem>
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/exam"
-                  startIcon={<TableChartTwoToneIcon />}
-                >
-                  Bài thi
-                </Button>
-              </ListItem> */}
               <ListItem component="div">
                 <Button
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
                   to="/management/category"
-                  startIcon={<TableChartTwoToneIcon />}
+                  startIcon={<CategoryIcon />}
                 >
                   Quản lý danh mục
                 </Button>
@@ -249,8 +238,107 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
+                  to="/management/brands"
+                  startIcon={<StorefrontIcon />}
+                >
+                  Quản lý thương hiệu
+                </Button>
+              </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
+                  to="/management/banner"
+                  startIcon={<ImageIcon />}
+                >
+                  Quản lý banner
+                </Button>
+              </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
+                  to="/management/product"
+                  startIcon={<Inventory2OutlinedIcon />}
+                >
+                  Quản lý sản phẩm
+                </Button>
+              </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
+                  to="/management/size"
+                  startIcon={<StraightenIcon />}
+                >
+                  Quản lý size
+                </Button>
+              </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
+                  to="/management/color"
+                  startIcon={<PaletteOutlinedIcon />}
+                >
+                  Quản lý màu sắc
+                </Button>
+              </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
+                  to="/management/material"
+                  startIcon={<TextureIcon />}
+                >
+                  Quản lý chất liệu
+                </Button>
+              </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
+                  to="/management/product-detail"
+                  startIcon={<ViewModuleIcon />}
+                >
+                  Quản lý sản phẩm con
+                </Button>
+              </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
+                  to="/management/address-book"
+                  startIcon={<LocationOnIcon />}
+                >
+                  Quản lý địa chỉ người dùng
+                </Button>
+              </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
+                  to="/management/order-staff"
+                  startIcon={<PointOfSaleIcon />}
+                >
+                  Đặt hàng tại quầy
+                </Button>
+              </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
                   to="/management/user"
-                  startIcon={<TableChartTwoToneIcon />}
+                  startIcon={<PeopleAltTwoToneIcon />}
                 >
                   Quản lý người dùng
                 </Button>
@@ -261,102 +349,11 @@ function SidebarMenu() {
                   component={RouterLink}
                   onClick={closeSidebar}
                   to="/management/order"
-                  startIcon={<TableChartTwoToneIcon />}
+                  startIcon={<ReceiptLongIcon />}
                 >
                   Quản lý đơn hàng
                 </Button>
               </ListItem>
-              {/* <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/category-course"
-                  startIcon={<TableChartTwoToneIcon />}
-                >
-                  Danh mục khóa học
-                </Button>
-              </ListItem>
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/course"
-                  startIcon={<TableChartTwoToneIcon />}
-                >
-                  khóa học
-                </Button>
-              </ListItem> */}
-              {/* <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/class"
-                  startIcon={<TableChartTwoToneIcon />}
-                >
-                  Lớp học
-                </Button>
-              </ListItem> */}
-
-              {/* <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/chapter"
-                  startIcon={<TableChartTwoToneIcon />}
-                >
-                  Chương học
-                </Button>
-              </ListItem>
-
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/lessons"
-                  startIcon={<TableChartTwoToneIcon />}
-                >
-                  Bài học
-                </Button>
-              </ListItem>
-
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/blog"
-                  startIcon={<TableChartTwoToneIcon />}
-                >
-                  Blog
-                </Button>
-              </ListItem>
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/promotion"
-                  startIcon={<TableChartTwoToneIcon />}
-                >
-                  khuyến mãi
-                </Button>
-              </ListItem>
-              <ListItem component="div">
-                <Button
-                  disableRipple
-                  component={RouterLink}
-                  onClick={closeSidebar}
-                  to="/management/banner"
-                  startIcon={<TableChartTwoToneIcon />}
-                >
-                  Quảng cáo
-                </Button>
-              </ListItem> */}
             </List>
           </SubMenuWrapper>
         </List>

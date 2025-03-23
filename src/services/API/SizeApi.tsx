@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
+import handleResponseApi from "../handleResponseApi/handleResponseApi";
 
 export interface Size {
     id: number;
@@ -35,7 +36,7 @@ class SizeApi extends BaseApiService {
             const response: AxiosResponse<ApiResponse<SizeListResponse>> = await this.api.get("/size", {
                 params: {
                     key_search: params.key_search || "",
-                    status: params.status || -1,
+                    status: params.status,
                     page: params.page || 1,
                     limit: params.limit || 10
                 }
@@ -72,9 +73,10 @@ class SizeApi extends BaseApiService {
     }): Promise<ApiResponse<Size>> {
         try {
             const response: AxiosResponse<ApiResponse<Size>> = await this.api.post("/size/create", size);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -84,9 +86,10 @@ class SizeApi extends BaseApiService {
     }): Promise<ApiResponse<Size>> {
         try {
             const response: AxiosResponse<ApiResponse<Size>> = await this.api.post(`/size/${id}/update`, size);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 }

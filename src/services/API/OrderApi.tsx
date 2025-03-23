@@ -3,7 +3,6 @@ import BaseApiService from "./BaseApiService";
 import { StatusOrderEnum } from "../../utils/enum/StatusOrderEnum";
 import { PaymentStatusEnum } from "../../utils/enum/PaymentStatusEnum";
 
-// Types
 interface ProductDetail {
     id: number;
     name: string;
@@ -53,6 +52,7 @@ export interface Order {
     shipping_city_id: number;
     shipping_city_name: string;
     shipping_address: string;
+    customer_phone: string;
 }
 
 interface OrderQueryParams {
@@ -85,6 +85,21 @@ interface ChangePaymentStatusRequest {
     payment_status: PaymentStatusEnum;
 }
 
+interface StaffOrderProductRequest {
+    product_detail_id: number;
+    quantity: number;
+}
+
+interface StaffOrderRequest {
+    price: number;
+    discount_amount: number;
+    total_price: number;
+    payment_method: number;
+    address_id: number;
+    products: StaffOrderProductRequest[];
+    customer_phone: string;
+}
+
 interface ApiResponse<T> {
     status: number;
     message: string;
@@ -96,96 +111,62 @@ class OrderApi extends BaseApiService {
         super(token);
     }
 
-    // Fetch all orders with search, status filter and pagination
     async findAll(params: OrderQueryParams): Promise<ApiResponse<OrderListResponse>> {
-        try {
-            const response: AxiosResponse<ApiResponse<OrderListResponse>> = await this.api.get("/order", {
-                params: {
-                    user_id: params.user_id,
-                    key_search: params.key_search,
-                    status: params.status,
-                    page: params.page,
-                    limit: params.limit
-                }
-            });
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+        const response: AxiosResponse<ApiResponse<OrderListResponse>> = await this.api.get("/order", {
+            params: {
+                user_id: params.user_id,
+                key_search: params.key_search,
+                status: params.status,
+                page: params.page,
+                limit: params.limit
+            }
+        });
+        return response.data;
     }
 
-    // Fetch a single order by ID
     async findOne(id: number): Promise<ApiResponse<Order>> {
-        try {
-            const response: AxiosResponse<ApiResponse<Order>> = await this.api.get(`/order/${id}`);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+        const response: AxiosResponse<ApiResponse<Order>> = await this.api.get(`/order/${id}`);
+        return response.data;
     }
 
-    // Change order status
     async changeStatus(id: number, status: number): Promise<ApiResponse<Order>> {
-        try {
-            const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/change-status`, { status });
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+        const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/change-status`, { status });
+        return response.data;
     }
 
-    // Cancel order with additional checks
     async cancelOrder(id: number): Promise<ApiResponse<Order>> {
-        try {
-            const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/cancel`);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+        const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/cancel`);
+        return response.data;
     }
 
-    // Create a new order
     async create(order: CreateOrderRequest): Promise<ApiResponse<Order | string>> {
-        try {
-            const response: AxiosResponse<ApiResponse<Order | string>> = await this.api.post("/order/create", order);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+        const response: AxiosResponse<ApiResponse<Order | string>> = await this.api.post("/order/create", order);
+        return response.data;
     }
 
-    // Update an existing order
     async update(id: number, order: Partial<CreateOrderRequest>): Promise<ApiResponse<Order>> {
-        try {
-            const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/update`, order);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+        const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/update`, order);
+        return response.data;
     }
 
-    // Get payment URL for an order
     async getPaymentUrl(id: number): Promise<ApiResponse<string>> {
-        try {
-            const response: AxiosResponse<ApiResponse<string>> = await this.api.post(`/order/payment-confirm/${id}`);
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+        const response: AxiosResponse<ApiResponse<string>> = await this.api.post(`/order/payment-confirm/${id}`);
+        return response.data;
     }
 
-    // Change payment status
     async changePaymentStatus(id: number, paymentStatus: PaymentStatusEnum): Promise<ApiResponse<Order>> {
-        try {
-            const response: AxiosResponse<ApiResponse<Order>> = 
-                await this.api.post(`/order/${id}/change-payment-status`, { payment_status: paymentStatus });
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
+        const response: AxiosResponse<ApiResponse<Order>> = 
+            await this.api.post(`/order/${id}/change-payment-status`, { payment_status: paymentStatus });
+        return response.data;
+    }
+
+    async createByStaff(request: StaffOrderRequest): Promise<ApiResponse<Order>> {
+        const response: AxiosResponse<ApiResponse<Order>> = 
+            await this.api.post(`/order/create-by-staff`, request);
+        return response.data;
     }
 }
 
 const token = localStorage.getItem("token") || undefined;
 const orderApi = new OrderApi(token);
-export default orderApi; 
+export default orderApi;

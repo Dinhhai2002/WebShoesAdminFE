@@ -6,18 +6,21 @@ export interface Product {
     name: string;
     brand_id: number;
     category_id: number;
-    description: string | null;
+    description: string;
     price: number;
+    image_url: string;
+    status: number;
     average_rating: number;
-    image_url: string | null;
-    status: number;
-}
-
-interface ProductQueryParams {
-    keySearch: string;
-    status: number;
-    page: number;
-    limit: number;
+    created_at: string;
+    updated_at: string;
+    brand?: {
+        id: number;
+        name: string;
+    };
+    category?: {
+        id: number;
+        name: string;
+    };
 }
 
 interface ProductListResponse {
@@ -26,11 +29,31 @@ interface ProductListResponse {
     total_record: number;
 }
 
+interface ProductQueryParams {
+    keySearch?: string;
+    status?: number;
+    page?: number;
+    limit?: number;
+}
+
 interface ApiResponse<T> {
     status: number;
     message: string;
     data: T;
 }
+
+interface CreateProductRequest {
+    name: string;
+    brand_id: number;
+    category_id: number;
+    description: string;
+    price: number;
+    image_url: string;
+    status: number;
+    average_rating: number;
+}
+
+interface UpdateProductRequest extends Partial<CreateProductRequest> {}
 
 class ProductApi extends BaseApiService {
     constructor(token?: string) {
@@ -38,14 +61,14 @@ class ProductApi extends BaseApiService {
     }
 
     // Fetch all products with search, status filter and pagination
-    async findAll(params: ProductQueryParams): Promise<ApiResponse<ProductListResponse>> {
+    async findAll(params: ProductQueryParams = {}): Promise<ApiResponse<ProductListResponse>> {
         try {
             const response: AxiosResponse<ApiResponse<ProductListResponse>> = await this.api.get("/product", {
                 params: {
-                    key_search: params.keySearch,
+                    key_search: params.keySearch || "",
                     status: params.status,
-                    page: params.page,
-                    limit: params.limit
+                    page: params.page || 1,
+                    limit: params.limit || 10
                 }
             });
             return response.data;
@@ -54,8 +77,8 @@ class ProductApi extends BaseApiService {
         }
     }
 
-    // Fetch a single product by ID
-    async findOne(id: number): Promise<ApiResponse<Product>> {
+    // Get a single product by ID
+    async getById(id: number): Promise<ApiResponse<Product>> {
         try {
             const response: AxiosResponse<ApiResponse<Product>> = await this.api.get(`/product/${id}`);
             return response.data;
@@ -75,7 +98,7 @@ class ProductApi extends BaseApiService {
     }
 
     // Create a new product
-    async create(product: Omit<Product, 'id'>): Promise<ApiResponse<Product>> {
+    async create(product: CreateProductRequest): Promise<ApiResponse<Product>> {
         try {
             const response: AxiosResponse<ApiResponse<Product>> = await this.api.post("/product/create", product);
             return response.data;
@@ -85,9 +108,30 @@ class ProductApi extends BaseApiService {
     }
 
     // Update an existing product
-    async update(id: number, product: Partial<Product>): Promise<ApiResponse<Product>> {
+    async update(id: number, product: UpdateProductRequest): Promise<ApiResponse<Product>> {
         try {
             const response: AxiosResponse<ApiResponse<Product>> = await this.api.post(`/product/${id}/update`, product);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Upload product image
+    async uploadImage(id: number, file: File): Promise<ApiResponse<Product>> {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const response: AxiosResponse<ApiResponse<Product>> = await this.api.post(
+                `/product/${id}/image`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
             return response.data;
         } catch (error) {
             throw error;

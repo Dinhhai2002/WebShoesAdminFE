@@ -32,6 +32,7 @@ export interface AddressBookRequest {
 }
 
 interface AddressBookQueryParams {
+    userId?: number;
     keySearch: string;
     status: number;
     page: number;
@@ -60,6 +61,23 @@ class AddressBookApi extends BaseApiService {
         try {
             const response: AxiosResponse<ApiResponse<AddressBookListResponse>> = await this.api.get("/address-book", {
                 params: {
+                    key_search: params.keySearch,
+                    status: params.status,
+                    page: params.page,
+                    limit: params.limit
+                }
+            });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async findAllAdmin(params: AddressBookQueryParams): Promise<ApiResponse<AddressBookListResponse>> {
+        try {
+            const response: AxiosResponse<ApiResponse<AddressBookListResponse>> = await this.api.get("/address-book/all", {
+                params: {
+                    user_id: params.userId,
                     key_search: params.keySearch,
                     status: params.status,
                     page: params.page,

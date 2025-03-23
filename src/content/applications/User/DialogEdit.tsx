@@ -94,7 +94,7 @@ function DialogEdit({ openDialogMapEdit, id, handleCloseEdit, item }) {
           onSubmit={handleSubmit(onSubmitHandler)}
           autoComplete="off"
           noValidate
-          sx={{ mt: 1 }}
+          sx={{ mt: 1, maxHeight: '80vh', overflowY: 'auto' }}
         >
           <DialogContent>
             <FormInput

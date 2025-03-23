@@ -10,7 +10,7 @@ export interface Category {
 }
 
 interface CategoryQueryParams {
-    keySearch: string;
+    key_search: string;
     status: number;
     page: number;
     limit: number;
@@ -38,12 +38,22 @@ class CategoryApi extends BaseApiService {
         try {
             const response: AxiosResponse<ApiResponse<CategoryListResponse>> = await this.api.get("/category", {
                 params: {
-                    key_search: params.keySearch,
+                    key_search: params.key_search,
                     status: params.status,
                     page: params.page,
                     limit: params.limit
                 }
             });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // Get all categories for dropdowns
+    async getAll(): Promise<ApiResponse<Category[]>> {
+        try {
+            const response: AxiosResponse<ApiResponse<Category[]>> = await this.api.get("/category/all");
             return response.data;
         } catch (error) {
             throw error;

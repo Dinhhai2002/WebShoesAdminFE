@@ -6,6 +6,7 @@ import SidebarLayout from 'src/layouts/SidebarLayout';
 import BaseLayout from 'src/layouts/BaseLayout';
 
 import SuspenseLoader from 'src/components/SuspenseLoader';
+import RecentBrandsTable from 'src/content/applications/Brand/RecentBrandsTable';
 
 const Loader = (Component) => (props) =>
   (
@@ -35,6 +36,42 @@ const Order = Loader(
   lazy(() => import('src/content/applications/Order'))
 );
 
+const ApplicationsBrand = Loader(
+  lazy(() => import('src/content/applications/Brand'))
+);
+
+const ApplicationsBanner = Loader(
+  lazy(() => import('src/content/applications/Banner'))
+);
+
+const ApplicationsProduct = Loader(
+  lazy(() => import('src/content/applications/Product'))
+);
+
+const ApplicationsSize = Loader(
+  lazy(() => import('src/content/applications/Size'))
+);
+
+const ApplicationsColor = Loader(
+  lazy(() => import('src/content/applications/Color'))
+);
+
+const ApplicationsMaterial = Loader(
+  lazy(() => import('src/content/applications/Material'))
+);
+
+const ApplicationsProductDetail = Loader(
+  lazy(() => import('src/content/applications/ProductDetail'))
+);
+
+const ApplicationsAddressbook = Loader(
+  lazy(() => import('src/content/applications/AddressBook'))
+);
+
+const ApplicationsStaffOrder = Loader(
+  lazy(() => import('src/content/applications/OrderStore'))
+);
+
 // Components
 
 // Status
@@ -51,18 +88,11 @@ const ForgotPassword = Loader(
   lazy(() => import('src/content/pages/ForgotPassword/ForgotPassword'))
 );
 
-
-
 const routes: RouteObject[] = [
   {
     path: '',
     element: <SidebarLayout />,
-    children: [
-      // {
-      //   path: '',
-      //   element: <DashBoardHome />
-      // }
-    ]
+    children: []
   },
   {
     path: '',
@@ -81,7 +111,7 @@ const routes: RouteObject[] = [
       {
         path: '',
         element: <Navigate to="amount" replace />
-      },
+      }
     ]
   },
   {
@@ -90,7 +120,7 @@ const routes: RouteObject[] = [
     children: [
       {
         path: '',
-        element: <Navigate to="transactions" replace />
+        element: <Navigate to="category" replace />
       },
       {
         path: 'category',
@@ -105,14 +135,51 @@ const routes: RouteObject[] = [
         element: <Order />
       },
       {
+        path: 'brands',
+        element: <ApplicationsBrand />
+      },
+      {
+        path: 'banner',
+        element: <ApplicationsBanner />
+      },
+      {
+        path: 'product',
+        element: <ApplicationsProduct />
+      },
+      {
+        path: 'size',
+        element: <ApplicationsSize />
+      },
+      {
+        path: 'color',
+        element: <ApplicationsColor />
+      },
+      {
+        path: 'material',
+        element: <ApplicationsMaterial />
+      },
+      {
+        path: 'product-detail',
+        element: <ApplicationsProductDetail />
+      },
+      {
+        path: 'address-book',
+        element: <ApplicationsAddressbook />
+      },
+      {
+        path: 'order-staff',
+        element: <ApplicationsStaffOrder />
+      },
+      {
         path: 'profile',
         children: [
           {
             path: '',
             element: <Navigate to="details" replace />
-          },
+          }
         ]
-      }
+      },
+      
     ]
   },
 

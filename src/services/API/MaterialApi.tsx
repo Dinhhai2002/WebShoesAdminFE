@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
+import handleResponseApi from "../handleResponseApi/handleResponseApi";
 
 export interface Material {
     id: number;
@@ -35,7 +36,7 @@ class MaterialApi extends BaseApiService {
             const response: AxiosResponse<ApiResponse<MaterialListResponse>> = await this.api.get("/materials", {
                 params: {
                     key_search: params.key_search || "",
-                    status: params.status || -1,
+                    status: params.status,
                     page: params.page || 1,
                     limit: params.limit || 10
                 }
@@ -60,6 +61,7 @@ class MaterialApi extends BaseApiService {
     async changeStatus(id: number): Promise<ApiResponse<Material>> {
         try {
             const response: AxiosResponse<ApiResponse<Material>> = await this.api.post(`/materials/${id}/change-status`);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
             throw error;
@@ -72,9 +74,10 @@ class MaterialApi extends BaseApiService {
     }): Promise<ApiResponse<Material>> {
         try {
             const response: AxiosResponse<ApiResponse<Material>> = await this.api.post("/materials/create", material);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -84,9 +87,10 @@ class MaterialApi extends BaseApiService {
     }): Promise<ApiResponse<Material>> {
         try {
             const response: AxiosResponse<ApiResponse<Material>> = await this.api.post(`/materials/${id}/update`, material);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 }

@@ -15,7 +15,7 @@ function RecentOrders({ changeData }: any) {
     limit: number
   ) => {
     categoryApi.findAll({
-      keySearch: valueSearch,
+      key_search: valueSearch,
       status: statusValue,
       page: page,
       limit: limit

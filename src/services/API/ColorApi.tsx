@@ -93,4 +93,4 @@ class ColorApi extends BaseApiService {
 
 const token = localStorage.getItem("token") || undefined;
 const colorApi = new ColorApi(token);
-export default colorApi; 
+export default colorApi;
