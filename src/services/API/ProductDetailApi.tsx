@@ -56,7 +56,7 @@ export interface CRUDProductDetailRequest {
     category_id: number;
     price: number;
     stock: number;
-    image_url: string;
+    image_url?: string;
 }
 
 interface UpdateProductDetailRequest extends Partial<CRUDProductDetailRequest> {}
@@ -113,6 +113,15 @@ class ProductDetailApi extends BaseApiService {
     async create(productDetail: CRUDProductDetailRequest): Promise<ApiResponse<ProductDetail>> {
         try {
             const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.post("/product-detail/create", productDetail);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async createMany(productDetails: CRUDProductDetailRequest[]): Promise<ApiResponse<ProductDetail>> {
+        try {
+            const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.post("/product-detail/create-multiple", productDetails);
             return response.data;
         } catch (error) {
             throw error;

@@ -79,7 +79,11 @@ const RecentOrdersTable = ({
         toast.success(EditSuccess);
       })
       .catch((error) => {
-        toast.error(`${error.message}`);
+        if (error.message === 'Request failed with status code 403') {
+          toast.error('Bạn không có quyền thực hiện thay đổi trạng thái đơn hàng!');
+        } else {
+          toast.error(`${error.message}`);
+        }
       });
   };
 

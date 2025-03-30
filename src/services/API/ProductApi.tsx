@@ -131,6 +131,29 @@ class ProductApi extends BaseApiService {
             throw error;
         }
     }
+
+    async uploadImages(id: number, files: File[]): Promise<ApiResponse<Product[]>> {
+        try {
+            const formData = new FormData();
+            files.forEach((file) => {
+                formData.append('files', file);
+            });
+
+            const response: AxiosResponse<ApiResponse<Product[]>> = await this.api.post(
+                `/product/${id}/images`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
+    
 }
 
 const token = localStorage.getItem("token") || undefined;

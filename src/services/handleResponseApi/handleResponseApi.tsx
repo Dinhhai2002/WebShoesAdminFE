@@ -6,6 +6,10 @@ class HandleResponseApi {
       messageError = response.data.message;
       throw new Error(response.data.message);
     } else if (response.data.status === 401) {
+      messageError = 'Phiên đăng nhập đã hết hạn!';
+      throw new Error(messageError);
+    }
+    else if (response.data.status === 403) {
       messageError = 'Bạn không có quyền truy cập api này!';
       throw new Error(messageError);
     }

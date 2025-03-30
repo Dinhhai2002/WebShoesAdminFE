@@ -23,6 +23,7 @@ import { toast } from 'react-toastify';
 import productApi from 'src/services/API/ProductApi';
 import brandApi from 'src/services/API/BrandApi';
 import categoryApi from 'src/services/API/CategoryApi';
+import DialogUploadProductImages from './DialogUploadProductImages';
 
 interface PageHeaderProps {
   onSuccess: () => void;
@@ -40,6 +41,7 @@ interface Category {
 
 function PageHeader({ onSuccess }: PageHeaderProps) {
   const [open, setOpen] = useState(false);
+  const [openUploadImages, setOpenUploadImages] = useState(false);
   const [loading, setLoading] = useState(false);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -71,6 +73,10 @@ function PageHeader({ onSuccess }: PageHeaderProps) {
     setOpen(true);
   };
 
+  const handleClickOpenUploadImages = () => {
+    setOpenUploadImages(true);
+  };
+
   const handleClose = () => {
     setOpen(false);
     setFormData({
@@ -82,6 +88,10 @@ function PageHeader({ onSuccess }: PageHeaderProps) {
       image_url: '',
       status: 1
     });
+  };
+
+  const handleCloseUploadImages = () => {
+    setOpenUploadImages(false);
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -147,6 +157,16 @@ function PageHeader({ onSuccess }: PageHeaderProps) {
               }}
             >
               Thêm sản phẩm mới
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleClickOpenUploadImages} 
+              sx={{
+                px: 3,
+                py: 1
+              }}
+            >
+              Tải ảnh sản phẩm
             </Button>
           </Grid>
         </Grid>
@@ -257,6 +277,11 @@ function PageHeader({ onSuccess }: PageHeaderProps) {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <DialogUploadProductImages
+        open={openUploadImages}
+        onClose={handleCloseUploadImages}
+      />
     </Container>
   );
 }
