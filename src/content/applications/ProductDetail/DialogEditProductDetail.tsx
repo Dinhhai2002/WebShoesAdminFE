@@ -100,7 +100,7 @@ function DialogEditProductDetail({ open, onClose, id, onSuccess }: DialogEditPro
           brandsRes,
           categoriesRes
         ] = await Promise.all([
-          productApi.findAll({ keySearch: '', status: 1, page: 1, limit: 100 }),
+          productApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),
           colorApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),
           sizeApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),
           materialApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),

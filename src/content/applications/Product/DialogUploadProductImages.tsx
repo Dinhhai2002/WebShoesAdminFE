@@ -47,7 +47,7 @@ function DialogUploadProductImages({ open, onClose }: DialogUploadProductImagesP
     const fetchProducts = async () => {
       try {
         const res = await productApi.findAll({
-          keySearch: '',
+          key_search: '',
           status: 1,
           page: 1,
           limit: 100

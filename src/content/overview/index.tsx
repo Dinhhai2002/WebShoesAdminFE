@@ -42,7 +42,7 @@ function Overview() {
 
   const fetchTopProducts = async () => {
     try {
-      const res = await productApi.findAll({ keySearch: '', status: 1, page: 1, limit: 10 });
+      const res = await productApi.findAll({ key_search: '', status: 1, page: 1, limit: 10 });
       setTopProducts(res.data.list);
     } catch {
       toast.error('Không thể tải sản phẩm mới');

@@ -14,14 +14,26 @@ function ProductDetailManagement() {
     keySearch: string,
     page: number,
     limit: number,
-    status: number
+    status: number,
+    product_id?: number,
+    category_id?: number,
+    color_id?: number,
+    material_id?: number,
+    brand_id?: number,
+    size_id?: number
   ) => {
     try {
       const response = await productDetailApi.findAll({
         key_search: keySearch,
         status,
         page,
-        limit
+        limit,
+        product_id: product_id,
+        category_id: category_id,
+        color_id: color_id,
+        material_id: material_id,
+        brand_id: brand_id,
+        size_id: size_id
       });
       setListProductDetail(response.data.list);
       setTotalRecord(response.data.total_record);

@@ -24,7 +24,7 @@ interface ProductListResponse {
 }
 
 interface ProductQueryParams {
-    keySearch?: string;
+    key_search?: string;
     status?: number;
     page?: number;
     limit?: number;
@@ -59,7 +59,7 @@ class ProductApi extends BaseApiService {
         try {
             const response: AxiosResponse<ApiResponse<ProductListResponse>> = await this.api.get("/product", {
                 params: {
-                    key_search: params.keySearch || "",
+                    key_search: params.key_search || "",
                     status: params.status,
                     page: params.page || 1,
                     limit: params.limit || 10

@@ -77,7 +77,7 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const productsRes = await productApi.findAll({ keySearch: '', status: 1, page: 1, limit: 100 });
+        const productsRes = await productApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 });
         const colorsRes = await colorApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 });
         const sizesRes = await sizeApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 });
         const materialsRes = await materialApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 });

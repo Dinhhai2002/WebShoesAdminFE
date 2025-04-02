@@ -14,14 +14,14 @@ function RecentProducts({ changeData }: RecentProductsProps) {
   const [totalRecord, setTotalRecord] = useState<number>(0);
 
   const fetchProducts = (
-    keySearch: string,
+    key_search: string,
     status: number,
     page: number,
     limit: number
   ) => {
     productApi
       .findAll({
-        keySearch,
+        key_search,
         status: status === -1 ? undefined : status,
         page,
         limit

@@ -74,7 +74,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
     const fetchData = async () => {
       try {
         const [productRes, brandRes, catRes, colorRes, sizeRes, matRes] = await Promise.all([
-          productApi.findAll({ keySearch: '', status: 1, page: 1, limit: 100 }),
+          productApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),
           brandApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),
           categoryApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),
           colorApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),

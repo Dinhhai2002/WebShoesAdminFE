@@ -11,10 +11,10 @@ export interface Category {
 }
 
 interface CategoryQueryParams {
-    key_search: string;
-    status: number;
-    page: number;
-    limit: number;
+    key_search?: string;
+    status?: number;
+    page?: number;
+    limit?: number;
 }
 
 interface CategoryListResponse {
