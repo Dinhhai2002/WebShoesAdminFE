@@ -198,7 +198,7 @@ function SidebarMenu() {
                   to="/management/product-detail"
                   startIcon={<ViewModuleIcon />}
                 >
-                  Quản lý sản phẩm con
+                  Quản lý chi tiết sản phẩm
                 </Button>
               </ListItem>
               <ListItem component="div">

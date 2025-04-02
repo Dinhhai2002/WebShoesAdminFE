@@ -6,6 +6,9 @@ export interface WebsiteStatisticalResponse {
   total_revenue: number;
   total_products: number;
   total_orders: number;
+  daily_revenue?: number;
+  monthly_revenue?: number;
+  yearly_revenue?: number;
 }
 
 export interface AmountStatisticalResponse {

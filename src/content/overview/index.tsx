@@ -78,6 +78,21 @@ function Overview() {
       label: 'Tổng doanh thu',
       value: stats?.total_revenue?.toLocaleString('vi-VN') + '₫',
       icon: <MonetizationOn />
+    },
+    {
+      label: 'Doanh thu hàng ngày',
+      value: stats?.daily_revenue?.toLocaleString('vi-VN') + '₫',
+      icon: <MonetizationOn />
+    },
+    {
+      label: 'Doanh thu tháng này',
+      value: stats?.monthly_revenue?.toLocaleString('vi-VN') + '₫',
+      icon: <MonetizationOn />
+    },
+    {
+      label: 'Doanh thu năm nay',
+      value: stats?.yearly_revenue?.toLocaleString('vi-VN') + '₫',
+      icon: <MonetizationOn />
     }
   ];
 

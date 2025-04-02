@@ -27,6 +27,8 @@ import ProductSelectionDialog from './ProductSelectionDialog';
 import DialogCreateAddress from './DialogCreateAddress';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 
 function CreateStaffOrderForm() {
   const [addressList, setAddressList] = useState<any[]>([]);
@@ -36,6 +38,8 @@ function CreateStaffOrderForm() {
   const [openDialog, setOpenDialog] = useState(false);
   const [openAddressDialog, setOpenAddressDialog] = useState(false);
   const [customerPhone, setCustomerPhone] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchAddresses = () => {
     addressBookApi
@@ -83,11 +87,21 @@ function CreateStaffOrderForm() {
     }, 0);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmClose = () => {
+    setConfirmOpen(false);
+  };
+
+  const handleCreateOrder = async () => {
     if (!selectedAddressId || products.length === 0 || !customerPhone) {
       toast.error('Vui lòng nhập đầy đủ thông tin');
       return;
     }
+
+    setLoading(true);
 
     const price = calculatePrice();
     const discount_amount = 0;
@@ -110,8 +124,11 @@ function CreateStaffOrderForm() {
       setProducts([]);
       setSelectedAddressId('');
       setCustomerPhone('');
+      setConfirmOpen(false);
+      setLoading(false);
     } catch (error: any) {
       toast.error(error?.response?.data?.message || 'Lỗi tạo đơn hàng');
+      setLoading(false);
     }
   };
 
@@ -225,12 +242,38 @@ function CreateStaffOrderForm() {
           </Grid>
 
           <Grid display="flex" justifyContent="flex-end" item xs={12}>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
               Xác nhận tạo đơn hàng
+              {loading && <CircularProgress size={24} sx={{ position: 'absolute', left: '50%', top: '50%', ml: '-12px', mt: '-12px' }} />}
             </Button>
           </Grid>
         </Grid>
       </Paper>
+
+      <Dialog
+        open={confirmOpen}
+        onClose={handleConfirmClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Xác nhận tạo đơn hàng?"}
+        </DialogTitle>
+        <DialogContent>
+          <Typography>Bạn có chắc chắn muốn tạo đơn hàng này?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleConfirmClose}>Hủy</Button>
+          <Button onClick={handleCreateOrder} autoFocus disabled={loading}>
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <ProductSelectionDialog
         open={openDialog}

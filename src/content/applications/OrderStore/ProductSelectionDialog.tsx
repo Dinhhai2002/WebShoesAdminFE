@@ -106,17 +106,19 @@ import {
                     }
                     label="Chọn"
                   />
-                  {selectedMap[pd.id] > 0 && (
-                    <TextField
-                      type="number"
-                      size="small"
-                      label="SL"
-                      value={selectedMap[pd.id]}
-                      onChange={(e) => setQuantity(pd.id, Number(e.target.value))}
-                      sx={{ width: 80, ml: 1 }}
-                      inputProps={{ min: 1, max: pd.stock }}
-                    />
-                  )}
+                  <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
+                    {selectedMap[pd.id] > 0 && (
+                      <TextField
+                        type="number"
+                        size="small"
+                        label="SL"
+                        value={selectedMap[pd.id]}
+                        onChange={(e) => setQuantity(pd.id, Number(e.target.value))}
+                        sx={{ width: 80 }}
+                        inputProps={{ min: 1, max: pd.stock }}
+                      />
+                    )}
+                  </Box>
                 </Box>
               </Grid>
             ))}
@@ -146,4 +148,3 @@ import {
   }
   
   export default ProductSelectionDialog;
-  
