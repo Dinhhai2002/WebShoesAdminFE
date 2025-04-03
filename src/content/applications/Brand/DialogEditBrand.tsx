@@ -6,17 +6,25 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
+  Stack,
+  Typography,
   useMediaQuery,
   useTheme,
   Zoom
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import FormInput from 'src/components/FormReact/FormInput';
-import brandApi from 'src/services/API/BrandApi';
+import brandApi, { Brand } from 'src/services/API/BrandApi';
 import { ValidateInput, validateSchema } from './ValidateFormBrand';
+import {
+  DialogContentText,
+  Slide
+} from '@mui/material';
 
 interface DialogEditBrandProps {
   id: number;
@@ -25,13 +33,19 @@ interface DialogEditBrandProps {
   onSuccess: () => void;
 }
 
+
 function DialogEditBrand({
   id,
   openDialog,
   handleClose,
   onSuccess
 }: DialogEditBrandProps) {
+  const [brand, setBrand] = useState<Brand | null>(null); // State to hold brand data
   const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false); // Add confirmOpen state
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -45,34 +59,146 @@ function DialogEditBrand({
     setValue
   } = methods;
 
+  // Fetch brand details when ID changes
   useEffect(() => {
-    if (id) {
+    if (id && openDialog) {
+      setLoading(true);
       brandApi
         .findOne(id)
         .then((response) => {
-          setValue('name', response.data.name);
+          setBrand(response.data);
+          reset({ name: response.data.name });
         })
         .catch((error) => {
-          toast.error(error.response?.data?.message);
+          console.error('Error fetching brand:', error);
+          toast.error(
+            error.response?.data?.message || 'Failed to load brand details.'
+          );
+          handleClose();
+        })
+        .finally(() => {
+          setLoading(false);
         });
+    } else {
+      setBrand(null);
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setConfirmOpen(false); // Also reset confirmOpen state
+      reset({ name: '' });
     }
-  }, [id, setValue]);
+  }, [id, openDialog, reset]);
 
-  const onSubmitHandler: SubmitHandler<ValidateInput> = async (values) => {
-    setLoading(true);
-    try {
-      await brandApi.update(id, {
-        name: values.name,
-        image_url: ''
-      });
-      handleClose();
-      toast.success('Cập nhật thương hiệu thành công!');
-      onSuccess();
-      reset();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Có lỗi xảy ra');
+  // Effect for preview URL generation and cleanup
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    if (selectedFile) {
+      objectUrl = URL.createObjectURL(selectedFile);
+      setPreviewUrl(objectUrl);
+    } else {
+      setPreviewUrl(null);
     }
+    return () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+        setPreviewUrl(null);
+      }
+    };
+  }, [selectedFile]);
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    setSelectedFile(file || null);
+  };
+
+  const handleRemovePreview = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  const onSubmitHandler: SubmitHandler<ValidateInput> = async (values: ValidateInput) => {
+    setLoading(true);
+    let nameOrImageUpdated = false;
+    let finalBrandData = brand;
+
+    const nameChanged = brand && brand.name !== values.name;
+
+    // --- 1. Update Brand Name (if changed, preserving image URL if no new file) ---
+    if (nameChanged && !selectedFile) {
+      try {
+        const updatePayload = {
+          name: values.name,
+          image_url: brand?.image_url || '' // Preserve existing image_url
+        };
+        const nameUpdateResponse = await brandApi.update(id, updatePayload);
+        finalBrandData = nameUpdateResponse.data;
+        nameOrImageUpdated = true;
+      } catch (error) {
+        console.error("Error updating brand name:", error);
+        toast.error(error.message || 'Failed to update brand name.');
+        setLoading(false);
+        return;
+      }
+    } else if (nameChanged && selectedFile) {
+       // If name changed AND file selected, update name first (without image_url)
+       // The image will be handled by uploadImage later
+       try {
+        const updatePayload = { name: values.name, image_url: brand?.image_url || '' }; // Still send old image url here? API might require it or handle it. Adjust if needed.
+        const nameUpdateResponse = await brandApi.update(id, updatePayload);
+        finalBrandData = nameUpdateResponse.data; // Temporarily update data
+        nameOrImageUpdated = true; // Mark as updated because name changed
+       } catch (error) {
+        console.error("Error updating brand name (before image upload):", error);
+        toast.error(error.message || 'Failed to update brand name.');
+        setLoading(false);
+        return;
+       }
+    }
+
+    // --- 2. Upload Image (if selected) ---
+    if (selectedFile) {
+      try {
+        const imageUploadResponse = await brandApi.uploadImage(id, selectedFile);
+        finalBrandData = imageUploadResponse.data; // Update with the latest data after image upload
+        nameOrImageUpdated = true; // Mark as updated because image changed
+      } catch (error) {
+        console.error("Error uploading brand image:", error);
+        toast.error(error.response?.data?.message || 'Failed to upload brand image.');
+        // Continue even if image upload fails, name might have been updated
+      }
+    }
+
+    // --- 3. Final Steps ---
     setLoading(false);
+    if (nameOrImageUpdated) {
+      toast.success('Cập nhật thương hiệu thành công!');
+      setConfirmOpen(false)
+      onSuccess(); // Refresh data in the parent component
+      handleClose(); // Close the dialog
+    } else if (!nameChanged && !selectedFile) {
+      setConfirmOpen(false)
+      toast.info('No changes detected.');
+      handleClose();
+    } else {
+      setConfirmOpen(false)
+       // Handles case where only image upload failed after successful name update
+       onSuccess(); // Still refresh data as name might have changed
+       handleClose();
+    }
+  };
+
+  const handleCancel = () => {
+    // Reset state before closing
+    setBrand(null);
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    reset({ name: '' });
+    handleClose();
   };
 
   return (
@@ -109,30 +235,87 @@ function DialogEditBrand({
               label="Tên thương hiệu"
               sx={{ mb: 2 }}
             />
+
+            {/* --- Image Section --- */}
+            <Box mb={2}>
+              <Typography variant="subtitle1" gutterBottom>
+                Brand Image
+              </Typography>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+              />
+              <Box mb={1} sx={{ position: 'relative', width: 'fit-content' }}>
+                <img
+                  src={previewUrl || brand?.image_url || '/static/images/placeholders/browse.svg'}
+                  alt={previewUrl ? "Preview" : "Current brand"}
+                  style={{ maxWidth: '200px', maxHeight: '200px', display: 'block', border: '1px solid #ccc', borderRadius: '4px' }}
+                />
+                {previewUrl && (
+                  <IconButton
+                    size="small"
+                    onClick={handleRemovePreview}
+                    sx={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'rgba(255, 255, 255, 0.7)', '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.9)' } }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Box>
+              <Button variant="outlined" onClick={triggerFileInput}>
+                {previewUrl ? 'Change Image' : 'Upload Image'}
+              </Button>
+            </Box>
+            {/* --- End Image Section --- */}
+
           </DialogContent>
           <DialogActions>
-            <Button
-              onClick={() => {
-                reset();
-                handleClose();
-              }}
-              variant="outlined"
-            >
+            <Button onClick={handleCancel} variant="outlined"> {/* Use handleCancel */}
               Hủy
             </Button>
+            {/* <Button
+                  variant="outlined"
+                  autoFocus
+                  onClick={() => setConfirmOpen(true)}
+                >
+                  Tạo mới
+                </Button> */}
             <LoadingButton
               loading={loading}
-              type="submit"
               variant="contained"
               color="primary"
+              onClick={() => setConfirmOpen(true)}
             >
               Cập nhật
             </LoadingButton>
           </DialogActions>
         </Box>
       </FormProvider>
+      <Dialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Xác nhận cập nhật thương hiệu"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Bạn có chắc chắn muốn cập nhật thương hiệu này?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)} color="primary">
+            Hủy bỏ
+          </Button>
+          <Button onClick={handleSubmit(onSubmitHandler)} color="primary" autoFocus>
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 }
 
-export default DialogEditBrand; 
+export default DialogEditBrand;
