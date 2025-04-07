@@ -2,6 +2,7 @@ import Label from 'src/components/Label';
 import { UserStatus } from 'src/models/crypto_order';
 import { StatusOrderEnum } from './enum/StatusOrderEnum';
 import { PaymentStatusEnum } from './enum/PaymentStatusEnum';
+import { RoleEnum } from './enum/RoleEnum';
 
 export const labelTableClass = [
   {
@@ -308,10 +309,14 @@ export const labelTableUser = [
   },
   {
     id: 6,
-    name: 'Trạng thái người dùng'
+    name: 'Role'
   },
   {
     id: 7,
+    name: 'Trạng thái người dùng'
+  },
+  {
+    id: 8,
     name: 'Actions'
   }
 ];
@@ -588,3 +593,47 @@ export const labelTableBrand = [
     name: 'Actions'
   }
 ];
+
+export const roleOptions = [
+  {
+    id: -1,
+    name: 'Tất cả'
+  },
+  {
+    id: 1,
+    name: 'User'
+  },
+  {
+    id: 2,
+    name: 'Admin'
+  },
+  {
+    id: 3,
+    name: 'Staff'
+  }
+];
+
+export const getRoleLabel = (roleId: number): JSX.Element => {
+  if (!roleId || roleId === -1) {
+    return <Label color="secondary">Unknown</Label>;
+  }
+
+  const map = {
+    [RoleEnum.USER]: {
+      text: 'User',
+      color: 'info'
+    },
+    [RoleEnum.ADMIN]: {
+      text: 'Admin',
+      color: 'error'
+    },
+    [RoleEnum.STAFF]: {
+      text: 'Staff',
+      color: 'warning'
+    }
+  };
+
+  const { text, color } = map[roleId] || { text: 'Unknown', color: 'secondary' };
+
+  return <Label color={color}>{text}</Label>;
+};

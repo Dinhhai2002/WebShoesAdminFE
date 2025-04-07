@@ -18,10 +18,12 @@ import { PAGE_DEFAULT } from 'src/utils/Constant';
 import {
   getStatusLabel,
   labelTableUser,
-  statusOptions
+  statusOptions,
+  roleOptions
 } from 'src/utils/LabelTable';
 import { EditSuccess } from 'src/utils/MessageToast';
 import TableListUser from './TableListUser';
+import { RoleEnum } from 'src/utils/enum/RoleEnum';
 
 const UserContext = createContext(null);
 
@@ -33,6 +35,7 @@ export const RecentOrdersTable = ({
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(10);
   const [statusValue, setStatusValue] = useState<number>(-1);
+  const [roleValue, setRoleValue] = useState<number>(-1);
   const [valueSearch, setValueSearch] = useState('');
   const [openDialogMapDelete, setOpenDialogMapDelete] = useState({});
   const [openDialogMapEdit, setOpenDialogMapEdit] = useState({});
@@ -68,33 +71,55 @@ export const RecentOrdersTable = ({
     }));
   };
 
-  const handleStatusChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setStatusValue(Number(e.target.value));
+  const handleChangeStatus = (event: ChangeEvent<HTMLInputElement>) => {
+    const newStatusValue = Number(event.target.value);
+    setStatusValue(newStatusValue);
+    setPage(PAGE_DEFAULT);
+    onClickPagination(valueSearch, PAGE_DEFAULT, limit, newStatusValue, roleValue);
+  };
+
+  const handleChangeRole = (event: ChangeEvent<HTMLInputElement>) => {
+    const newRoleValue = Number(event.target.value);
+    setRoleValue(newRoleValue);
+    setPage(PAGE_DEFAULT);
+    onClickPagination(valueSearch, PAGE_DEFAULT, limit, statusValue, newRoleValue);
   };
 
   const handleChangePagination = (
     event: React.ChangeEvent<unknown>,
     value: number
   ) => {
-    setPage(Number(value));
+    const newPage = Number(value);
+    setPage(newPage);
+    onClickPagination(valueSearch, newPage, limit, statusValue, roleValue);
   };
 
   const handleChangeLimit = (event: ChangeEvent<HTMLInputElement>) => {
-    setLimit(Number(event.target.value));
+    const newLimit = Number(event.target.value);
+    setLimit(newLimit);
+    setPage(PAGE_DEFAULT);
+    onClickPagination(
+      valueSearch,
+      PAGE_DEFAULT,
+      newLimit,
+      statusValue,
+      roleValue
+    );
   };
 
-  useEffect(() => {
-    onClickPagination(valueSearch, page, limit, statusValue);
-  }, [page]);
+  const handleSubmitSearch = () => {
+    setPage(PAGE_DEFAULT);
+    onClickPagination(valueSearch, PAGE_DEFAULT, limit, statusValue, roleValue);
+  };
 
-  useEffect(() => {
-    onClickPagination(valueSearch, PAGE_DEFAULT, limit, statusValue);
-  }, [limit, statusValue]);
+  const onChangeValue = () => {
+    onClickPagination(valueSearch, page, limit, statusValue, roleValue);
+  };
 
   const handleChangeStatusUser = (id: number) => {
     userApiService.changeStatus(id)
       .then((response) => {
-        onClickPagination(valueSearch, page, limit, statusValue);
+        onClickPagination(valueSearch, page, limit, statusValue, roleValue);
         toast.success(EditSuccess);
       })
       .catch((error) => {
@@ -102,14 +127,6 @@ export const RecentOrdersTable = ({
       });
 
     handleCloseDelete(id);
-  };
-
-  const handleSubmitSearch = () => {
-    onClickPagination(valueSearch, PAGE_DEFAULT, limit, statusValue);
-  };
-
-  const onChangeValue = () => {
-    onClickPagination(valueSearch, page, limit, statusValue);
   };
 
   return (
@@ -132,7 +149,14 @@ export const RecentOrdersTable = ({
                 arr={statusOptions}
                 label="Status"
                 value={statusValue}
-                handleStatusChange={handleStatusChange}
+                handleStatusChange={handleChangeStatus}
+                type={0}
+              />
+              <DropDownComponent
+                arr={roleOptions}
+                label="Role"
+                value={roleValue}
+                handleStatusChange={handleChangeRole}
                 type={0}
               />
             </Box>

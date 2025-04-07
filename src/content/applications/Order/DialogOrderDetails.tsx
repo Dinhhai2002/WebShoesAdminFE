@@ -17,19 +17,25 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-  Zoom
+  Zoom,
+  Chip,
+  SvgIcon
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { Save } from '@mui/icons-material';
+import {
+  useEffect,
+  useState
+} from 'react';
 import { Order } from 'src/services/API/OrderApi';
 import orderApi from 'src/services/API/OrderApi';
 import Label from 'src/components/Label';
 import { StatusOrderEnum } from 'src/utils/enum/StatusOrderEnum';
 import { PaymentStatusEnum } from 'src/utils/enum/PaymentStatusEnum';
 import { formatCurrency } from 'src/utils/formatCurrency';
-import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { saveAs } from 'file-saver';
 
 interface DialogOrderDetailsProps {
   open: boolean;
@@ -43,81 +49,62 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchOrderDetails = async () => {
-      if (open && orderId) {
-        setLoading(true);
-        try {
-          const response = await orderApi.findOne(orderId);
-          setOrder(response.data);
-        } catch (error) {
-          console.error('Error fetching order details:', error);
-        } finally {
-          setLoading(false);
-        }
+  const fetchOrderDetail = async () => {
+    if (open && orderId) {
+      setLoading(true);
+      try {
+        const response = await orderApi.findOne(orderId);
+        setOrder(response.data);
+      } catch (error) {
+        console.error('Error fetching order details:', error);
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+  };
 
-    fetchOrderDetails();
+  useEffect(() => {
+    fetchOrderDetail();
   }, [open, orderId]);
 
-  const getStatusColor = (status: number) => {
-    switch (status) {
-      case StatusOrderEnum.PENDING: return 'warning';
-      case StatusOrderEnum.CONFIRMED: return 'success';
-      case StatusOrderEnum.PROCESSING: return 'info';
-      case StatusOrderEnum.SHIPPED: return 'primary';
-      case StatusOrderEnum.DELIVERED: return 'success';
-      case StatusOrderEnum.CANCELLED: return 'error';
-      default: return 'info';
-    }
+  const getStatusLabel = (status: number) => {
+    const statusMap = {
+      [StatusOrderEnum.PENDING]: { text: 'Chờ xác nhận', color: 'warning' },
+      [StatusOrderEnum.CONFIRMED]: { text: 'Đã xác nhận', color: 'success' },
+      [StatusOrderEnum.PROCESSING]: { text: 'Đang xử lý', color: 'info' },
+      [StatusOrderEnum.SHIPPED]: { text: 'Đã gửi hàng', color: 'primary' },
+      [StatusOrderEnum.DELIVERED]: { text: 'Đã giao hàng', color: 'success' },
+      [StatusOrderEnum.CANCELLED]: { text: 'Đã hủy', color: 'error' },
+    };
+
+    const statusInfo = statusMap[status] || { text: 'Không xác định', color: 'default' };
+    return <Label color={statusInfo.color}>{statusInfo.text}</Label>;
   };
 
-  const getStatusText = (status: number) => {
-    switch (status) {
-      case StatusOrderEnum.PENDING: return 'Chờ xác nhận';
-      case StatusOrderEnum.CONFIRMED: return 'Đã xác nhận';
-      case StatusOrderEnum.PROCESSING: return 'Đang xử lý';
-      case StatusOrderEnum.SHIPPED: return 'Đã gửi hàng';
-      case StatusOrderEnum.DELIVERED: return 'Đã giao hàng';
-      case StatusOrderEnum.CANCELLED: return 'Đã hủy';
-      default: return 'Không xác định';
-    }
+  const getPaymentStatusLabel = (status: PaymentStatusEnum) => {
+    const statusMap = {
+      [PaymentStatusEnum.PENDING]: { text: 'Chờ thanh toán', color: 'warning' },
+      [PaymentStatusEnum.PROCESSING]: { text: 'Đang xử lý', color: 'info' },
+      [PaymentStatusEnum.PAID]: { text: 'Đã thanh toán', color: 'success' },
+      [PaymentStatusEnum.FAILED]: { text: 'Thất bại', color: 'error' },
+    };
+
+    const statusInfo = statusMap[status] || { text: 'Không xác định', color: 'default' };
+    return <Label color={statusInfo.color}>{statusInfo.text}</Label>;
   };
 
-  const getPaymentStatusText = (status: number) => {
-    switch (status) {
-      case PaymentStatusEnum.PENDING: return 'Chưa thanh toán';
-      case PaymentStatusEnum.PROCESSING: return 'Đang chờ thanh toán';
-      case PaymentStatusEnum.PAID: return 'Đã thanh toán';
-      case PaymentStatusEnum.FAILED: return 'Thanh toán thất bại';
-      default: return 'Không xác định';
-    }
+  const getPaymentMethodLabel = (method: number) => {
+    const methodMap = {
+      1: 'Thanh toán khi nhận hàng',
+      2: 'Thanh toán online',
+      3: 'Thanh toán tại quầy',
+    };
+
+    return methodMap[method] || 'Không xác định';
   };
 
-  const getPaymentStatusColor = (status: number) => {
-    switch (status) {
-      case PaymentStatusEnum.PENDING: return 'warning';
-      case PaymentStatusEnum.PROCESSING: return 'info';
-      case PaymentStatusEnum.PAID: return 'success';
-      case PaymentStatusEnum.FAILED: return 'error';
-      default: return 'info';
-    }
-  };
-
-  const getPaymentMethodText = (method: number) => {
-    switch (method) {
-      case 1: return 'Thanh toán khi nhận hàng (COD)';
-      case 2: return 'Thanh toán qua VNPAY';
-      case 3: return 'Thanh toán tại quầy (Store)';
-      default: return 'Không xác định';
-    }
-  };
-
-  const handleExportExcel = () => {
-    if (!order) return;
-
-    const data = order.order_detail.map((item) => ({
+  const handleExportExcel = async () => {
+    const data = order?.order_detail.map((item) => ({
       'Mã SP': item.product_detail.product_id,
       'Tên SP': item.product_detail.name,
       'Màu sắc': item.product_detail.color,
@@ -132,116 +119,259 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
     XLSX.utils.book_append_sheet(workbook, worksheet, 'ChiTietDonHang');
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    saveAs(blob, `Order_${order.id}.xlsx`);
+    saveAs(blob, `Order_${order?.id}.xlsx`);
   };
 
-  const handleExportPDF = () => {
-    if (!order) return;
-
+  const handleExportPDF = async () => {
     const doc = new jsPDF() as jsPDF & { lastAutoTable?: { finalY?: number } };
 
-    doc.text(`Chi tiết đơn hàng #${order.id}`, 14, 14);
+    doc.setFontSize(16);
+    doc.text(`Chi tiết đơn hàng #${order?.id}`, 14, 14);
 
-    const rows = order.order_detail.map((item) => [
+    const rows = order?.order_detail.map((item) => [
       item.product_detail.product_id,
       item.product_detail.name,
       item.product_detail.color,
       item.product_detail.size,
-      item.quantity,
+      item.quantity.toString(),
       formatCurrency(item.price),
       formatCurrency(item.total_price)
     ]);
 
     autoTable(doc, {
-      head: [['Mã SP', 'Tên SP', 'Màu sắc', 'Size', 'Số lượng', 'Đơn giá', 'Thành tiền']],
+      head: [[
+        'Mã SP', 'Tên SP', 'Màu sắc', 'Size', 'Số lượng', 'Đơn giá', 'Thành tiền'
+      ]],
       body: rows,
       startY: 20
     });
 
-    const finalY = doc.lastAutoTable?.finalY || 40;
-    doc.text(`Tổng cộng: ${formatCurrency(order.total_price)}`, 14, finalY + 10);
-    doc.save(`Order_${order.id}.pdf`);
+    const finalY = doc.lastAutoTable?.finalY || 30;
+    doc.setFontSize(12);
+    doc.text(`Tổng cộng: ${formatCurrency(order?.total_price)}`, 14, finalY + 10);
+
+    doc.save(`Order_${order?.id}.pdf`);
   };
 
   if (loading) {
     return (
-      <Dialog fullScreen={fullScreen} open={open} onClose={onClose} TransitionComponent={Zoom} maxWidth="md" fullWidth>
-        <DialogContent sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-          <CircularProgress />
+      <Dialog open={open} onClose={onClose} fullScreen={fullScreen}>
+        <DialogTitle>Đang tải...</DialogTitle>
+        <DialogContent>
+          <Box display="flex" justifyContent="center" py={4}>
+            <CircularProgress />
+          </Box>
         </DialogContent>
       </Dialog>
     );
   }
 
+  if (!order) {
+    return null;
+  }
+
   return (
-    <Dialog fullScreen={fullScreen} open={open} onClose={onClose} TransitionComponent={Zoom} maxWidth="md" fullWidth>
-      <DialogTitle>Chi tiết đơn hàng #{order?.id}</DialogTitle>
+    <Dialog 
+      open={open} 
+      onClose={onClose} 
+      fullScreen={fullScreen} 
+      TransitionComponent={Zoom}
+      maxWidth="md"
+      sx={{ 
+        '& .MuiDialog-paper': {
+          width: '90%',
+          maxWidth: '1200px',
+          margin: '20px auto'
+        }
+      }}
+    >
+      <DialogTitle>Chi tiết đơn hàng #{order.id}</DialogTitle>
       <DialogContent>
         <Grid container spacing={3}>
-          <Grid item xs={6}><Typography variant="subtitle2">Mã đơn hàng</Typography><Typography>{order?.id}</Typography></Grid>
-          <Grid item xs={6}><Typography variant="subtitle2">Mã người dùng</Typography><Typography>{order?.user_id}</Typography></Grid>
-          <Grid item xs={6}><Typography variant="subtitle2">Tổng tiền</Typography><Typography>{formatCurrency(order?.total_price || 0)}</Typography></Grid>
-          <Grid item xs={6}><Typography variant="subtitle2">Phương thức thanh toán</Typography><Typography>{getPaymentMethodText(order?.payment_method)}</Typography></Grid>
-          <Grid item xs={6}><Typography variant="subtitle2">Ngày tạo</Typography><Typography>{order?.created_at}</Typography></Grid>
-          <Grid item xs={6}><Typography variant="subtitle2">Trạng thái đơn hàng</Typography><Label color={getStatusColor(order?.status)}>{getStatusText(order?.status)}</Label></Grid>
-          <Grid item xs={6}><Typography variant="subtitle2">Trạng thái thanh toán</Typography><Label color={getPaymentStatusColor(order?.payment_status)}>{getPaymentStatusText(order?.payment_status)}</Label></Grid>
+          {/* Order Information */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Thông tin đơn hàng
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Box sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+              <Typography variant="body1" gutterBottom>
+                Mã đơn hàng: #{order.id}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Ngày đặt: {order.created_at}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Phương thức thanh toán: {getPaymentMethodLabel(order.payment_method)}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Trạng thái thanh toán: {getPaymentStatusLabel(order.payment_status)}
+              </Typography>
+            </Box>
+          </Grid>
+          {order.voucher && (
+            <Grid item xs={12}>
+              <Box sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 1, mt: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  Thông tin voucher
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                  Mã voucher: {order.voucher.code}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                  Loại giảm giá: {order.voucher.discount_type === 1 ? 'Phần trăm' : 'Giảm trực tiếp'}
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                  Giá trị giảm: {order.voucher.discount_type === 1 ? 
+                    `${order.voucher.discount_value}%` : 
+                    formatCurrency(order.voucher.discount_value)}
+                </Typography>
+                {/* <Typography variant="body1" gutterBottom>
+                  Hạn sử dụng: {order.voucher.start_date} - {order.voucher.end_date}
+                </Typography> */}
+              </Box>
+            </Grid>
+          )}
+          {/* Shipping Information */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Địa chỉ giao hàng
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Người nhận
+                  </Typography>
+                  <Typography>{order.shipping_name}</Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Số điện thoại
+                  </Typography>
+                  <Typography>{order.shipping_phone}</Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Địa chỉ
+                  </Typography>
+                  <Typography>
+                    {order.shipping_address}, {order.shipping_ward_name}, {order.shipping_district_name}, {order.shipping_city_name}
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+          </Grid>
+
+          {/* Order Items */}
+          <Grid item xs={12}>
+            <Typography variant="h6" gutterBottom>
+              Sản phẩm
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Sản phẩm</TableCell>
+                    <TableCell>Thông tin</TableCell>
+                    <TableCell align="right">Đơn giá</TableCell>
+                    <TableCell align="right">Số lượng</TableCell>
+                    <TableCell align="right">Thành tiền</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {order.order_detail.map((detail) => (
+                    <TableRow key={detail.id}>
+                      <TableCell>
+                        <Box display="flex" alignItems="center">
+                          <img
+                            src={detail.product_detail.image_url}
+                            alt={detail.product_detail.name}
+                            style={{ width: 50, height: 50, objectFit: 'cover', marginRight: 10 }}
+                          />
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Box display="flex" flexDirection="column" gap={1}>
+                          <Typography variant="body2">{detail.product_detail.name}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {detail.product_detail.color} - {detail.product_detail.size}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell align="right">{formatCurrency(detail.price)}</TableCell>
+                      <TableCell align="right">{detail.quantity}</TableCell>
+                      <TableCell align="right">{formatCurrency(detail.total_price)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <Box sx={{ mt: 2 }}>
+              <Grid container justifyContent="flex-end" spacing={1}>
+                <Grid item xs={6}>
+                  <Typography variant="body1" align="right">
+                    Tổng tiền hàng:
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body1" align="right">
+                    {formatCurrency(order.price)}
+                  </Typography>
+                </Grid>
+                {order.discount_amount > 0 && (
+                  <>
+                    <Grid item xs={6}>
+                      <Typography variant="body1" align="right">
+                        Giảm giá:
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Typography variant="body1" align="right" color="error">
+                        -{formatCurrency(order.discount_amount)}
+                      </Typography>
+                    </Grid>
+                  </>
+                )}
+                {order.amount_shipping > 0 && (
+                  <>
+                    <Grid item xs={6}>
+                      <Typography variant="body1" align="right">
+                        Phí vận chuyển:
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Typography variant="body1" align="right" color="primary">
+                        +{formatCurrency(order.amount_shipping)}
+                      </Typography>
+                    </Grid>
+                  </>
+                )}
+                <Divider sx={{ my: 1, width: '100%' }} />
+                <Grid item xs={6}>
+                  <Typography variant="h6" align="right">
+                    Tổng cộng:
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="h6" align="right">
+                    {formatCurrency(order.total_price)}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Box>
+          </Grid>
         </Grid>
-
-        <Divider sx={{ my: 3 }} />
-
-        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-          <Button variant="outlined" onClick={handleExportExcel}>Xuất Excel</Button>
-          <Button variant="outlined" color="secondary" onClick={handleExportPDF}>Xuất PDF</Button>
-        </Box>
-
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell align="center">Hình ảnh</TableCell>
-                <TableCell align="center">Mã SP</TableCell>
-                <TableCell align="center">Tên SP</TableCell>
-                <TableCell align="center">Màu</TableCell>
-                <TableCell align="center">Size</TableCell>
-                <TableCell align="center">Số lượng</TableCell>
-                <TableCell align="center">Đơn giá</TableCell>
-                <TableCell align="center">Thành tiền</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {order?.order_detail.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell align="center">
-                    <Box
-                      component="img"
-                      src={item.product_detail.image_url}
-                      alt={item.product_detail.name}
-                      sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1 }}
-                    />
-                  </TableCell>
-                  <TableCell align="center">{item.product_detail.product_id}</TableCell>
-                  <TableCell align="center">{item.product_detail.name}</TableCell>
-                  <TableCell align="center">{item.product_detail.color}</TableCell>
-                  <TableCell align="center">{item.product_detail.size}</TableCell>
-                  <TableCell align="center">{item.quantity}</TableCell>
-                  <TableCell align="center">{formatCurrency(item.price)}</TableCell>
-                  <TableCell align="center">{formatCurrency(item.total_price)}</TableCell>
-                </TableRow>
-              ))}
-              <TableRow>
-                <TableCell colSpan={7} align="right">
-                  <Typography fontWeight="bold">Tổng cộng:</Typography>
-                </TableCell>
-                <TableCell align="center">
-                  <Typography fontWeight="bold">{formatCurrency(order?.total_price || 0)}</Typography>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="outlined">Đóng</Button>
+        <Button onClick={handleExportExcel} variant="outlined" startIcon={<Save />}>Export Excel</Button>
+        <Button onClick={handleExportPDF} variant="outlined" startIcon={<Save />}>Export PDF</Button>
+        <Button onClick={onClose}>Đóng</Button>
       </DialogActions>
     </Dialog>
   );

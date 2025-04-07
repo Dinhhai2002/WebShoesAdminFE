@@ -11,6 +11,7 @@ import TableCellComponent from 'src/components/TableCellComponent/TableCellCompo
 import IconActions from 'src/components/IconActions/IconActions';
 import { StatusEnum } from 'src/utils/enum/StatusEnum';
 import DialogDelete from './DialogDelete';
+import { getRoleLabel } from 'src/utils/LabelTable';
 
 function TableListUser({
   listUser,
@@ -46,7 +47,9 @@ function TableListUser({
                     <TableCellComponent position={'center'} value={item.full_name} />
                     <TableCellComponent position={'center'} value={item.email} />
                     <TableCellComponent position={'center'} value={item.phone} />
-
+                    <TableCell align="center">
+                      {getRoleLabel(item.role)}
+                    </TableCell>
                     <TableCell align="center">
                       {getStatusLabel(item.is_active, 'Active', 'Inactive')}
                     </TableCell>

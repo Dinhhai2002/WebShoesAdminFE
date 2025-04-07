@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import userApiService from 'src/services/API/UserApiService';
 import { LIMIT_DEFAULT, PAGE_DEFAULT } from 'src/utils/Constant';
 import { StatusEnum } from 'src/utils/enum/StatusEnum';
+import { RoleEnum } from 'src/utils/enum/RoleEnum';
 import { RecentOrdersTable } from './RecentOrdersTable';
 
 function RecentOrders({ changeData }: any) {
@@ -12,12 +13,14 @@ function RecentOrders({ changeData }: any) {
   const fetchUsers = (
     valueSearch: string,
     statusValue: number,
+    roleValue: number,
     page: number,
     limit: number
   ) => {
     userApiService.getAllUsers({
       key_search: valueSearch,
       status: statusValue,
+      role: roleValue,
       page: page,
       limit: limit
     })
@@ -29,20 +32,21 @@ function RecentOrders({ changeData }: any) {
   };
 
   useEffect(() => {
-    fetchUsers('', StatusEnum.ALL, PAGE_DEFAULT, LIMIT_DEFAULT);
+    fetchUsers('', StatusEnum.ALL, -1, PAGE_DEFAULT, LIMIT_DEFAULT);
   }, []);
 
   useEffect(() => {
-    fetchUsers('', StatusEnum.ALL, PAGE_DEFAULT, LIMIT_DEFAULT);
+    fetchUsers('', StatusEnum.ALL, -1, PAGE_DEFAULT, LIMIT_DEFAULT);
   }, [changeData]);
 
   const onClickPagination = (
     valueSearch: string,
     page: number,
     limit: number,
-    statusValue: number
+    statusValue: number,
+    roleValue: number
   ) => {
-    fetchUsers(valueSearch, statusValue, page, limit);
+    fetchUsers(valueSearch, statusValue, roleValue, page, limit);
   };
 
   return (
@@ -56,4 +60,4 @@ function RecentOrders({ changeData }: any) {
   );
 }
 
-export default RecentOrders; 
+export default RecentOrders;

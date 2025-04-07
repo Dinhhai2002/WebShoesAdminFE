@@ -51,7 +51,7 @@ function Overview() {
 
   const fetchTopOrders = async () => {
     try {
-      const res = await orderApi.findAll({ page: 1, limit: 10 });
+      const res = await orderApi.findAll({ page: 0, limit: 10 });
       setTopOrders(res.data.list);
     } catch {
       toast.error('Không thể tải đơn hàng mới');

@@ -3,6 +3,7 @@ import BaseApiService from "./BaseApiService";
 import { StatusOrderEnum } from "../../utils/enum/StatusOrderEnum";
 import { PaymentStatusEnum } from "../../utils/enum/PaymentStatusEnum";
 import handleResponseApi from "../handleResponseApi/handleResponseApi";
+import { Voucher } from "./VoucherApi";
 
 interface ProductDetail {
     id: number;
@@ -37,6 +38,7 @@ export interface Order {
     voucher_id: number | null;
     price: number;
     discount_amount: number;
+    amount_shipping: number;
     total_price: number;
     payment_method: number;
     payment_status: PaymentStatusEnum;
@@ -54,6 +56,7 @@ export interface Order {
     shipping_city_name: string;
     shipping_address: string;
     customer_phone: string;
+    voucher : Voucher
 }
 
 interface OrderQueryParams {
