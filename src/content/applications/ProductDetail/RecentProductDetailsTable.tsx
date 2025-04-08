@@ -74,12 +74,12 @@ function RecentProductDetailsTable({
   const [selectedStatus, setSelectedStatus] = useState<number>(1);
 
   // Add state variables for the new filters
-  const [productId, setProductId] = useState<number>(0);
-  const [categoryId, setCategoryId] = useState<number>(0);
-  const [colorId, setColorId] = useState<number>(0);
-  const [materialId, setMaterialId] = useState<number>(0);
-  const [brandId, setBrandId] = useState<number>(0);
-  const [sizeId, setSizeId] = useState<number>(0);
+  const [productId, setProductId] = useState<number>(-1);
+  const [categoryId, setCategoryId] = useState<number>(-1);
+  const [colorId, setColorId] = useState<number>(-1);
+  const [materialId, setMaterialId] = useState<number>(-1);
+  const [brandId, setBrandId] = useState<number>(-1);
+  const [sizeId, setSizeId] = useState<number>(-1);
 
   // State variables for dropdown options
   const [productOptions, setProductOptions] = useState<any[]>([]);
@@ -93,20 +93,24 @@ function RecentProductDetailsTable({
     const fetchData = async () => {
       try {
         const [productRes, brandRes, catRes, colorRes, sizeRes, matRes] = await Promise.all([
-          productApi.findAll({ key_search: keySearch, status: 1, page: 1, limit: 100 }),
-          brandApi.findAll({ key_search: keySearch, status: 1, page: 1, limit: 100 }),
-          categoryApi.findAll({ key_search: keySearch, status: 1, page: 1, limit: 100 }),
-          colorApi.findAll({ key_search: keySearch, status: 1, page: 1, limit: 100 }),
-          sizeApi.findAll({ key_search: keySearch, status: 1, page: 1, limit: 100 }),
-          materialApi.findAll({ key_search: keySearch, status: 1, page: 1, limit: 100 })
+          productApi.findAll({ key_search: "", status: 1, page: 1, limit: 100 }),
+          brandApi.findAll({ key_search: "", status: 1, page: 1, limit: 100 }),
+          categoryApi.findAll({ key_search: "", status: 1, page: 1, limit: 100 }),
+          colorApi.findAll({ key_search: "", status: 1, page: 1, limit: 100 }),
+          sizeApi.findAll({ key_search: "", status: 1, page: 1, limit: 100 }),
+          materialApi.findAll({ key_search: "", status: 1, page: 1, limit: 100 })
         ]);
 
-        setProductOptions(productRes.data.list);
-        setBrandOptions(brandRes.data.list);
-        setCategoryOptions(catRes.data.list);
-        setColorOptions(colorRes.data.list);
-        setSizeOptions(sizeRes.data.list);
-        setMaterialOptions(matRes.data.list);
+        // Add "All" option with value -1 to all dropdowns
+        const addAllOption = (options: any[], label: string) =>
+          [{ id: -1, name: 'Tất cả', value: -1 }].concat(options);
+
+        setProductOptions(addAllOption(productRes.data.list, 'Tất cả sản phẩm'));
+        setBrandOptions(addAllOption(brandRes.data.list, 'Tất cả thương hiệu'));
+        setCategoryOptions(addAllOption(catRes.data.list, 'Tất cả danh mục'));
+        setColorOptions(addAllOption(colorRes.data.list, 'Tất cả màu sắc'));
+        setSizeOptions(addAllOption(sizeRes.data.list, 'Tất cả kích cỡ'));
+        setMaterialOptions(addAllOption(matRes.data.list, 'Tất cả chất liệu'));
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Không thể tải dữ liệu');
@@ -181,6 +185,7 @@ function RecentProductDetailsTable({
   const handleChangeSearch = (value: string) => {
     setKeySearch(value);
     setPage(0);
+    // Keep all filter values during search
     onClickPagination(
       value,
       1,
@@ -380,22 +385,22 @@ function RecentProductDetailsTable({
                   }
                   label="Tìm kiếm sản phẩm con"
                 />
-                 <Button
-                    variant="outlined"
-                    sx={{ml:1}}
-                    onClick={() => {
-                      setProductId(0);
-                      setCategoryId(0);
-                      setColorId(0);
-                      setMaterialId(0);
-                      setBrandId(0);
-                      setSizeId(0);
-                      setKeySearch("");
-                      onClickPagination("", 1, limit, status, 0, 0, 0, 0, 0, 0);
-                    }}
-                  >
-                    Xóa bộ lọc
-                  </Button>
+                <Button
+                  variant="outlined"
+                  sx={{ ml: 1 }}
+                  onClick={() => {
+                    setProductId(-1);
+                    setCategoryId(-1);
+                    setColorId(-1);
+                    setMaterialId(-1);
+                    setBrandId(-1);
+                    setSizeId(-1);
+                    setKeySearch("");
+                    onClickPagination("", 1, limit, status, -1, -1, -1, -1, -1, -1);
+                  }}
+                >
+                  Xóa bộ lọc
+                </Button>
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <DropDownComponent

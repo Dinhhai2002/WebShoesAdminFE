@@ -49,7 +49,7 @@ function ProductDetailManagement() {
   return (
     <>
       <Helmet>
-        <title>Quản lý sản phẩm con</title>
+        <title>Quản lý chi tiết sản phẩm</title>
       </Helmet>
       <Container maxWidth="lg">
         <Grid
