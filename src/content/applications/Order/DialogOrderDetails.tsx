@@ -71,7 +71,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
     const statusMap = {
       [StatusOrderEnum.PENDING]: { text: 'Chờ xác nhận', color: 'warning' },
       [StatusOrderEnum.CONFIRMED]: { text: 'Đã xác nhận', color: 'success' },
-      [StatusOrderEnum.PROCESSING]: { text: 'Đang xử lý', color: 'info' },
+      [StatusOrderEnum.PROCESSING]: { text: 'Đang chuẩn bị hàng', color: 'info' },
       [StatusOrderEnum.SHIPPED]: { text: 'Đã gửi hàng', color: 'primary' },
       [StatusOrderEnum.DELIVERED]: { text: 'Đã giao hàng', color: 'success' },
       [StatusOrderEnum.CANCELLED]: { text: 'Đã hủy', color: 'error' },
@@ -207,6 +207,9 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
               </Typography>
               <Typography variant="body1" gutterBottom>
                 Trạng thái thanh toán: {getPaymentStatusLabel(order.payment_status)}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+                Trạng thái đơn hàng: {getStatusLabel(order.status)}
               </Typography>
             </Box>
           </Grid>

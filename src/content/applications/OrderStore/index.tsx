@@ -226,12 +226,12 @@ function CreateStaffOrderForm() {
 
           <Grid item xs={12}>
             <Box display="flex" justifyContent="flex-end" flexDirection="column" alignItems="flex-end" gap={1}>
-              <Box display="flex" alignItems="center" gap={1}>
+              {/* <Box display="flex" alignItems="center" gap={1}>
                 <LocalShippingIcon color="primary" />
                 <Typography variant="subtitle1" fontWeight="bold">
                   Phí vận chuyển: <span style={{ color: '#1976d2' }}>0₫</span>
                 </Typography>
-              </Box>
+              </Box> */}
               <Box display="flex" alignItems="center" gap={1}>
                 <MonetizationOnIcon color="success" />
                 <Typography variant="h6" fontWeight="bold">

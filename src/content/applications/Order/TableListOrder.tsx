@@ -83,7 +83,7 @@ function TableListOrder({
       case StatusOrderEnum.CONFIRMED:
         return 'Đã xác nhận';
       case StatusOrderEnum.PROCESSING:
-        return 'Đang xử lý';
+        return 'Đang chuẩn bị hàng';
       case StatusOrderEnum.SHIPPED:
         return 'Đã gửi hàng';
       case StatusOrderEnum.DELIVERED:
