@@ -63,6 +63,8 @@ interface OrderQueryParams {
     user_id?: number;
     key_search?: string;
     status?: number;
+    payment_status?: PaymentStatusEnum;
+    payment_method?: number;
     page?: number;
     limit?: number;
 }
@@ -121,6 +123,8 @@ class OrderApi extends BaseApiService {
                 user_id: params.user_id,
                 key_search: params.key_search,
                 status: params.status,
+                payment_status: params.payment_status,
+                payment_method: params.payment_method,
                 page: params.page,
                 limit: params.limit
             }

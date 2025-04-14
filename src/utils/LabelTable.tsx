@@ -557,7 +557,7 @@ export const statusOptionsOrder = [
   { id: -1, name: 'Tất cả' },
   { id: StatusOrderEnum.PENDING, name: 'Chờ xác nhận' },
   { id: StatusOrderEnum.CONFIRMED, name: 'Đã xác nhận' },
-  { id: StatusOrderEnum.PROCESSING, name: 'Đang xử lý' },
+  { id: StatusOrderEnum.PROCESSING, name: 'Đang chuẩn bị hàng' },
   { id: StatusOrderEnum.SHIPPED, name: 'Đã gửi hàng' },
   { id: StatusOrderEnum.DELIVERED, name: 'Đã giao hàng' },
   { id: StatusOrderEnum.CANCELLED, name: 'Đã hủy' }
@@ -637,3 +637,10 @@ export const getRoleLabel = (roleId: number): JSX.Element => {
 
   return <Label color={color}>{text}</Label>;
 };
+
+export const paymentMethodOptions = [
+  { id: -1, name: 'Tất cả' },
+  { id: 1, name: 'COD' },
+  { id: 2, name: 'VNPAY' },
+  { id: 3, name: 'Tại cửa hàng' }
+];

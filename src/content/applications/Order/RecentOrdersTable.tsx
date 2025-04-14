@@ -18,7 +18,8 @@ import { PAGE_DEFAULT } from 'src/utils/Constant';
 import {
   labelTableOrder,
   statusOptionsOrder,
-  paymentStatusOptions
+  paymentStatusOptions,
+  paymentMethodOptions
 } from 'src/utils/LabelTable';
 import { EditSuccess } from 'src/utils/MessageToast';
 import TableListOrder from './TableListOrder';
@@ -26,7 +27,7 @@ import TableListOrder from './TableListOrder';
 interface RecentOrdersTableProps {
   listOrder: any[];
   totalRecord: number;
-  onClickPagination: (valueSearch: string, page: number, limit: number, statusValue: number, paymentStatusValue: number) => void;
+  onClickPagination: (valueSearch: string, page: number, limit: number, statusValue: number, paymentStatusValue: number, paymentMethodValue: number) => void;
 }
 
 const OrderContext = createContext(null);
@@ -40,6 +41,7 @@ const RecentOrdersTable = ({
   const [limit, setLimit] = useState<number>(10);
   const [statusValue, setStatusValue] = useState<number>(-1);
   const [paymentStatusValue, setPaymentStatusValue] = useState<number>(-1);
+  const [paymentMethodValue, setPaymentMethodValue] = useState<number>(-1);
   const [valueSearch, setValueSearch] = useState('');
 
   const theme = useTheme();
@@ -51,6 +53,9 @@ const RecentOrdersTable = ({
 
   const handlePaymentStatusChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPaymentStatusValue(Number(e.target.value));
+  };
+  const handlePaymentMethodChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setPaymentMethodValue(Number(e.target.value));
   };
 
   const handleChangePagination = (
@@ -65,17 +70,17 @@ const RecentOrdersTable = ({
   };
 
   useEffect(() => {
-    onClickPagination(valueSearch, page, limit, statusValue, paymentStatusValue);
+    onClickPagination(valueSearch, page, limit, statusValue, paymentStatusValue, paymentMethodValue);
   }, [page]);
 
   useEffect(() => {
-    onClickPagination(valueSearch, PAGE_DEFAULT, limit, statusValue, paymentStatusValue);
-  }, [limit, statusValue, paymentStatusValue]);
+    onClickPagination(valueSearch, PAGE_DEFAULT, limit, statusValue, paymentStatusValue, paymentMethodValue);
+  }, [limit, statusValue, paymentStatusValue, paymentMethodValue]);
 
   const handleChangeStatusOrder = (id: number, status: number) => {
     orderApi.changeStatus(id, status)
       .then((response) => {
-        onClickPagination(valueSearch, page, limit, statusValue, paymentStatusValue);
+        onClickPagination(valueSearch, page, limit, statusValue, paymentStatusValue, paymentMethodValue);
         toast.success(EditSuccess);
       })
       .catch((error) => {
@@ -88,11 +93,11 @@ const RecentOrdersTable = ({
   };
 
   const handleSubmitSearch = () => {
-    onClickPagination(valueSearch, PAGE_DEFAULT, limit, statusValue, paymentStatusValue);
+    onClickPagination(valueSearch, PAGE_DEFAULT, limit, statusValue, paymentStatusValue, paymentMethodValue);
   };
 
   const onChangeValue = () => {
-    onClickPagination(valueSearch, page, limit, statusValue, paymentStatusValue);
+    onClickPagination(valueSearch, page, limit, statusValue, paymentStatusValue, paymentMethodValue);
   };
 
   return (
@@ -123,6 +128,13 @@ const RecentOrdersTable = ({
                 label="Trạng thái thanh toán"
                 value={paymentStatusValue}
                 handleStatusChange={handlePaymentStatusChange}
+                type={0}
+              />
+              <DropDownComponent
+                arr={paymentMethodOptions}
+                label="Phương thức thanh toán"
+                value={paymentMethodValue}
+                handleStatusChange={handlePaymentMethodChange}
                 type={0}
               />
             </Box>

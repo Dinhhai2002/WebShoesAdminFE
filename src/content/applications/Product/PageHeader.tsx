@@ -162,6 +162,7 @@ function PageHeader({ onSuccess }: PageHeaderProps) {
               variant="contained"
               onClick={handleClickOpenUploadImages} 
               sx={{
+                ml: 1,
                 px: 3,
                 py: 1
               }}

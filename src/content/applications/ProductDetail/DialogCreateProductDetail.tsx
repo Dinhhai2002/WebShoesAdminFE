@@ -72,7 +72,7 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
     }
   });
 
-  const { handleSubmit, reset, watch, setValue } = methods;
+  const { handleSubmit, reset, watch, setValue, formState } = methods;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -135,6 +135,8 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
               margin="normal"
               name="name"
               onChange={(e) => setValue('name', e.target.value)}
+              error={!!formState.errors.name}
+              helperText={formState.errors.name?.message}
             />
             <FormControl fullWidth margin="normal">
               <InputLabel>Sản phẩm</InputLabel>
@@ -227,6 +229,8 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
               type="number"
               name="price"
               onChange={(e) => setValue('price', Number(e.target.value))}
+              error={!!formState.errors.price}
+              helperText={formState.errors.price?.message}
             />
             <TextField
               fullWidth
@@ -235,6 +239,8 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
               type="number"
               name="stock"
               onChange={(e) => setValue('stock', Number(e.target.value))}
+              error={!!formState.errors.stock}
+              helperText={formState.errors.stock?.message}
             />
           </form>
         </FormProvider>

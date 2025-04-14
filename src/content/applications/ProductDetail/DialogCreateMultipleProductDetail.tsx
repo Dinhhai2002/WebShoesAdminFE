@@ -142,6 +142,10 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
       toast.error("Vui lòng tích chọn ít nhất 1 màu, 1 size, 1 chất liệu");
       return;
     }
+    if(price <= 0 || stock <= 0) {
+      toast.error("Giá và số lượng phải lớn hơn 0");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -319,6 +323,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
           type="number"
           value={price}
           onChange={(e) => setPrice(Number(e.target.value))}
+          inputProps={{ min: 0 }}
         />
         <TextField
           fullWidth
@@ -327,6 +332,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
           type="number"
           value={stock}
           onChange={(e) => setStock(Number(e.target.value))}
+          inputProps={{ min: 0 }}
         />
       </DialogContent>
       <DialogActions>
