@@ -568,7 +568,8 @@ export const paymentStatusOptions = [
   { id: PaymentStatusEnum.PENDING, name: 'Chưa thanh toán' },
   { id: PaymentStatusEnum.PROCESSING, name: 'Đang chờ thanh toán' },
   { id: PaymentStatusEnum.PAID, name: 'Đã thanh toán' },
-  { id: PaymentStatusEnum.FAILED, name: 'Thanh toán thất bại' }
+  { id: PaymentStatusEnum.FAILED, name: 'Thanh toán thất bại' },
+  { id: PaymentStatusEnum.CANCELLED, name: 'Đã hủy' }
 ];
 
 export const labelTableBrand = [
