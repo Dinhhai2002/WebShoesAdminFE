@@ -60,11 +60,11 @@ function PageHeader({ onSuccess }: PageHeaderProps) {
 
   useEffect(() => {
     // Fetch brands and categories
-    brandApi.findAll({ key_search: '', status: -1, page: 1, limit: 100 })
+    brandApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 })
       .then(response => setBrands(response.data.list))
       .catch(error => console.error('Error fetching brands:', error));
 
-    categoryApi.findAll({ key_search: '', status: -1, page: 1, limit: 100 })
+    categoryApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 })
       .then(response => setCategories(response.data.list))
       .catch(error => console.error('Error fetching categories:', error));
   }, []);

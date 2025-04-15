@@ -85,7 +85,7 @@ function TableListOrder({
       case StatusOrderEnum.PROCESSING:
         return 'Đang chuẩn bị hàng';
       case StatusOrderEnum.SHIPPED:
-        return 'Đã gửi hàng';
+        return 'Đang giao hàng';
       case StatusOrderEnum.DELIVERED:
         return 'Đã giao hàng';
       case StatusOrderEnum.CANCELLED:

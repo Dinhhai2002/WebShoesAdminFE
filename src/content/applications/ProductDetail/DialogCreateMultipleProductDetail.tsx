@@ -54,8 +54,8 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
 
   // Form selections
   const [selectedProduct, setSelectedProduct] = useState<number>(0);
-  const [selectedBrand, setSelectedBrand] = useState<number>(0);
-  const [selectedCategory, setSelectedCategory] = useState<number>(0);
+  const [selectedBrand, setSelectedBrand] = useState<number>(1);
+  const [selectedCategory, setSelectedCategory] = useState<number>(1);
 
   // Chứa ID của color/size/material user đã check
   const [selectedColors, setSelectedColors] = useState<number[]>([]);
@@ -63,7 +63,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
   const [selectedMaterials, setSelectedMaterials] = useState<number[]>([]);
 
   // Thông tin giá, tồn kho, ...
-  const [price, setPrice] = useState<number>(0);
+  const [price, setPrice] = useState<number>(1);
   const [stock, setStock] = useState<number>(0);
 
   // Tên prefix, optional => name = prefix + color + size + material
@@ -134,7 +134,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
 
   // 3. Submit => createAll permutations
   const handleCreateMultiple = async () => {
-    if (!selectedProduct || !selectedBrand || !selectedCategory) {
+    if (!selectedProduct) {
       toast.error("Vui lòng chọn Sản phẩm, Thương hiệu, Danh mục");
       return;
     }
@@ -142,8 +142,8 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
       toast.error("Vui lòng tích chọn ít nhất 1 màu, 1 size, 1 chất liệu");
       return;
     }
-    if(price <= 0 || stock <= 0) {
-      toast.error("Giá và số lượng phải lớn hơn 0");
+    if(stock <= 0) {
+      toast.error("số lượng phải lớn hơn 0");
       return;
     }
 
@@ -219,7 +219,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
             ))}
           </Select>
         </FormControl>
-        <FormControl fullWidth margin="normal">
+        {/* <FormControl fullWidth margin="normal">
           <InputLabel>Thương hiệu</InputLabel>
           <Select
             value={selectedBrand}
@@ -248,7 +248,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
 
         {/* Checkbox Màu sắc */}
         <Typography variant="subtitle1" sx={{ mt: 2 }}>
@@ -316,7 +316,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
           value={namePrefix}
           onChange={(e) => setNamePrefix(e.target.value)}
         />
-        <TextField
+        {/* <TextField
           fullWidth
           margin="normal"
           label="Giá"
@@ -324,7 +324,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
           value={price}
           onChange={(e) => setPrice(Number(e.target.value))}
           inputProps={{ min: 0 }}
-        />
+        /> */}
         <TextField
           fullWidth
           margin="normal"

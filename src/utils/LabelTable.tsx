@@ -558,7 +558,7 @@ export const statusOptionsOrder = [
   { id: StatusOrderEnum.PENDING, name: 'Chờ xác nhận' },
   { id: StatusOrderEnum.CONFIRMED, name: 'Đã xác nhận' },
   { id: StatusOrderEnum.PROCESSING, name: 'Đang chuẩn bị hàng' },
-  { id: StatusOrderEnum.SHIPPED, name: 'Đã gửi hàng' },
+  { id: StatusOrderEnum.SHIPPED, name: 'Đang giao hàng' },
   { id: StatusOrderEnum.DELIVERED, name: 'Đã giao hàng' },
   { id: StatusOrderEnum.CANCELLED, name: 'Đã hủy' }
 ];
