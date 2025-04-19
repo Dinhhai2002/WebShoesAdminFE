@@ -12,10 +12,14 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import BlockIcon from '@mui/icons-material/Block';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import DialogStatusProductDetail from './DialogStatusProductDetail';
 import DialogEditProductDetail from './DialogEditProductDetail';
+import DialogDetailProductDetail from './DialogDetailProductDetail';
 import { useState } from 'react';
 import { ProductDetail } from 'src/services/API/ProductDetailApi';
+import productDetailApi from 'src/services/API/ProductDetailApi';
+import { toast } from 'react-toastify';
 
 interface TableListProductDetailProps {
   listProductDetail: ProductDetail[];
@@ -34,8 +38,10 @@ function TableListProductDetail({
 }: TableListProductDetailProps) {
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openDetailDialog, setOpenDetailDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<number>(0);
   const [selectedStatus, setSelectedStatus] = useState<number>(1);
+  const [selectedDetailId, setSelectedDetailId] = useState<number | null>(null);
 
   const handleClickOpenStatusDialog = (id: number, status: number) => {
     setSelectedId(id);
@@ -75,6 +81,8 @@ function TableListProductDetail({
                 <TableCell key={label.id}>{label.label}</TableCell>
               ))}
               <TableCell align="right">Thao tác</TableCell>
+              {/* <TableCell align="right">Barcode</TableCell> */}
+              <TableCell align="right">Chi tiết</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -118,6 +126,41 @@ function TableListProductDetail({
                     </IconButton>
                   </Tooltip>
                 </TableCell>
+                {/* <TableCell>
+                  {product.barcode && (
+                    <Tooltip title="Xem barcode">
+                      <IconButton
+                        size="small"
+                        onClick={async () => {
+                          try {
+                            const blob = await productDetailApi.getBarcodeImage(product.barcode);
+                            const url = URL.createObjectURL(blob);
+                            window.open(url, '_blank');
+                          } catch (error: any) {
+                            toast.error(error?.message || 'Không thể lấy hình ảnh barcode!');
+                          }
+                        }}
+                        sx={{ color: 'secondary.main' }}
+                      >
+                        <img src="https://img.icons8.com/ios-filled/24/000000/barcode.png" alt="barcode icon" style={{ width: 20, height: 20 }} />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </TableCell> */}
+                <TableCell align="right">
+                  <Tooltip title="Xem chi tiết">
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setSelectedDetailId(product.id);
+                        setOpenDetailDialog(true);
+                      }}
+                      sx={{ color: 'info.main' }}
+                    >
+                      <VisibilityIcon />
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -137,6 +180,12 @@ function TableListProductDetail({
         onClose={handleCloseEditDialog}
         id={selectedId}
         onSuccess={onRefresh}
+      />
+
+      <DialogDetailProductDetail
+        open={openDetailDialog}
+        onClose={() => setOpenDetailDialog(false)}
+        id={selectedDetailId}
       />
     </>
   );
