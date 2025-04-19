@@ -14,9 +14,9 @@ import {
   TextField
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'react-toastify';
-import { useForm, FormProvider, SubmitHandler } from 'react-hook-form';
+import { useForm, FormProvider, SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import productDetailApi, { CRUDProductDetailRequest } from 'src/services/API/ProductDetailApi';
@@ -65,25 +65,39 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
       color_id: 0,
       size_id: 0,
       material_id: 0,
-      brand_id: 0,
-      category_id: 0,
+      brand_id: 1,
+      category_id: 1,
       price: 0,
       stock: 0
     }
   });
 
-  const { handleSubmit, reset, watch, setValue, formState } = methods;
+  const { handleSubmit, reset, watch, setValue, formState, control, register } = methods;
+
+  // Lấy productId để dùng trong useEffect
+  const productId = watch('product_id');
+
+  // Set price when product changes
+  useEffect(() => {
+    if (productId && products.length > 0) {
+      const selectedProduct = products.find((p) => p.id === productId);
+      if (selectedProduct && typeof selectedProduct.price === 'number') {
+        setValue('price', selectedProduct.price);
+      }
+    }
+  }, [productId, products, setValue]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const productsRes = await productApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 });
-        const colorsRes = await colorApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 });
-        const sizesRes = await sizeApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 });
-        const materialsRes = await materialApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 });
-        const brandsRes = await brandApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 });
-        const categoriesRes = await categoryApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 });
-
+        const [productsRes, colorsRes, sizesRes, materialsRes, brandsRes, categoriesRes] = await Promise.all([
+          productApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),
+          colorApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),
+          sizeApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),
+          materialApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),
+          brandApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 }),
+          categoryApi.findAll({ key_search: '', status: 1, page: 1, limit: 100 })
+        ]);
         setProducts(productsRes.data.list);
         setColors(colorsRes.data.list);
         setSizes(sizesRes.data.list);
@@ -194,7 +208,7 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
                 ))}
               </Select>
             </FormControl>
-            <FormControl fullWidth margin="normal">
+            {/* <FormControl fullWidth margin="normal">
               <InputLabel>Thương hiệu</InputLabel>
               <Select
                 value={watch('brand_id')}
@@ -207,8 +221,8 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl>
-            <FormControl fullWidth margin="normal">
+            </FormControl> */}
+            {/* <FormControl fullWidth margin="normal">
               <InputLabel>Danh mục</InputLabel>
               <Select
                 value={watch('category_id')}
@@ -221,17 +235,16 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
                   </MenuItem>
                 ))}
               </Select>
+            </FormControl> */}
+            <FormControl fullWidth margin="normal">
+              <TextField
+                label="Giá"
+                type="number"
+                {...register('price', { valueAsNumber: true })}
+                fullWidth
+                margin="normal"
+              />
             </FormControl>
-            <TextField
-              fullWidth
-              label="Giá"
-              margin="normal"
-              type="number"
-              name="price"
-              onChange={(e) => setValue('price', Number(e.target.value))}
-              error={!!formState.errors.price}
-              helperText={formState.errors.price?.message}
-            />
             <TextField
               fullWidth
               label="Số lượng"

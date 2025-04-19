@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -109,31 +109,41 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
     }
   }, [open]);
 
-  // 2. Toggle checkbox color/size/material
-  const handleToggleColor = (id: number) => {
-    if (selectedColors.includes(id)) {
-      setSelectedColors(selectedColors.filter(c => c !== id));
-    } else {
-      setSelectedColors([...selectedColors, id]);
+  // Set price when selectedProduct changes
+  useEffect(() => {
+    if (selectedProduct && products.length > 0) {
+      const selected = products.find((p) => p.id === selectedProduct);
+      if (selected && typeof selected.price === 'number') {
+        setPrice(selected.price);
+      }
     }
-  };
-  const handleToggleSize = (id: number) => {
-    if (selectedSizes.includes(id)) {
-      setSelectedSizes(selectedSizes.filter(c => c !== id));
-    } else {
-      setSelectedSizes([...selectedSizes, id]);
-    }
-  };
-  const handleToggleMaterial = (id: number) => {
-    if (selectedMaterials.includes(id)) {
-      setSelectedMaterials(selectedMaterials.filter(c => c !== id));
-    } else {
-      setSelectedMaterials([...selectedMaterials, id]);
-    }
-  };
+  }, [selectedProduct, products]);
+
+  // Helper to toggle item in array
+  const toggleSelection = (selected: number[], id: number): number[] =>
+    selected.includes(id) ? selected.filter((c) => c !== id) : [...selected, id];
+
+  // Abstracted toggle handlers
+  const handleToggleColor = useCallback((id: number) => {
+    setSelectedColors((prev) => toggleSelection(prev, id));
+  }, []);
+  const handleToggleSize = useCallback((id: number) => {
+    setSelectedSizes((prev) => toggleSelection(prev, id));
+  }, []);
+  const handleToggleMaterial = useCallback((id: number) => {
+    setSelectedMaterials((prev) => toggleSelection(prev, id));
+  }, []);
+
+  // Memoize menu items for performance if lists are large
+  const productMenuItems = useMemo(() => [
+    <MenuItem value={0} key={0}>-- Chọn sản phẩm --</MenuItem>,
+    ...products.map((prod) => (
+      <MenuItem key={prod.id} value={prod.id}>{prod.name}</MenuItem>
+    ))
+  ], [products]);
 
   // 3. Submit => createAll permutations
-  const handleCreateMultiple = async () => {
+  const handleCreateMultiple = useCallback(async () => {
     if (!selectedProduct) {
       toast.error("Vui lòng chọn Sản phẩm, Thương hiệu, Danh mục");
       return;
@@ -190,7 +200,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProduct, selectedColors, selectedSizes, selectedMaterials, selectedBrand, selectedCategory, price, stock, namePrefix, colors, sizes, materials, onClose]);
 
   return (
     <Dialog
@@ -211,12 +221,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
             onChange={(e) => setSelectedProduct(Number(e.target.value))}
             label="Sản phẩm"
           >
-            <MenuItem value={0}>-- Chọn sản phẩm --</MenuItem>
-            {products.map((prod) => (
-              <MenuItem key={prod.id} value={prod.id}>
-                {prod.name}
-              </MenuItem>
-            ))}
+            {productMenuItems}
           </Select>
         </FormControl>
         {/* <FormControl fullWidth margin="normal">
@@ -316,15 +321,16 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
           value={namePrefix}
           onChange={(e) => setNamePrefix(e.target.value)}
         />
-        {/* <TextField
-          fullWidth
-          margin="normal"
-          label="Giá"
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
-          inputProps={{ min: 0 }}
-        /> */}
+        <FormControl fullWidth margin="normal">
+          <TextField
+            label="Giá"
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            fullWidth
+            margin="normal"
+          />
+        </FormControl>
         <TextField
           fullWidth
           margin="normal"
