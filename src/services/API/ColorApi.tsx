@@ -54,8 +54,8 @@ class ColorApi extends BaseApiService {
             const response: AxiosResponse<ApiResponse<Color>> = await this.api.get(`/color/${id}`);
             handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
@@ -65,8 +65,8 @@ class ColorApi extends BaseApiService {
             const response: AxiosResponse<ApiResponse<Color>> = await this.api.post(`/color/${id}/change-status`);
             handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 

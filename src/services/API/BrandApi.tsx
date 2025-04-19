@@ -61,9 +61,10 @@ class BrandApi extends BaseApiService {
     async getAll(): Promise<ApiResponse<Brand[]>> {
         try {
             const response: AxiosResponse<ApiResponse<Brand[]>> = await this.api.get("/brand/all");
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
@@ -71,9 +72,10 @@ class BrandApi extends BaseApiService {
     async findOne(id: number): Promise<ApiResponse<Brand>> {
         try {
             const response: AxiosResponse<ApiResponse<Brand>> = await this.api.get(`/brand/${id}`);
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
@@ -81,9 +83,10 @@ class BrandApi extends BaseApiService {
     async changeStatus(id: number): Promise<ApiResponse<Brand>> {
         try {
             const response: AxiosResponse<ApiResponse<Brand>> = await this.api.post(`/brand/${id}/change-status`);
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 

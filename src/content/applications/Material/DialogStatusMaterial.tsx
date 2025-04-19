@@ -39,7 +39,7 @@ function DialogStatusMaterial({
       handleChangeStatus(id);
       onClose();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Có lỗi xảy ra!');
+      toast.error(error?.message || 'Đã có lỗi xảy ra!');
     } finally {
       setLoading(false);
     }

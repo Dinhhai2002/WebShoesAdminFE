@@ -51,9 +51,10 @@ class SizeApi extends BaseApiService {
     async findOne(id: number): Promise<ApiResponse<Size>> {
         try {
             const response: AxiosResponse<ApiResponse<Size>> = await this.api.get(`/size/${id}`);
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
@@ -61,9 +62,10 @@ class SizeApi extends BaseApiService {
     async changeStatus(id: number): Promise<ApiResponse<Size>> {
         try {
             const response: AxiosResponse<ApiResponse<Size>> = await this.api.post(`/size/${id}/change-status`);
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 

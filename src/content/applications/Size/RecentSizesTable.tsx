@@ -97,7 +97,7 @@ function RecentSizesTable({
         toast.success('Thay đổi trạng thái thành công!');
       })
       .catch((error) => {
-        toast.error(error.response?.data?.message);
+        toast.error(error?.message || 'Đã có lỗi xảy ra!');
       });
     handleCloseStatus();
   };

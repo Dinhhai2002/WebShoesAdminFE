@@ -119,7 +119,7 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
     try {
       setLoading(true);
       await productDetailApi.create(data as CRUDProductDetailRequest);
-      toast.success('Thêm sản phẩm con mới thành công!');
+      toast.success('Thêm sản phẩm chi tiết mới thành công!');
       reset();
       onClose();
     } catch (error: any) {

@@ -178,7 +178,7 @@ function DialogEditProductDetail({ open, onClose, id, onSuccess }: DialogEditPro
       setPreviewUrl(null);
       setSelectedFile(null);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Lỗi khi upload ảnh!');
+      toast.error(error?.message || 'Đã có lỗi!');
     } finally {
       setUploadLoading(false);
     }

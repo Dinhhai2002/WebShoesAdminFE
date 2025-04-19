@@ -5,6 +5,7 @@ import PageHeader from './PageHeader';
 import RecentProductDetailsTable from './RecentProductDetailsTable';
 import productDetailApi from 'src/services/API/ProductDetailApi';
 import { ProductDetail } from 'src/services/API/ProductDetailApi';
+import { toast } from 'react-toastify';
 
 function ProductDetailManagement() {
   const [listProductDetail, setListProductDetail] = useState<ProductDetail[]>([]);
@@ -37,8 +38,9 @@ function ProductDetailManagement() {
       });
       setListProductDetail(response.data.list);
       setTotalRecord(response.data.total_record);
-    } catch (error) {
-      console.error('Error fetching product details:', error);
+    } catch (error: any) {
+      // Hiển thị toast lỗi rõ ràng khi gọi API thất bại
+     toast.error('Không thể tải danh sách sản phẩm chi tiết!');
     }
   };
 

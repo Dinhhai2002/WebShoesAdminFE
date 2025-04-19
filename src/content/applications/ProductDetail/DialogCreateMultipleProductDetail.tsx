@@ -196,7 +196,7 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
       toast.success(`Tạo thành công ${productDetails.length} sản phẩm con!`);
       onClose();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Không thể tạo nhiều sản phẩm con');
+      toast.error(err?.message || 'Không thể tạo nhiều sản phẩm con');
     } finally {
       setLoading(false);
     }

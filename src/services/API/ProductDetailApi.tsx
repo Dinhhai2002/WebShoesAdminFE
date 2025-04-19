@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
+import handleResponseApi from "../handleResponseApi/handleResponseApi";
 
 export interface ProductDetail {
     id: number;
@@ -83,9 +84,10 @@ class ProductDetailApi extends BaseApiService {
                     limit: params.limit || 10
                 }
             });
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
@@ -93,9 +95,10 @@ class ProductDetailApi extends BaseApiService {
     async findOne(id: number): Promise<ApiResponse<ProductDetail>> {
         try {
             const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.get(`/product-detail/${id}`);
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
@@ -103,9 +106,10 @@ class ProductDetailApi extends BaseApiService {
     async changeStatus(id: number): Promise<ApiResponse<ProductDetail>> {
         try {
             const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.post(`/product-detail/${id}/change-status`);
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
@@ -113,18 +117,20 @@ class ProductDetailApi extends BaseApiService {
     async create(productDetail: CRUDProductDetailRequest): Promise<ApiResponse<ProductDetail>> {
         try {
             const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.post("/product-detail/create", productDetail);
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
     async createMany(productDetails: CRUDProductDetailRequest[]): Promise<ApiResponse<ProductDetail>> {
         try {
             const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.post("/product-detail/create-multiple", productDetails);
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
@@ -132,31 +138,33 @@ class ProductDetailApi extends BaseApiService {
     async update(id: number, productDetail: UpdateProductDetailRequest): Promise<ApiResponse<ProductDetail>> {
         try {
             const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.post(`/product-detail/${id}/update`, productDetail);
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
-     async uploadImage(id: number, file: File): Promise<ApiResponse<ProductDetail>> {
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-                
-                const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.post(
-                    `/product-detail/${id}/image`,
-                    formData,
-                    {
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
+    async uploadImage(id: number, file: File): Promise<ApiResponse<ProductDetail>> {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.post(
+                `/product-detail/${id}/image`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
                     }
-                );
-                return response.data;
-            } catch (error) {
-                throw error;
-            }
+                }
+            );
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
+    }
 }
 
 const token = localStorage.getItem("token") || undefined;

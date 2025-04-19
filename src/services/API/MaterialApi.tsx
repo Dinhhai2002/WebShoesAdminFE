@@ -51,9 +51,10 @@ class MaterialApi extends BaseApiService {
     async findOne(id: number): Promise<ApiResponse<Material>> {
         try {
             const response: AxiosResponse<ApiResponse<Material>> = await this.api.get(`/materials/${id}`);
+            handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
@@ -63,8 +64,8 @@ class MaterialApi extends BaseApiService {
             const response: AxiosResponse<ApiResponse<Material>> = await this.api.post(`/materials/${id}/change-status`);
             handleResponseApi.handleResponse(response);
             return response.data;
-        } catch (error) {
-            throw error;
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
