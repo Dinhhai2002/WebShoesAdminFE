@@ -31,6 +31,7 @@ interface RegisterRequest {
   district_id: number;
   city_id: number;
   full_address: string;
+  role : number;
 }
 
 interface UserResponse {
@@ -152,7 +153,7 @@ class AuthenticationApiService extends BaseApiService {
     }
   }
 
-  public async Register(data: RegisterRequest): Promise<ApiResponse<UserResponse>> {
+  public async register(data: RegisterRequest): Promise<ApiResponse<UserResponse>> {
     try {
       const response = await this.api.post(
         `/authentication/register`,
