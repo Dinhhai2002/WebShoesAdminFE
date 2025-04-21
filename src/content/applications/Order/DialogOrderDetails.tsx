@@ -105,18 +105,18 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
 
   const handleExportExcel = async () => {
     const data = order?.order_detail.map((item) => ({
-      'Mã SP': item.product_detail.product_id,
-      'Tên SP': item.product_detail.name,
-      'Màu sắc': item.product_detail.color,
+      'Product ID': item.product_detail.product_id,
+      'Product Name': item.product_detail.name,
+      'Color': item.product_detail.color,
       'Size': item.product_detail.size,
-      'Số lượng': item.quantity,
-      'Đơn giá': formatCurrency(item.price),
-      'Thành tiền': formatCurrency(item.total_price)
+      'Quantity': item.quantity,
+      'Unit Price': formatCurrency(item.price),
+      'Total Price': formatCurrency(item.total_price)
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'ChiTietDonHang');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'OrderDetails');
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
     saveAs(blob, `Order_${order?.id}.xlsx`);
@@ -126,7 +126,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
     const doc = new jsPDF() as jsPDF & { lastAutoTable?: { finalY?: number } };
 
     doc.setFontSize(16);
-    doc.text(`Chi tiết đơn hàng #${order?.id}`, 14, 14);
+    doc.text(`Order Details #${order?.id}`, 14, 14);
 
     const rows = order?.order_detail.map((item) => [
       item.product_detail.product_id,
@@ -140,7 +140,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
 
     autoTable(doc, {
       head: [[
-        'Mã SP', 'Tên SP', 'Màu sắc', 'Size', 'Số lượng', 'Đơn giá', 'Thành tiền'
+        'Product ID', 'Product Name', 'Color', 'Size', 'Quantity', 'Unit Price', 'Total Price'
       ]],
       body: rows,
       startY: 20
@@ -148,7 +148,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
 
     const finalY = doc.lastAutoTable?.finalY || 30;
     doc.setFontSize(12);
-    doc.text(`Tổng cộng: ${formatCurrency(order?.total_price)}`, 14, finalY + 10);
+    doc.text(`Grand Total: ${formatCurrency(order?.total_price)}`, 14, finalY + 10);
 
     doc.save(`Order_${order?.id}.pdf`);
   };
@@ -372,7 +372,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleExportExcel} variant="outlined" startIcon={<Save />}>Export Excel</Button>
+        {/* <Button onClick={handleExportExcel} variant="outlined" startIcon={<Save />}>Export Excel</Button> */}
         <Button onClick={handleExportPDF} variant="outlined" startIcon={<Save />}>Export PDF</Button>
         <Button onClick={onClose}>Đóng</Button>
       </DialogActions>

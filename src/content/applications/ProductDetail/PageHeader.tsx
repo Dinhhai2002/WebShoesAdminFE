@@ -4,7 +4,7 @@ import DialogCreateProductDetail from './DialogCreateProductDetail';
 import { useState } from 'react';
 import DialogCreateMultipleProductDetail from './DialogCreateMultipleProductDetail';
 
-function PageHeader() {
+function PageHeader({ onRefresh }: { onRefresh?: () => void }) {
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
   const [openCreateMultipleDialog, setOpenCreateMultipleDialog] = useState(false);  
 
@@ -68,6 +68,7 @@ function PageHeader() {
       <DialogCreateMultipleProductDetail
         open={openCreateMultipleDialog}
         onClose={handleCloseCreateMultipleDialog}
+        onSuccess={onRefresh}
       />
     </Container>
   );

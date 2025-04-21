@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Container, Grid } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
 import PageHeader from './PageHeader';
@@ -44,6 +44,13 @@ function ProductDetailManagement() {
     }
   };
 
+  const pageHeaderRef = useRef<any>(null);
+
+  const handleRefresh = () => {
+    // Lấy lại danh sách sản phẩm chi tiết với filter hiện tại
+    fetchProductDetails('', 1, 10, -1);
+  };
+
   useEffect(() => {
     fetchProductDetails('', 1, 10, -1);
   }, []);
@@ -62,7 +69,7 @@ function ProductDetailManagement() {
           spacing={3}
         >
           <Grid item xs={12}>
-            <PageHeader />
+            <PageHeader onRefresh={handleRefresh} />
           </Grid>
           <Grid item xs={12}>
             <RecentProductDetailsTable

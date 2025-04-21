@@ -35,10 +35,11 @@ import materialApi from 'src/services/API/MaterialApi';
 interface DialogCreateMultipleProductDetailProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 // Mã ví dụ
-function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultipleProductDetailProps) {
+function DialogCreateMultipleProductDetail({ open, onClose, onSuccess }: DialogCreateMultipleProductDetailProps) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -194,13 +195,16 @@ function DialogCreateMultipleProductDetail({ open, onClose }: DialogCreateMultip
 
       await productDetailApi.createMany(productDetails);
       toast.success(`Tạo thành công ${productDetails.length} sản phẩm con!`);
+      if (typeof onSuccess === 'function') {
+        onSuccess();
+      }
       onClose();
     } catch (err: any) {
       toast.error(err?.message || 'Không thể tạo nhiều sản phẩm con');
     } finally {
       setLoading(false);
     }
-  }, [selectedProduct, selectedColors, selectedSizes, selectedMaterials, selectedBrand, selectedCategory, price, stock, namePrefix, colors, sizes, materials, onClose]);
+  }, [selectedProduct, selectedColors, selectedSizes, selectedMaterials, selectedBrand, selectedCategory, price, stock, namePrefix, colors, sizes, materials, onClose, onSuccess]);
 
   return (
     <Dialog
