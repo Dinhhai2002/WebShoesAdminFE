@@ -147,6 +147,16 @@ class ProductDetailApi extends BaseApiService {
         }
     }
 
+    async updateImage(id: number): Promise<ApiResponse<ProductDetail>> {
+        try {
+            const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.post(`/product-detail/${id}/update-image`);
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+
     async uploadImage(id: number, file: File): Promise<ApiResponse<ProductDetail>> {
         try {
             const formData = new FormData();

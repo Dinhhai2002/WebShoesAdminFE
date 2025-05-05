@@ -67,13 +67,13 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
     fetchOrderDetail();
   }, [open, orderId]);
 
-  const getStatusLabel = (status: number) => {
+  const getStatusLabel = (status: number, paymentMethod: number) => {
     const statusMap = {
       [StatusOrderEnum.PENDING]: { text: 'Chờ xác nhận', color: 'warning' },
       [StatusOrderEnum.CONFIRMED]: { text: 'Đã xác nhận', color: 'success' },
       [StatusOrderEnum.PROCESSING]: { text: 'Đang chuẩn bị hàng', color: 'info' },
       [StatusOrderEnum.SHIPPED]: { text: 'Đã gửi hàng', color: 'primary' },
-      [StatusOrderEnum.DELIVERED]: { text: 'Đã giao hàng', color: 'success' },
+      [StatusOrderEnum.DELIVERED]: { text: paymentMethod === 3 ? 'Thành công' : 'Đã giao hàng', color: 'success' },
       [StatusOrderEnum.CANCELLED]: { text: 'Đã hủy', color: 'error' },
     };
 
@@ -171,13 +171,13 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
   }
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      fullScreen={fullScreen} 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullScreen={fullScreen}
       TransitionComponent={Zoom}
       maxWidth="md"
-      sx={{ 
+      sx={{
         '& .MuiDialog-paper': {
           width: '90%',
           maxWidth: '1200px',
@@ -209,7 +209,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
                 Trạng thái thanh toán: {getPaymentStatusLabel(order.payment_status)}
               </Typography>
               <Typography variant="body1" gutterBottom>
-                Trạng thái đơn hàng: {getStatusLabel(order.status)}
+                Trạng thái đơn hàng: {getStatusLabel(order.status, order.payment_method)}
               </Typography>
             </Box>
           </Grid>
@@ -226,8 +226,8 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
                   Loại giảm giá: {order.voucher.discount_type === 1 ? 'Phần trăm' : 'Giảm trực tiếp'}
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                  Giá trị giảm: {order.voucher.discount_type === 1 ? 
-                    `${order.voucher.discount_value}%` : 
+                  Giá trị giảm: {order.voucher.discount_type === 1 ?
+                    `${order.voucher.discount_value}%` :
                     formatCurrency(order.voucher.discount_value)}
                 </Typography>
                 {/* <Typography variant="body1" gutterBottom>
@@ -239,13 +239,13 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
           {/* Shipping Information */}
           <Grid item xs={12}>
             <Typography variant="h6" gutterBottom>
-              Địa chỉ giao hàng
+              {order.payment_method === 3 ? "Địa chỉ cửa hàng" : "Địa chỉ giao hàng"}
             </Typography>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Box>
                   <Typography variant="subtitle2" color="text.secondary">
-                    Người nhận
+                  {order.payment_method === 3 ? "Nhân viên" : "Người nhận"}
                   </Typography>
                   <Typography>{order.shipping_name}</Typography>
                 </Box>

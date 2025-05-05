@@ -162,7 +162,7 @@ function CreateStaffOrderForm() {
   return (
     <Container sx={{ mt: 2 }} >
       <Typography variant="h3" gutterBottom>
-        Tạo đơn hàng bởi nhân viên
+        Tạo đơn hàng
       </Typography>
       <Paper sx={{ p: 3 }}>
         <Grid container spacing={2}>
@@ -173,7 +173,7 @@ function CreateStaffOrderForm() {
                 <Select
                   value={selectedAddressId}
                   onChange={(e) => setSelectedAddressId(Number(e.target.value))}
-                  label="Địa chỉ giao hàng"
+                  label="Địa chỉ"
                 >
                   {addressList.map((a) => (
                     <MenuItem key={a.id} value={a.id}>
