@@ -20,6 +20,8 @@ export interface ProductDetail {
     price: number;
     image_url: string | null;
     status: number;
+    sku?: string; // Bổ sung sku
+    barcode?: string; // Bổ sung barcode
 }
 
 export interface ProductDetailQueryParams {
@@ -160,6 +162,29 @@ class ProductDetailApi extends BaseApiService {
                 }
             );
             handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+
+    // Lấy chi tiết sản phẩm theo barcode
+    async getByBarcode(barcode: string): Promise<ApiResponse<ProductDetail>> {
+        try {
+            const response: AxiosResponse<ApiResponse<ProductDetail>> = await this.api.get(`/product-detail/barcode/${barcode}`);
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error: any) {
+            throw new Error(error.message);
+        }
+    }
+
+    // Lấy hình ảnh barcode (trả về blob)
+    async getBarcodeImage(barcode: string): Promise<Blob> {
+        try {
+            const response = await this.api.get(`/product-detail/barcode-image/${barcode}`, {
+                responseType: 'blob'
+            });
             return response.data;
         } catch (error: any) {
             throw new Error(error.message);

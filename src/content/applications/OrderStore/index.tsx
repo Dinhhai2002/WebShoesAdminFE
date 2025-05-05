@@ -29,6 +29,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
+import BarcodeScanner from './BarcodeScanner';
 
 function CreateStaffOrderForm() {
   const [addressList, setAddressList] = useState<any[]>([]);
@@ -40,6 +41,7 @@ function CreateStaffOrderForm() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [barcodeScanOpen, setBarcodeScanOpen] = useState(false);
 
   const fetchAddresses = () => {
     addressBookApi
@@ -132,6 +134,31 @@ function CreateStaffOrderForm() {
     }
   };
 
+  const handleBarcodeDetected = async (barcode: string) => {
+    setBarcodeScanOpen(false);
+    try {
+      const res = await productDetailApi.getByBarcode(barcode);
+      if (!res.data) {
+        toast.error('Không tìm thấy sản phẩm với barcode này!');
+        return;
+      }
+      const id = res.data.id;
+      // Nếu đã có trong products thì +1 số lượng, chưa có thì thêm mới
+      setProducts((prev) => {
+        const idx = prev.findIndex((p) => p.product_detail_id === id);
+        if (idx > -1) {
+          const updated = [...prev];
+          updated[idx].quantity += 1;
+          return updated;
+        }
+        return [...prev, { product_detail_id: id, quantity: 1 }];
+      });
+      toast.success('Đã thêm sản phẩm từ barcode!');
+    } catch (error: any) {
+      toast.error(error?.message || 'Có lỗi khi quét barcode!');
+    }
+  };
+
   return (
     <Container sx={{ mt: 2 }} >
       <Typography variant="h3" gutterBottom>
@@ -142,7 +169,7 @@ function CreateStaffOrderForm() {
           <Grid item xs={12}>
             <Stack direction="row" spacing={2} alignItems="center">
               <FormControl fullWidth>
-                <InputLabel>Địa chỉ giao hàng</InputLabel>
+                <InputLabel>Địa chỉ</InputLabel>
                 <Select
                   value={selectedAddressId}
                   onChange={(e) => setSelectedAddressId(Number(e.target.value))}
@@ -222,6 +249,9 @@ function CreateStaffOrderForm() {
             <Button variant="contained" onClick={() => setOpenDialog(true)} sx={{ mt: 1 }}>
               Thêm sản phẩm
             </Button>
+            <Button variant="outlined" color="secondary" onClick={() => setBarcodeScanOpen(true)} sx={{ mt: 1, ml: 1 }}>
+              Quét mã barcode
+            </Button>
           </Grid>
 
           <Grid item xs={12}>
@@ -287,6 +317,16 @@ function CreateStaffOrderForm() {
         onClose={() => setOpenAddressDialog(false)}
         onSuccess={() => fetchAddresses()}
       />
+
+      <Dialog open={barcodeScanOpen} onClose={() => setBarcodeScanOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Quét hoặc nhập barcode sản phẩm</DialogTitle>
+        <DialogContent>
+          <BarcodeScanner onDetected={handleBarcodeDetected} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setBarcodeScanOpen(false)} color="primary">Đóng</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
