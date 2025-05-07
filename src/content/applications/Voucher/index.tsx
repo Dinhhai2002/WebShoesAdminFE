@@ -96,6 +96,13 @@ function VoucherManagement() {
 
   const handleSave = async () => {
     if (!selectedVoucher) return;
+
+    // Validate start_date must be less than end_date
+    if (dayjs(selectedVoucher.start_date, 'DD/MM/YYYY HH:mm:ss').isAfter(dayjs(selectedVoucher.end_date, 'DD/MM/YYYY HH:mm:ss'))) {
+      toast.error('Ngày bắt đầu phải nhỏ hơn ngày kết thúc');
+      return;
+    }
+
     setLoading(true);
     try {
       if (selectedVoucher.id) {
