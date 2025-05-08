@@ -42,7 +42,7 @@ interface DialogEditProductDetailProps {
 }
 
 const productDetailSchema = z.object({
-  name: z.string().min(1, 'Tên sản phẩm con không được để trống'),
+  name: z.string().min(1, 'Tên chi tiết sản phẩm không được để trống'),
   product_id: z.number().min(1, 'Vui lòng chọn sản phẩm'),
   color_id: z.number().min(1, 'Vui lòng chọn màu sắc'),
   size_id: z.number().min(1, 'Vui lòng chọn size'),
@@ -146,7 +146,7 @@ function DialogEditProductDetail({ open, onClose, id, onSuccess }: DialogEditPro
           stock: productDetail.stock
         });
       } catch (error) {
-        toast.error('Không thể tải thông tin sản phẩm con');
+        toast.error('Không thể tải thông tin chi tiết sản phẩm');
       } finally {
         setLoading(false);
       }
@@ -200,8 +200,7 @@ function DialogEditProductDetail({ open, onClose, id, onSuccess }: DialogEditPro
         ...data,
         image_url: imageUrl
       });
-      
-      toast.success('Cập nhật sản phẩm con thành công!');
+      toast.success('Cập nhật chi tiết sản phẩm thành công!');
       onSuccess();
       onClose();
     } catch (error: any) {
@@ -221,13 +220,13 @@ function DialogEditProductDetail({ open, onClose, id, onSuccess }: DialogEditPro
       maxWidth="md"
       fullWidth
     >
-      <DialogTitle>Chỉnh sửa sản phẩm con</DialogTitle>
+      <DialogTitle>Chỉnh sửa chi tiết sản phẩm</DialogTitle>
       <DialogContent>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmitHandler)}>
             <TextField
               fullWidth
-              label="Tên sản phẩm con"
+              label="Tên chi tiết sản phẩm"
               margin="normal"
               name="name"
               onChange={(e) => setValue('name', e.target.value)}
@@ -337,7 +336,7 @@ function DialogEditProductDetail({ open, onClose, id, onSuccess }: DialogEditPro
             />
             <Box sx={{ mt: 2, mb: 2 }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                Hình ảnh sản phẩm con
+                Hình ảnh chi tiết sản phẩm
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

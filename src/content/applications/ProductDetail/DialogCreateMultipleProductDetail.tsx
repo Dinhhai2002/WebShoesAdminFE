@@ -194,13 +194,13 @@ function DialogCreateMultipleProductDetail({ open, onClose, onSuccess }: DialogC
       }
 
       await productDetailApi.createMany(productDetails);
-      toast.success(`Tạo thành công ${productDetails.length} sản phẩm con!`);
+      toast.success(`Tạo thành công ${productDetails.length} chi tiết sản phẩm!`);
       if (typeof onSuccess === 'function') {
         onSuccess();
       }
       onClose();
     } catch (err: any) {
-      toast.error(err?.message || 'Không thể tạo nhiều sản phẩm con');
+      toast.error(err?.message || 'Không thể tạo nhiều chi tiết sản phẩm');
     } finally {
       setLoading(false);
     }
@@ -215,11 +215,11 @@ function DialogCreateMultipleProductDetail({ open, onClose, onSuccess }: DialogC
       maxWidth="md"
       fullWidth
     >
-      <DialogTitle>Tạo nhiều sản phẩm con</DialogTitle>
+      <DialogTitle>Tạo nhiều chi tiết sản phẩm</DialogTitle>
       <DialogContent dividers>
         {/* Chọn Sản phẩm (cha), Brand, Category */}
         <FormControl fullWidth margin="normal">
-          <InputLabel>Sản phẩm cha</InputLabel>
+          <InputLabel>Sản phẩm chính</InputLabel>
           <Select
             value={selectedProduct}
             onChange={(e) => setSelectedProduct(Number(e.target.value))}

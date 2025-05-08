@@ -33,7 +33,7 @@ interface DialogCreateProductDetailProps {
 }
 
 const productDetailSchema = z.object({
-  name: z.string().min(1, 'Tên sản phẩm con không được để trống'),
+  name: z.string().min(1, 'Tên chi tiết sản phẩm không được để trống'),
   product_id: z.number().min(1, 'Vui lòng chọn sản phẩm'),
   color_id: z.number().min(1, 'Vui lòng chọn màu sắc'),
   size_id: z.number().min(1, 'Vui lòng chọn size'),
@@ -139,13 +139,13 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
       maxWidth="md"
       fullWidth
     >
-      <DialogTitle>Thêm sản phẩm con mới</DialogTitle>
+      <DialogTitle>Thêm chi tiết sản phẩm mới</DialogTitle>
       <DialogContent>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmitHandler)}>
             <TextField
               fullWidth
-              label="Tên sản phẩm con"
+              label="Tên chi tiết sản phẩm"
               margin="normal"
               name="name"
               onChange={(e) => setValue('name', e.target.value)}

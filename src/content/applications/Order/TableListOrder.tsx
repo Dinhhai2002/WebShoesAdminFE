@@ -12,6 +12,7 @@ import TableCellComponent from 'src/components/TableCellComponent/TableCellCompo
 import IconActions from 'src/components/IconActions/IconActions';
 import { StatusOrderEnum } from 'src/utils/enum/StatusOrderEnum';
 import { PaymentStatusEnum } from 'src/utils/enum/PaymentStatusEnum';
+import { PaymentMethodEnum } from 'src/utils/enum/PaymentMethodEnum';
 import DialogOrderDetails from './DialogOrderDetails';
 import DialogChangeStatus from './DialogChangeStatus';
 import Label from 'src/components/Label';
@@ -129,6 +130,19 @@ function TableListOrder({
     }
   };
 
+  const getPaymentMethodText = (method: number) => {
+    switch (method) {
+      case PaymentMethodEnum.COD:
+        return 'Thanh toán khi nhận hàng (COD)';
+      case PaymentMethodEnum.VNPAY:
+        return 'Thanh toán VNPAY';
+      case PaymentMethodEnum.STORE:
+        return 'Thanh toán tại cửa hàng';
+      default:
+        return 'Không xác định';
+    }
+  };
+
   return (
     <>
       <TableContainer>
@@ -150,7 +164,7 @@ function TableListOrder({
                     <TableCellComponent position={'center'} value={item.id} />
                     <TableCellComponent position={'center'} value={item.user_id} />
                     <TableCellComponent position={'center'} value={formatCurrency(item.total_price)} />
-                    <TableCellComponent position={'center'} value={item.payment_method} />
+                    <TableCellComponent position={'center'} value={getPaymentMethodText(item.payment_method)} />
                     <TableCellComponent position={'center'} value={item.created_at} />
 
                     <TableCell align="center">

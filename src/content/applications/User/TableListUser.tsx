@@ -44,7 +44,7 @@ function TableListUser({
                   <TableRow hover key={item.id}>
                     <TableCellComponent position={'center'} value={item.id} />
                     <TableCellComponent position={'center'} value={item.user_name} />
-                    <TableCellComponent position={'center'} value={item.full_name} />
+                    <TableCellComponent position={'center'} value={item.birthday} />
                     <TableCellComponent position={'center'} value={item.email} />
                     <TableCellComponent position={'center'} value={item.phone} />
                     <TableCell align="center">

@@ -36,6 +36,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
+import { PaymentMethodEnum } from 'src/utils/enum/PaymentMethodEnum';
 
 interface DialogOrderDetailsProps {
   open: boolean;
@@ -250,14 +251,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
                   <Typography>{order.shipping_name}</Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12}>
-                <Box>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Số điện thoại
-                  </Typography>
-                  <Typography>{order.shipping_phone}</Typography>
-                </Box>
-              </Grid>
+              
               <Grid item xs={12}>
                 <Box>
                   <Typography variant="subtitle2" color="text.secondary">
@@ -266,6 +260,15 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
                   <Typography>
                     {order.shipping_address}, {order.shipping_ward_name}, {order.shipping_district_name}, {order.shipping_city_name}
                   </Typography>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                   {order.payment_method === PaymentMethodEnum.STORE ? "Số điện thoại khách hàng" : "Số điện thoại người nhận"}
+                  </Typography>
+                  <Typography>{order.payment_method === PaymentMethodEnum.STORE ? order.customer_phone : order.shipping_phone}</Typography>
                 </Box>
               </Grid>
             </Grid>

@@ -56,13 +56,13 @@ function DialogStatusProductDetail({
       aria-describedby="responsive-dialog-description"
     >
       <DialogTitle id="responsive-dialog-title">
-        {currentStatus === 1 ? 'Tạm khóa sản phẩm con' : 'Kích hoạt sản phẩm con'}
+        {currentStatus === 1 ? 'Tạm khóa chi tiết sản phẩm' : 'Kích hoạt chi tiết sản phẩm'}
       </DialogTitle>
       <DialogContent>
         <Typography>
           {currentStatus === 1
-            ? 'Bạn có chắc chắn muốn tạm khóa sản phẩm con này?'
-            : 'Bạn có chắc chắn muốn kích hoạt sản phẩm con này?'}
+            ? 'Bạn có chắc chắn muốn tạm khóa chi tiết sản phẩm này?'
+            : 'Bạn có chắc chắn muốn kích hoạt chi tiết sản phẩm này?'}
         </Typography>
       </DialogContent>
       <DialogActions>

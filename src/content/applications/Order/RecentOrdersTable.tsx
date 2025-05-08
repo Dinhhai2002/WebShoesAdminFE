@@ -139,7 +139,7 @@ const RecentOrdersTable = ({
               />
             </Box>
           }
-          title="Order List"
+          title="Danh sách đơn hàng"
         />
 
         <Divider />

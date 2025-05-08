@@ -46,7 +46,7 @@ interface RecentProductDetailsTableProps {
 
 const labelTable = [
   { id: 1, label: "ID" },
-  { id: 2, label: "Tên sản phẩm con" },
+  { id: 2, label: "Tên chi tiết sản phẩm" },
   { id: 3, label: "Sản phẩm" },
   { id: 4, label: "Màu sắc" },
   { id: 5, label: "Size" },
@@ -383,7 +383,7 @@ function RecentProductDetailsTable({
                       sizeId
                     )
                   }
-                  label="Tìm kiếm sản phẩm con"
+                  label="Tìm kiếm chi tiết sản phẩm"
                 />
                 <Button
                   variant="outlined"
@@ -468,7 +468,7 @@ function RecentProductDetailsTable({
             </Grid>
           </Box>
         }
-        title="Danh sách sản phẩm con"
+        title="Danh sách chi tiết sản phẩm"
       />
 
       <Divider />
