@@ -24,7 +24,8 @@ import {
 import { Save } from '@mui/icons-material';
 import {
   useEffect,
-  useState
+  useState,
+  useRef
 } from 'react';
 import { Order } from 'src/services/API/OrderApi';
 import orderApi from 'src/services/API/OrderApi';
@@ -37,6 +38,8 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
 import { PaymentMethodEnum } from 'src/utils/enum/PaymentMethodEnum';
+import { createVietnamesePDF, registerVietnameseFont, normalizeVietnameseText } from 'src/utils/pdfFontHelper';
+import html2canvas from 'html2canvas';
 
 interface DialogOrderDetailsProps {
   open: boolean;
@@ -49,6 +52,10 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const pdfRef = useRef<HTMLDivElement>(null);
 
   const fetchOrderDetail = async () => {
     if (open && orderId) {
@@ -123,35 +130,85 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
     saveAs(blob, `Order_${order?.id}.xlsx`);
   };
 
+  /**
+   * Đảm bảo dữ liệu hiển thị chính xác trong PDF, ngay cả khi font gặp vấn đề
+   */
+  const ensureVietnameseDisplay = (text: string): string => {
+    // Trong trường hợp của html2canvas, không cần phải normalize vì 
+    // kết quả sẽ được chụp trực tiếp từ HTML đã render
+    // Giữ nguyên text với đầy đủ dấu tiếng Việt
+    return text;
+  };
+
   const handleExportPDF = async () => {
-    const doc = new jsPDF() as jsPDF & { lastAutoTable?: { finalY?: number } };
+    try {
+      setPdfLoading(true);
+      setIsPrinting(true); // Bật trạng thái in để ẩn các nút không cần thiết
+      console.log('Starting PDF export using HTML2Canvas...');
+      
+      // Đợi một chút để React cập nhật lại UI với trạng thái mới
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Lấy tham chiếu đến nội dung cần xuất PDF
+      const content = contentRef.current;
+      if (!content) {
+        throw new Error('Could not find content element');
+      }
+      
+      // Chuyển đổi HTML sang canvas
+      console.log('Converting HTML to canvas...');
+      const canvas = await html2canvas(content, {
+        scale: 1.5, // Tăng scale để cải thiện chất lượng
+        useCORS: true, // Cho phép tải hình ảnh từ các domain khác
+        logging: false,
+        allowTaint: true, // Cho phép chụp nội dung từ các domain khác
+        backgroundColor: '#ffffff', // Đặt nền trắng
+        windowWidth: document.documentElement.offsetWidth,
+        windowHeight: document.documentElement.offsetHeight
+      });
+      
+      console.log('Canvas created, generating PDF...');
+      
+      // Tạo PDF từ canvas
+      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = 210; // A4 size in mm
+      const pageHeight = 297; // A4 size in mm
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      
+      // Tạo PDF và thêm hình ảnh
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      // Xử lý nhiều trang nếu nội dung quá dài
+      let position = 0;
+      let heightLeft = imgHeight;
+      
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      // Thêm các trang tiếp theo nếu nội dung không vừa một trang
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      console.log('Saving PDF...');
+      pdf.save(`DonHang_${order?.id}.pdf`);
+      console.log('PDF export completed successfully');
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
+      setPdfLoading(false);
+      setIsPrinting(false); // Trả về trạng thái bình thường
+    }
+  };
 
-    doc.setFontSize(16);
-    doc.text(`Order Details #${order?.id}`, 14, 14);
-
-    const rows = order?.order_detail.map((item) => [
-      item.product_detail.product_id,
-      item.product_detail.name,
-      item.product_detail.color,
-      item.product_detail.size,
-      item.quantity.toString(),
-      formatCurrency(item.price),
-      formatCurrency(item.total_price)
-    ]);
-
-    autoTable(doc, {
-      head: [[
-        'Product ID', 'Product Name', 'Color', 'Size', 'Quantity', 'Unit Price', 'Total Price'
-      ]],
-      body: rows,
-      startY: 20
-    });
-
-    const finalY = doc.lastAutoTable?.finalY || 30;
-    doc.setFontSize(12);
-    doc.text(`Grand Total: ${formatCurrency(order?.total_price)}`, 14, finalY + 10);
-
-    doc.save(`Order_${order?.id}.pdf`);
+  // Hàm hủy quá trình xuất PDF
+  const cancelPdfExport = () => {
+    setPdfLoading(false);
+    setIsPrinting(false);
   };
 
   if (loading) {
@@ -171,6 +228,141 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
     return null;
   }
 
+  // Component chỉ hiển thị khi chuẩn bị in, được tối ưu cho việc xuất PDF
+  const PrintableContent = () => (
+    <Box
+      sx={{
+        width: '100%',
+        bgcolor: 'background.paper',
+        padding: 2,
+        paddingBottom: 4,
+        fontFamily: 'Arial, Helvetica, sans-serif' // Font hỗ trợ Unicode tốt
+      }}
+    >
+      <Typography 
+        variant="h5" 
+        align="center" 
+        gutterBottom 
+        sx={{ 
+          fontWeight: 'bold', 
+          mb: 3, 
+          fontFamily: 'Arial, Helvetica, sans-serif' // Đảm bảo font nhất quán
+        }}
+      >
+        Chi tiết đơn hàng #{order.id}
+      </Typography>
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', borderBottom: '1px solid #ccc', pb: 1 }}>
+          Thông tin đơn hàng
+        </Typography>
+        <Typography variant="body1" gutterBottom>Mã đơn hàng: #{order.id}</Typography>
+        <Typography variant="body1" gutterBottom>Ngày đặt: {order.created_at}</Typography>
+        <Typography variant="body1" gutterBottom>Phương thức thanh toán: {getPaymentMethodLabel(order.payment_method)}</Typography>
+        <Typography variant="body1" gutterBottom>Trạng thái thanh toán: {order.payment_status === PaymentStatusEnum.PAID ? 'Đã thanh toán' : 'Chưa thanh toán'}</Typography>
+        <Typography variant="body1" gutterBottom>Trạng thái đơn hàng: {order.status === StatusOrderEnum.DELIVERED ? 'Đã giao hàng' : 'Đang xử lý'}</Typography>
+      </Box>
+
+      {order.voucher && (
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', borderBottom: '1px solid #ccc', pb: 1 }}>
+            Thông tin voucher
+          </Typography>
+          <Typography variant="body1" gutterBottom>Mã voucher: {order.voucher.code}</Typography>
+          <Typography variant="body1" gutterBottom>
+            Loại giảm giá: {order.voucher.discount_type === 1 ? 'Phần trăm' : 'Giảm trực tiếp'}
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            Giá trị giảm: {order.voucher.discount_type === 1 ? 
+              `${order.voucher.discount_value}%` : 
+              formatCurrency(order.voucher.discount_value)}
+          </Typography>
+        </Box>
+      )}
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', borderBottom: '1px solid #ccc', pb: 1 }}>
+          {order.payment_method === 3 ? "Địa chỉ cửa hàng" : "Địa chỉ giao hàng"}
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          {order.payment_method === 3 ? "Nhân viên" : "Người nhận"}: {order.shipping_name}
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          Địa chỉ: {order.shipping_address}, {order.shipping_ward_name}, {order.shipping_district_name}, {order.shipping_city_name}
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+          {order.payment_method === PaymentMethodEnum.STORE ? "Số điện thoại khách hàng" : "Số điện thoại người nhận"}: 
+          {order.payment_method === PaymentMethodEnum.STORE ? order.customer_phone : order.shipping_phone}
+        </Typography>
+      </Box>
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', borderBottom: '1px solid #ccc', pb: 1 }}>
+          Sản phẩm
+        </Typography>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 'bold' }}>Sản phẩm</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Thông tin</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Đơn giá</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Số lượng</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 'bold' }}>Thành tiền</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {order.order_detail.map((detail) => (
+                <TableRow key={detail.id}>
+                  <TableCell>
+                    <Box display="flex" alignItems="center">
+                      <img
+                        src={detail.product_detail.image_url}
+                        alt={detail.product_detail.name}
+                        style={{ width: 50, height: 50, objectFit: 'cover', marginRight: 10 }}
+                      />
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">{detail.product_detail.name}</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {detail.product_detail.color} - {detail.product_detail.size}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="right">{formatCurrency(detail.price)}</TableCell>
+                  <TableCell align="right">{detail.quantity}</TableCell>
+                  <TableCell align="right">{formatCurrency(detail.total_price)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        
+        <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            Tổng tiền hàng: {formatCurrency(order.price)}
+          </Typography>
+          
+          {order.discount_amount > 0 && (
+            <Typography variant="body1" sx={{ mb: 1, color: 'error.main' }}>
+              Giảm giá: -{formatCurrency(order.discount_amount)}
+            </Typography>
+          )}
+          
+          {order.amount_shipping > 0 && (
+            <Typography variant="body1" sx={{ mb: 1, color: 'primary.main' }}>
+              Phí vận chuyển: +{formatCurrency(order.amount_shipping)}
+            </Typography>
+          )}
+          
+          <Typography variant="h6" sx={{ mt: 1, fontWeight: 'bold', borderTop: '1px solid #ccc', pt: 1, width: '200px', textAlign: 'right' }}>
+            Tổng cộng: {formatCurrency(order.total_price)}
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
+  );
+
   return (
     <Dialog
       open={open}
@@ -186,8 +378,35 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
         }
       }}
     >
-      <DialogTitle>Chi tiết đơn hàng #{order.id}</DialogTitle>
-      <DialogContent>
+      <DialogTitle>
+        Chi tiết đơn hàng #{order.id}
+        {pdfLoading && (
+          <Typography variant="caption" color="primary" sx={{ ml: 2 }}>
+            Đang tạo PDF...
+          </Typography>
+        )}
+      </DialogTitle>
+      
+      {/* Nội dung sẽ được xuất ra PDF */}
+      <Box 
+        ref={contentRef} 
+        sx={{
+          display: isPrinting ? 'block' : 'none', 
+          position: isPrinting ? 'absolute' : 'relative',
+          top: '-9999px',
+          left: '-9999px',
+          width: '210mm',  // Chiều rộng A4
+          minHeight: '297mm', // Chiều cao A4 (tối thiểu)
+          padding: '10mm',
+          backgroundColor: '#fff',
+          boxSizing: 'border-box'
+        }}
+      >
+        <PrintableContent />
+      </Box>
+      
+      {/* Nội dung hiển thị trong dialog */}
+      <DialogContent ref={pdfRef}>
         <Grid container spacing={3}>
           {/* Order Information */}
           <Grid item xs={12}>
@@ -214,6 +433,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
               </Typography>
             </Box>
           </Grid>
+          {/* Rest of the existing dialog content... */}
           {order.voucher && (
             <Grid item xs={12}>
               <Box sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 1, mt: 2 }}>
@@ -231,9 +451,6 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
                     `${order.voucher.discount_value}%` :
                     formatCurrency(order.voucher.discount_value)}
                 </Typography>
-                {/* <Typography variant="body1" gutterBottom>
-                  Hạn sử dụng: {order.voucher.start_date} - {order.voucher.end_date}
-                </Typography> */}
               </Box>
             </Grid>
           )}
@@ -375,9 +592,35 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
         </Grid>
       </DialogContent>
       <DialogActions>
-        {/* <Button onClick={handleExportExcel} variant="outlined" startIcon={<Save />}>Export Excel</Button> */}
-        <Button onClick={handleExportPDF} variant="outlined" startIcon={<Save />}>Export PDF</Button>
-        <Button onClick={onClose}>Đóng</Button>
+        {pdfLoading ? (
+          <>
+            <Button onClick={cancelPdfExport} color="error">
+              Hủy
+            </Button>
+            <Box sx={{ position: 'relative', ml: 1 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                disabled
+                startIcon={<CircularProgress size={20} color="inherit" />}
+              >
+                Đang xuất PDF...
+              </Button>
+            </Box>
+          </>
+        ) : (
+          <>
+            <Button 
+              onClick={handleExportPDF} 
+              variant="outlined" 
+              startIcon={<Save />}
+              disabled={pdfLoading}
+            >
+              Export PDF
+            </Button>
+            <Button onClick={onClose}>Đóng</Button>
+          </>
+        )}
       </DialogActions>
     </Dialog>
   );
