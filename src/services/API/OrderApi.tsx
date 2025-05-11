@@ -174,9 +174,14 @@ class OrderApi extends BaseApiService {
     }
 
     async createByStaff(request: StaffOrderRequest): Promise<ApiResponse<Order>> {
-        const response: AxiosResponse<ApiResponse<Order>> = 
-            await this.api.post(`/order/create-by-staff`, request);
-        return response.data;
+        try {
+            const response: AxiosResponse<ApiResponse<Order>> = 
+                await this.api.post(`/order/create-by-staff`, request);
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 }
 

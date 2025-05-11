@@ -129,7 +129,7 @@ function CreateStaffOrderForm() {
       setConfirmOpen(false);
       setLoading(false);
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Lỗi tạo đơn hàng');
+      toast.error(error?.message || 'Lỗi tạo đơn hàng');
       setLoading(false);
     }
   };
