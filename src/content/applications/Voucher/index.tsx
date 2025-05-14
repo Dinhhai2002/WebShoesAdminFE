@@ -62,6 +62,9 @@ function VoucherManagement() {
       .then((res) => {
         setVouchers(res.data.list);
         setTotalRecord(res.data.total_record);
+      })
+      .catch((error) => {
+        toast.error(error?.message || 'Có lỗi xảy ra');
       });
   };
 
@@ -115,7 +118,7 @@ function VoucherManagement() {
       fetchVouchers();
       setOpenDialog(false);
     } catch (error) {
-      toast.error('Có lỗi xảy ra');
+      toast.error(error?.message || 'Có lỗi xảy ra');
     } finally {
       setLoading(false);
     }
@@ -127,8 +130,8 @@ function VoucherManagement() {
       await voucherApi.changeStatus(confirmDialog.id);
       toast.success('Cập nhật trạng thái thành công');
       fetchVouchers();
-    } catch {
-      toast.error('Thay đổi trạng thái thất bại');
+    } catch (error) {
+      toast.error(error?.message || 'Thay đổi trạng thái thất bại');
     } finally {
       setConfirmDialog(null);
     }

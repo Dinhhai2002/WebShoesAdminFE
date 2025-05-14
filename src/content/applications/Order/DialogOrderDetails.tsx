@@ -38,8 +38,9 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
 import { PaymentMethodEnum } from 'src/utils/enum/PaymentMethodEnum';
-import { createVietnamesePDF, registerVietnameseFont, normalizeVietnameseText } from 'src/utils/pdfFontHelper';
+import { createVietnamesePDF, registerVietnameseFont, normalizeVietnameseText, FontError } from 'src/utils/pdfFontHelper';
 import html2canvas from 'html2canvas';
+import { toast } from 'react-toastify';
 
 interface DialogOrderDetailsProps {
   open: boolean;
@@ -65,6 +66,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
         setOrder(response.data);
       } catch (error) {
         console.error('Error fetching order details:', error);
+        toast.error(error?.message || 'Đã có lỗi xảy ra khi tải thông tin đơn hàng!');
       } finally {
         setLoading(false);
       }
@@ -112,22 +114,29 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
   };
 
   const handleExportExcel = async () => {
-    const data = order?.order_detail.map((item) => ({
-      'Product ID': item.product_detail.product_id,
-      'Product Name': item.product_detail.name,
-      'Color': item.product_detail.color,
-      'Size': item.product_detail.size,
-      'Quantity': item.quantity,
-      'Unit Price': formatCurrency(item.price),
-      'Total Price': formatCurrency(item.total_price)
-    }));
+    try {
+      const data = order?.order_detail.map((item) => ({
+        'Product ID': item.product_detail.product_id,
+        'Product Name': item.product_detail.name,
+        'Color': item.product_detail.color,
+        'Size': item.product_detail.size,
+        'Quantity': item.quantity,
+        'Unit Price': formatCurrency(item.price),
+        'Total Price': formatCurrency(item.total_price)
+      }));
 
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'OrderDetails');
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    saveAs(blob, `Order_${order?.id}.xlsx`);
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'OrderDetails');
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+      saveAs(blob, `Order_${order?.id}.xlsx`);
+      
+      toast.success('Xuất Excel thành công!');
+    } catch (error) {
+      console.error('Error exporting Excel:', error);
+      toast.error(error?.message || 'Đã có lỗi xảy ra khi xuất Excel!');
+    }
   };
 
   /**
@@ -152,53 +161,77 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
       // Lấy tham chiếu đến nội dung cần xuất PDF
       const content = contentRef.current;
       if (!content) {
-        throw new Error('Could not find content element');
+        throw new Error('Không tìm thấy nội dung cần in');
       }
       
       // Chuyển đổi HTML sang canvas
       console.log('Converting HTML to canvas...');
-      const canvas = await html2canvas(content, {
-        scale: 1.5, // Tăng scale để cải thiện chất lượng
-        useCORS: true, // Cho phép tải hình ảnh từ các domain khác
-        logging: false,
-        allowTaint: true, // Cho phép chụp nội dung từ các domain khác
-        backgroundColor: '#ffffff', // Đặt nền trắng
-        windowWidth: document.documentElement.offsetWidth,
-        windowHeight: document.documentElement.offsetHeight
-      });
+      let canvas;
+      try {
+        canvas = await html2canvas(content, {
+          scale: 1.5, // Tăng scale để cải thiện chất lượng
+          useCORS: true, // Cho phép tải hình ảnh từ các domain khác
+          logging: false,
+          allowTaint: true, // Cho phép chụp nội dung từ các domain khác
+          backgroundColor: '#ffffff', // Đặt nền trắng
+          windowWidth: document.documentElement.offsetWidth,
+          windowHeight: document.documentElement.offsetHeight
+        });
+      } catch (canvasError) {
+        console.error('Canvas error:', canvasError);
+        throw new Error(`Lỗi khi tạo ảnh PDF: ${canvasError.message}`);
+      }
       
       console.log('Canvas created, generating PDF...');
       
       // Tạo PDF từ canvas
-      const imgData = canvas.toDataURL('image/png');
-      const imgWidth = 210; // A4 size in mm
-      const pageHeight = 297; // A4 size in mm
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      
-      // Tạo PDF và thêm hình ảnh
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      // Xử lý nhiều trang nếu nội dung quá dài
-      let position = 0;
-      let heightLeft = imgHeight;
-      
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      
-      // Thêm các trang tiếp theo nếu nội dung không vừa một trang
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
+      let pdf;
+      try {
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 210; // A4 size in mm
+        const pageHeight = 297; // A4 size in mm
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+        
+        // Tạo PDF và thêm hình ảnh
+        pdf = new jsPDF('p', 'mm', 'a4');
+        
+        // Xử lý nhiều trang nếu nội dung quá dài
+        let position = 0;
+        let heightLeft = imgHeight;
+        
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
+        
+        // Thêm các trang tiếp theo nếu nội dung không vừa một trang
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+      } catch (pdfError) {
+        console.error('PDF creation error:', pdfError);
+        throw new Error(`Lỗi khi tạo file PDF: ${pdfError.message}`);
       }
       
       console.log('Saving PDF...');
-      pdf.save(`DonHang_${order?.id}.pdf`);
-      console.log('PDF export completed successfully');
-      
+      try {
+        pdf.save(`DonHang_${order?.id}.pdf`);
+        console.log('PDF export completed successfully');
+        toast.success('Xuất PDF thành công!');
+      } catch (saveError) {
+        console.error('PDF save error:', saveError);
+        throw new Error(`Lỗi khi lưu file PDF: ${saveError.message}`);
+      }
     } catch (error) {
       console.error('Error generating PDF:', error);
+      if (error instanceof FontError) {
+        // Xử lý lỗi font riêng biệt
+        toast.error(`Lỗi font: ${error.message}`);
+      } else {
+        // Lỗi khác
+        toast.error(error?.message || 'Đã có lỗi xảy ra khi xuất PDF!');
+      }
     } finally {
       setPdfLoading(false);
       setIsPrinting(false); // Trả về trạng thái bình thường
@@ -456,9 +489,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
           )}
           {/* Shipping Information */}
           <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>
-              {order.payment_method === 3 ? "Địa chỉ cửa hàng" : "Địa chỉ giao hàng"}
-            </Typography>
+          
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Box>

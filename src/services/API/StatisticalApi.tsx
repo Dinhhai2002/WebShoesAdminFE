@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
+import handleResponseApi from "../handleResponseApi/handleResponseApi";
 
 export interface WebsiteStatisticalResponse {
   total_users: number;
@@ -30,9 +31,10 @@ class StatisticalApi extends BaseApiService {
   async getOverview(): Promise<ApiResponse<WebsiteStatisticalResponse>> {
     try {
       const response: AxiosResponse<ApiResponse<WebsiteStatisticalResponse>> = await this.api.get("/admin/statistical-overview");
+      handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error) {
-      throw error;
+      throw new Error(error.message);
     }
   }
 
@@ -51,9 +53,10 @@ class StatisticalApi extends BaseApiService {
           type: params.type ?? 1
         }
       });
+      handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error) {
-      throw error;
+      throw new Error(error.message);
     }
   }
 }

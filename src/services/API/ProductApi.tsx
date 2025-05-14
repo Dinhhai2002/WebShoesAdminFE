@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
+import handleResponseApi from "../handleResponseApi/handleResponseApi";
 
 export interface Product {
     id: number;
@@ -65,9 +66,10 @@ class ProductApi extends BaseApiService {
                     limit: params.limit || 10
                 }
             });
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -75,9 +77,10 @@ class ProductApi extends BaseApiService {
     async getById(id: number): Promise<ApiResponse<Product>> {
         try {
             const response: AxiosResponse<ApiResponse<Product>> = await this.api.get(`/product/${id}`);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -85,9 +88,10 @@ class ProductApi extends BaseApiService {
     async changeStatus(id: number, status: number): Promise<ApiResponse<Product>> {
         try {
             const response: AxiosResponse<ApiResponse<Product>> = await this.api.post(`/product/${id}/change-status`, { status });
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -95,9 +99,10 @@ class ProductApi extends BaseApiService {
     async create(product: CreateProductRequest): Promise<ApiResponse<Product>> {
         try {
             const response: AxiosResponse<ApiResponse<Product>> = await this.api.post("/product/create", product);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -105,9 +110,10 @@ class ProductApi extends BaseApiService {
     async update(id: number, product: UpdateProductRequest): Promise<ApiResponse<Product>> {
         try {
             const response: AxiosResponse<ApiResponse<Product>> = await this.api.post(`/product/${id}/update`, product);
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -126,9 +132,10 @@ class ProductApi extends BaseApiService {
                     }
                 }
             );
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
 
@@ -148,9 +155,10 @@ class ProductApi extends BaseApiService {
                     }
                 }
             );
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
-            throw error;
+            throw new Error(error.message);
         }
     }
     

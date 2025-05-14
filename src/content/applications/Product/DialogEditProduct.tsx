@@ -92,7 +92,8 @@ function DialogEditProduct({ open, onClose, id, onSuccess }: DialogEditProductPr
       try {
         const response = await categoryApi.getAll();
         setCategories(response.data);
-      } catch (error) {
+      } catch (error: any) {
+        toast.error(error?.message || 'Có lỗi xảy ra');
         console.error('Error fetching categories:', error);
       }
     };
@@ -117,8 +118,8 @@ function DialogEditProduct({ open, onClose, id, onSuccess }: DialogEditProductPr
             price: product.price,
             status: product.status
           });
-        } catch (error) {
-          toast.error('Không thể tải thông tin sản phẩm');
+        } catch (error: any) {
+          toast.error(error?.message || 'Không thể tải thông tin sản phẩm');
         } finally {
           setLoading(false);
         }
@@ -139,7 +140,7 @@ function DialogEditProduct({ open, onClose, id, onSuccess }: DialogEditProductPr
       onSuccess();
       onClose();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Có lỗi xảy ra!');
+      toast.error(error?.message || 'Có lỗi xảy ra!');
     } finally {
       setLoading(false);
     }
@@ -169,7 +170,7 @@ function DialogEditProduct({ open, onClose, id, onSuccess }: DialogEditProductPr
       setSelectedFile(null);
       toast.success('Cập nhật hình ảnh thành công!');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi upload hình ảnh!');
+      toast.error(error?.message || 'Có lỗi xảy ra khi upload hình ảnh!');
     } finally {
       setUploadLoading(false);
     }

@@ -132,7 +132,7 @@ function PageHeader({ onSuccess }: PageHeaderProps) {
       onSuccess();
       handleClose();
     } catch (error) {
-      toast.error('Thêm sản phẩm thất bại!');
+      toast.error(error?.message || 'Thêm sản phẩm thất bại!');
     } finally {
       setLoading(false);
     }

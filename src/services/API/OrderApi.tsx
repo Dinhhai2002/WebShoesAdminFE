@@ -118,23 +118,33 @@ class OrderApi extends BaseApiService {
     }
 
     async findAll(params: OrderQueryParams): Promise<ApiResponse<OrderListResponse>> {
-        const response: AxiosResponse<ApiResponse<OrderListResponse>> = await this.api.get("/order", {
-            params: {
-                user_id: params.user_id,
-                key_search: params.key_search,
-                status: params.status,
-                payment_status: params.payment_status,
-                payment_method: params.payment_method,
-                page: params.page,
-                limit: params.limit
-            }
-        });
-        return response.data;
+        try {
+            const response: AxiosResponse<ApiResponse<OrderListResponse>> = await this.api.get("/order", {
+                params: {
+                    user_id: params.user_id,
+                    key_search: params.key_search,
+                    status: params.status,
+                    payment_status: params.payment_status,
+                    payment_method: params.payment_method,
+                    page: params.page,
+                    limit: params.limit
+                }
+            });
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
     async findOne(id: number): Promise<ApiResponse<Order>> {
-        const response: AxiosResponse<ApiResponse<Order>> = await this.api.get(`/order/${id}`);
-        return response.data;
+        try {
+            const response: AxiosResponse<ApiResponse<Order>> = await this.api.get(`/order/${id}`);
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
     async changeStatus(id: number, status: number): Promise<ApiResponse<Order>> {
@@ -148,29 +158,54 @@ class OrderApi extends BaseApiService {
     }
 
     async cancelOrder(id: number): Promise<ApiResponse<Order>> {
-        const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/cancel`);
-        return response.data;
+        try {
+            const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/cancel`);
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
     async create(order: CreateOrderRequest): Promise<ApiResponse<Order | string>> {
-        const response: AxiosResponse<ApiResponse<Order | string>> = await this.api.post("/order/create", order);
-        return response.data;
+        try {
+            const response: AxiosResponse<ApiResponse<Order | string>> = await this.api.post("/order/create", order);
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
     async update(id: number, order: Partial<CreateOrderRequest>): Promise<ApiResponse<Order>> {
-        const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/update`, order);
-        return response.data;
+        try {
+            const response: AxiosResponse<ApiResponse<Order>> = await this.api.post(`/order/${id}/update`, order);
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
     async getPaymentUrl(id: number): Promise<ApiResponse<string>> {
-        const response: AxiosResponse<ApiResponse<string>> = await this.api.post(`/order/payment-confirm/${id}`);
-        return response.data;
+        try {
+            const response: AxiosResponse<ApiResponse<string>> = await this.api.post(`/order/payment-confirm/${id}`);
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
     async changePaymentStatus(id: number, paymentStatus: PaymentStatusEnum): Promise<ApiResponse<Order>> {
-        const response: AxiosResponse<ApiResponse<Order>> = 
-            await this.api.post(`/order/${id}/change-payment-status`, { payment_status: paymentStatus });
-        return response.data;
+        try {
+            const response: AxiosResponse<ApiResponse<Order>> = 
+                await this.api.post(`/order/${id}/change-payment-status`, { payment_status: paymentStatus });
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
     }
 
     async createByStaff(request: StaffOrderRequest): Promise<ApiResponse<Order>> {

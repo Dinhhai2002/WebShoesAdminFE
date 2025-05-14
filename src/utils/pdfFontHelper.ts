@@ -1,6 +1,16 @@
 import { jsPDF } from 'jspdf';
 
 /**
+ * Lỗi font tùy chỉnh với message rõ ràng
+ */
+export class FontError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'FontError';
+  }
+}
+
+/**
  * Registers the Roboto font with jsPDF instance for proper rendering of Vietnamese characters
  * @param doc jsPDF instance to register the font with
  */
@@ -8,25 +18,50 @@ export const registerVietnameseFont = async (doc: jsPDF): Promise<void> => {
   try {
     // Tải font từ file thay vì sử dụng base64
     const fontPath = '/fonts/TimesNewRoman.ttf';
-    const fontResponse = await fetch(fontPath);
     
-    if (!fontResponse.ok) {
-      throw new Error(`Failed to load font: ${fontResponse.statusText}`);
+    let fontResponse;
+    try {
+      fontResponse = await fetch(fontPath);
+    } catch (fetchError) {
+      throw new FontError(`Không thể tải font file: ${fetchError.message}`);
     }
     
-    const fontArrayBuffer = await fontResponse.arrayBuffer();
+    if (!fontResponse.ok) {
+      throw new FontError(`Tải font thất bại: ${fontResponse.status} ${fontResponse.statusText}`);
+    }
+    
+    let fontArrayBuffer;
+    try {
+      fontArrayBuffer = await fontResponse.arrayBuffer();
+    } catch (bufferError) {
+      throw new FontError(`Lỗi xử lý font data: ${bufferError.message}`);
+    }
+    
     const fontBase64 = arrayBufferToBase64(fontArrayBuffer);
     
     // Register the font with the PDF document
-    doc.addFileToVFS('TimesNewRoman.ttf', fontBase64);
-    doc.addFont('TimesNewRoman.ttf', 'TimesNewRoman', 'normal');
-    
-    // Set the font for use
-    doc.setFont('TimesNewRoman');
-    
-    console.log('Vietnamese font registered successfully');
+    try {
+      doc.addFileToVFS('TimesNewRoman.ttf', fontBase64);
+      doc.addFont('TimesNewRoman.ttf', 'TimesNewRoman', 'normal');
+      
+      // Set the font for use
+      doc.setFont('TimesNewRoman');
+      
+      console.log('Vietnamese font registered successfully');
+    } catch (registerError) {
+      throw new FontError(`Lỗi đăng ký font: ${registerError.message}`);
+    }
   } catch (error) {
     console.error('Error registering Vietnamese font:', error);
+    if (error instanceof FontError) {
+      // Ném lại lỗi với message đã được định dạng
+      throw error;
+    } else {
+      // Lỗi khác, chuyển đổi thành FontError với message rõ ràng
+      throw new FontError(`Lỗi xử lý font tiếng Việt: ${error.message}`);
+    }
+    
+    // Sử dụng font dự phòng nếu cần
     useFallbackFont(doc);
   }
 };
@@ -46,6 +81,7 @@ function useFallbackFont(doc: jsPDF): void {
     
   } catch (e) {
     console.error('Error setting fallback font:', e);
+    throw new FontError(`Không thể sử dụng font dự phòng: ${e.message}`);
   }
 }
 
@@ -73,42 +109,58 @@ export const normalizeVietnameseText = (text: string): string => {
 
   if (!text) return '';
   
-  // Thực hiện chuyển đổi từng ký tự
-  return text.split('').map(char => {
-    const lowerChar = char.toLowerCase();
-    if (charMap[lowerChar]) {
-      // Giữ nguyên chữ hoa/thường
-      return char === lowerChar ? charMap[lowerChar] : charMap[lowerChar].toUpperCase();
-    }
-    return char;
-  }).join('');
+  try {
+    // Thực hiện chuyển đổi từng ký tự
+    return text.split('').map(char => {
+      const lowerChar = char.toLowerCase();
+      if (charMap[lowerChar]) {
+        // Giữ nguyên chữ hoa/thường
+        return char === lowerChar ? charMap[lowerChar] : charMap[lowerChar].toUpperCase();
+      }
+      return char;
+    }).join('');
+  } catch (error) {
+    console.error('Error normalizing Vietnamese text:', error);
+    // Trả về text gốc nếu có lỗi
+    return text;
+  }
 };
 
 /**
  * Creates a PDF document with Vietnamese support
  */
 export const createVietnamesePDF = (): jsPDF => {
-  // Create PDF with UTF8 support
-  const doc = new jsPDF({
-    orientation: 'p',
-    unit: 'pt',
-    format: 'a4',
-    putOnlyUsedFonts: true,
-    floatPrecision: 16 // to avoid rounding errors in the PDF
-  });
-  
-  return doc;
+  try {
+    // Create PDF with UTF8 support
+    const doc = new jsPDF({
+      orientation: 'p',
+      unit: 'pt',
+      format: 'a4',
+      putOnlyUsedFonts: true,
+      floatPrecision: 16 // to avoid rounding errors in the PDF
+    });
+    
+    return doc;
+  } catch (error) {
+    console.error('Error creating PDF document:', error);
+    throw new Error(`Không thể tạo tài liệu PDF: ${error.message}`);
+  }
 };
 
 /**
  * Helper function to convert ArrayBuffer to Base64 string
  */
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
+  try {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  } catch (error) {
+    console.error('Error converting array buffer to base64:', error);
+    throw new Error(`Lỗi chuyển đổi dữ liệu font: ${error.message}`);
   }
-  return btoa(binary);
 } 

@@ -195,6 +195,7 @@ class ProductDetailApi extends BaseApiService {
             const response = await this.api.get(`/product-detail/barcode-image/${barcode}`, {
                 responseType: 'blob'
             });
+            handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error: any) {
             throw new Error(error.message);

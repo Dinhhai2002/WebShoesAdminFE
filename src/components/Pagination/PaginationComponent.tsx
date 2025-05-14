@@ -8,12 +8,21 @@ import {
 } from '@mui/material';
 import utils from 'src/utils/Utils';
 
+interface PaginationComponentProps {
+  handleChangePagination: (event: React.ChangeEvent<unknown>, value: number) => void;
+  handleChangeLimit: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  totalRecord: number;
+  limit: number;
+  page?: number;
+}
+
 function PaginationComponent({
   handleChangePagination,
   handleChangeLimit,
   totalRecord,
-  limit
-}: any) {
+  limit,
+  page = 1
+}: PaginationComponentProps) {
   return (
     <>
       <Box p={2} sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -22,6 +31,7 @@ function PaginationComponent({
           variant="outlined"
           color="primary"
           onChange={handleChangePagination}
+          page={page}
         />
         <FormControl>
           <InputLabel id="demo-simple-select-label">Số trang</InputLabel>

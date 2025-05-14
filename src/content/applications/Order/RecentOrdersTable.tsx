@@ -4,14 +4,15 @@ import {
   CardHeader,
   Divider,
   useMediaQuery,
-  useTheme
+  useTheme,
+  CircularProgress,
+  TablePagination
 } from '@mui/material';
 import { ChangeEvent, createContext, useEffect, useState } from 'react';
 import Empty from 'src/components/Empty/Empty';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DropDownComponent from 'src/components/DropDownComponent/DropDownComponent';
-import PaginationComponent from 'src/components/Pagination/PaginationComponent';
 import Search from 'src/components/Search/Search';
 import orderApi from 'src/services/API/OrderApi';
 import { PAGE_DEFAULT } from 'src/utils/Constant';
@@ -28,6 +29,7 @@ interface RecentOrdersTableProps {
   listOrder: any[];
   totalRecord: number;
   onClickPagination: (valueSearch: string, page: number, limit: number, statusValue: number, paymentStatusValue: number, paymentMethodValue: number) => void;
+  loading?: boolean;
 }
 
 const OrderContext = createContext(null);
@@ -35,7 +37,8 @@ const OrderContext = createContext(null);
 const RecentOrdersTable = ({
   listOrder,
   totalRecord,
-  onClickPagination
+  onClickPagination,
+  loading = false
 }: RecentOrdersTableProps) => {
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(10);
@@ -58,19 +61,17 @@ const RecentOrdersTable = ({
     setPaymentMethodValue(Number(e.target.value));
   };
 
-  const handleChangePagination = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
-    setPage(Number(value));
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
   };
 
-  const handleChangeLimit = (event: ChangeEvent<HTMLInputElement>) => {
-    setLimit(Number(event.target.value));
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLimit(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   useEffect(() => {
-    onClickPagination(valueSearch, page, limit, statusValue, paymentStatusValue, paymentMethodValue);
+    onClickPagination(valueSearch, page + 1, limit, statusValue, paymentStatusValue, paymentMethodValue);
   }, [page]);
 
   useEffect(() => {
@@ -80,15 +81,12 @@ const RecentOrdersTable = ({
   const handleChangeStatusOrder = (id: number, status: number) => {
     orderApi.changeStatus(id, status)
       .then((response) => {
-        onClickPagination(valueSearch, page, limit, statusValue, paymentStatusValue, paymentMethodValue);
+        onClickPagination(valueSearch, page + 1, limit, statusValue, paymentStatusValue, paymentMethodValue);
         toast.success(EditSuccess);
       })
       .catch((error) => {
-        if (error.message === 'Request failed with status code 403') {
-          toast.error('Bạn không có quyền thực hiện thay đổi trạng thái đơn hàng!');
-        } else {
-          toast.error(`${error.message}`);
-        }
+        console.error('Error changing order status:', error);
+        toast.error(error?.message || 'Đã có lỗi xảy ra khi thay đổi trạng thái đơn hàng!');
       });
   };
 
@@ -97,7 +95,7 @@ const RecentOrdersTable = ({
   };
 
   const onChangeValue = () => {
-    onClickPagination(valueSearch, page, limit, statusValue, paymentStatusValue, paymentMethodValue);
+    onClickPagination(valueSearch, page + 1, limit, statusValue, paymentStatusValue, paymentMethodValue);
   };
 
   return (
@@ -143,24 +141,39 @@ const RecentOrdersTable = ({
         />
 
         <Divider />
-
-        <TableListOrder
-          listOrder={listOrder}
-          labelTable={labelTableOrder}
-          handleChangeStatusOrder={handleChangeStatusOrder}
-        />
-
-        {listOrder.length > 0 ? (
-          <PaginationComponent
-            handleChangePagination={handleChangePagination}
-            handleChangeLimit={handleChangeLimit}
-            totalRecord={totalRecord}
-            limit={limit}
-          />
-        ) : (
-          <Box p={2} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Empty />
+        
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" p={5}>
+            <CircularProgress />
           </Box>
+        ) : (
+          <>
+            <TableListOrder
+              listOrder={listOrder}
+              labelTable={labelTableOrder}
+              handleChangeStatusOrder={handleChangeStatusOrder}
+            />
+
+            {listOrder.length > 0 ? (
+              <TablePagination
+                component="div"
+                count={totalRecord}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={limit}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={[5, 10, 20, 30]}
+                labelRowsPerPage="Số hàng mỗi trang:"
+                labelDisplayedRows={({ from, to, count }) =>
+                  `${from}-${to} trên ${count}`
+                }
+              />
+            ) : (
+              <Box p={2} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Empty />
+              </Box>
+            )}
+          </>
         )}
       </Card>
     </OrderContext.Provider>

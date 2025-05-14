@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import BaseApiService from "./BaseApiService";
+import handleResponseApi from "../handleResponseApi/handleResponseApi";
 
 // Types
 export interface Voucher {
@@ -60,9 +61,10 @@ class VoucherApi extends BaseApiService {
           limit: params.limit
         }
       });
+      handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error) {
-      throw error;
+      throw new Error(error.message);
     }
   }
 
@@ -70,9 +72,10 @@ class VoucherApi extends BaseApiService {
   async findOne(id: number): Promise<ApiResponse<Voucher>> {
     try {
       const response: AxiosResponse<ApiResponse<Voucher>> = await this.api.get(`/voucher/${id}`);
+      handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error) {
-      throw error;
+      throw new Error(error.message);
     }
   }
 
@@ -80,9 +83,10 @@ class VoucherApi extends BaseApiService {
   async changeStatus(id: number): Promise<ApiResponse<Voucher>> {
     try {
       const response: AxiosResponse<ApiResponse<Voucher>> = await this.api.post(`/voucher/${id}/change-status`);
+      handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error) {
-      throw error;
+      throw new Error(error.message);
     }
   }
 
@@ -90,9 +94,10 @@ class VoucherApi extends BaseApiService {
   async create(voucher: Omit<Voucher, 'id'>): Promise<ApiResponse<Voucher>> {
     try {
       const response: AxiosResponse<ApiResponse<Voucher>> = await this.api.post("/voucher/create", voucher);
+      handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error) {
-      throw error;
+      throw new Error(error.message);
     }
   }
 
@@ -100,9 +105,10 @@ class VoucherApi extends BaseApiService {
   async update(id: number, voucher: Partial<Voucher>): Promise<ApiResponse<Voucher>> {
     try {
       const response: AxiosResponse<ApiResponse<Voucher>> = await this.api.post(`/voucher/${id}/update`, voucher);
+      handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error) {
-      throw error;
+      throw new Error(error.message);
     }
   }
 
@@ -110,9 +116,10 @@ class VoucherApi extends BaseApiService {
   async apply(id: number, data: ApplyVoucherRequest): Promise<ApiResponse<ApplyVoucherResponse>> {
     try {
       const response: AxiosResponse<ApiResponse<ApplyVoucherResponse>> = await this.api.post(`/voucher/${id}/apply`, data);
+      handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error) {
-      throw error;
+      throw new Error(error.message);
     }
   }
 }
