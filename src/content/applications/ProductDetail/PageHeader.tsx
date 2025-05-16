@@ -43,7 +43,7 @@ function PageHeader({ onRefresh }: { onRefresh?: () => void }) {
                 py: 1
               }}
             >
-              Thêm sản phẩm mới
+              Thêm sản phẩm chi tiết mới
             </Button>
             <Button
              variant="contained"
@@ -55,7 +55,7 @@ function PageHeader({ onRefresh }: { onRefresh?: () => void }) {
                 py: 1
               }}
             >
-              Thêm danh sách sản phẩm
+              Thêm danh sách sản phẩm chi tiết
             </Button>
           </Grid>
         </Grid>
@@ -63,6 +63,7 @@ function PageHeader({ onRefresh }: { onRefresh?: () => void }) {
       <DialogCreateProductDetail
         open={openCreateDialog}
         onClose={handleCloseCreateDialog}
+        onSuccess={onRefresh} 
       />
 
       <DialogCreateMultipleProductDetail

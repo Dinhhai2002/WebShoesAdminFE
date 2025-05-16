@@ -30,6 +30,7 @@ import categoryApi from 'src/services/API/CategoryApi';
 interface DialogCreateProductDetailProps {
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 const productDetailSchema = z.object({
@@ -46,7 +47,7 @@ const productDetailSchema = z.object({
 
 type ProductDetailFormData = z.infer<typeof productDetailSchema>;
 
-function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailProps) {
+function DialogCreateProductDetail({ open, onClose, onSuccess }: DialogCreateProductDetailProps) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [loading, setLoading] = useState(false);
@@ -122,6 +123,7 @@ function DialogCreateProductDetail({ open, onClose }: DialogCreateProductDetailP
       toast.success('Thêm sản phẩm chi tiết mới thành công!');
       reset();
       onClose();
+      onSuccess?.();
     } catch (error: any) {
       toast.error(error.message || 'Có lỗi xảy ra!');
     } finally {

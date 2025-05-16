@@ -82,7 +82,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
       [StatusOrderEnum.PENDING]: { text: 'Chờ xác nhận', color: 'warning' },
       [StatusOrderEnum.CONFIRMED]: { text: 'Đã xác nhận', color: 'success' },
       [StatusOrderEnum.PROCESSING]: { text: 'Đang chuẩn bị hàng', color: 'info' },
-      [StatusOrderEnum.SHIPPED]: { text: 'Đã gửi hàng', color: 'primary' },
+      [StatusOrderEnum.SHIPPED]: { text: 'Đang giao hàng', color: 'primary' },
       [StatusOrderEnum.DELIVERED]: { text: paymentMethod === 3 ? 'Thành công' : 'Đã giao hàng', color: 'success' },
       [StatusOrderEnum.CANCELLED]: { text: 'Đã hủy', color: 'error' },
     };
@@ -321,7 +321,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
           {order.payment_method === 3 ? "Nhân viên" : "Người nhận"}: {order.shipping_name}
         </Typography>
         <Typography variant="body1" gutterBottom>
-          Địa chỉ: {order.shipping_address}, {order.shipping_ward_name}, {order.shipping_district_name}, {order.shipping_city_name}
+        {order.payment_method === 3 ? "Địa chỉ cửa hàng" : "Địa chỉ giao hàng"}: {order.shipping_address}, {order.shipping_ward_name}, {order.shipping_district_name}, {order.shipping_city_name}
         </Typography>
         <Typography variant="body1" gutterBottom>
           {order.payment_method === PaymentMethodEnum.STORE ? "Số điện thoại khách hàng" : "Số điện thoại người nhận"}: 
@@ -503,7 +503,7 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
               <Grid item xs={12}>
                 <Box>
                   <Typography variant="subtitle2" color="text.secondary">
-                    Địa chỉ
+                  {order.payment_method === PaymentMethodEnum.STORE ? "Địa chỉ cửa hàng" : "Địa chỉ giao hàng"}
                   </Typography>
                   <Typography>
                     {order.shipping_address}, {order.shipping_ward_name}, {order.shipping_district_name}, {order.shipping_city_name}

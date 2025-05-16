@@ -73,7 +73,19 @@ function CreateStaffOrderForm() {
 
   const handleProductChange = (index: number, field: 'quantity', value: any) => {
     const updated = [...products];
-    updated[index][field] = Number(value);
+    const newQuantity = Number(value);
+    if(newQuantity < 1) {
+      toast.error('Số lượng không hợp lệ');
+      return;
+    } 
+    const product = productDetails.find(p => p.id === products[index].product_detail_id);
+    
+    if (product && newQuantity > product.stock) {
+      toast.error('Số lượng vượt quá tồn kho');
+      return;
+    }
+
+    updated[index][field] = newQuantity;
     setProducts(updated);
   };
 

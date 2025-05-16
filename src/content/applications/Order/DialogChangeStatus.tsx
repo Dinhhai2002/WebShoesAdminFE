@@ -74,7 +74,7 @@ function DialogChangeStatus({
       case StatusOrderEnum.PROCESSING:
         return 'Đang chuẩn bị hàng';
       case StatusOrderEnum.SHIPPED:
-        return 'Đã gửi hàng';
+        return 'Đang giao hàng';
       case StatusOrderEnum.DELIVERED:
         return 'Đã giao hàng';
       case StatusOrderEnum.CANCELLED:
@@ -119,7 +119,7 @@ function DialogChangeStatus({
             <MenuItem value={StatusOrderEnum.PENDING}>Chờ xác nhận</MenuItem>
             <MenuItem value={StatusOrderEnum.CONFIRMED}>Đã xác nhận</MenuItem>
             <MenuItem value={StatusOrderEnum.PROCESSING}>Đang chuẩn bị hàng</MenuItem>
-            <MenuItem value={StatusOrderEnum.SHIPPED}>Đã gửi hàng</MenuItem>
+            <MenuItem value={StatusOrderEnum.SHIPPED}>Đang giao hàng</MenuItem>
             <MenuItem value={StatusOrderEnum.DELIVERED}>Đã giao hàng</MenuItem>
             <MenuItem value={StatusOrderEnum.CANCELLED}>Đã hủy</MenuItem>
           </Select>

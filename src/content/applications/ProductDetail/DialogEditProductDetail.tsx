@@ -331,8 +331,14 @@ function DialogEditProductDetail({ open, onClose, id, onSuccess }: DialogEditPro
               margin="normal"
               type="number"
               name="stock"
-              onChange={(e) => setValue('stock', Number(e.target.value))}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+                if (value >= 0) {
+                  setValue('stock', value);
+                }
+              }}
               value={watch('stock')}
+              inputProps={{ min: 0 }}
             />
             <Box sx={{ mt: 2, mb: 2 }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>

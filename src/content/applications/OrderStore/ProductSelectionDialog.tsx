@@ -28,7 +28,9 @@ import {
     const [selectedMap, setSelectedMap] = useState<Record<number, number>>({});
     const [page, setPage] = useState(1);
   
-    const toggleSelection = (id: number) => {
+    const toggleSelection = (id: number, stock: number) => {
+      if (stock < 1) return;
+      
       setSelectedMap((prev) =>
         prev[id] ? { ...prev, [id]: 0 } : { ...prev, [id]: 1 }
       );
@@ -84,7 +86,47 @@ import {
           <Grid container spacing={2}>
             {paginatedProducts.map((pd) => (
               <Grid item xs={12} md={6} key={pd.id}>
-                <Box display="flex" gap={2} alignItems="center" border="1px solid #ccc" p={2} borderRadius={1}>
+                <Box 
+                  display="flex" 
+                  gap={2} 
+                  alignItems="center" 
+                  border="1px solid #ccc" 
+                  p={2} 
+                  borderRadius={1}
+                  sx={{
+                    opacity: pd.stock < 1 ? 0.6 : 1,
+                    position: 'relative'
+                  }}
+                >
+                  {pd.stock < 1 && (
+                    <Box
+                      position="absolute"
+                      top={0}
+                      left={0}
+                      right={0}
+                      bottom={0}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      bgcolor="rgba(0,0,0,0.05)"
+                      zIndex={1}
+                    >
+                      <Typography 
+                        variant="h6" 
+                        color="error" 
+                        fontWeight="bold"
+                        sx={{ 
+                          transform: 'rotate(-15deg)',
+                          border: '2px solid red',
+                          borderRadius: 1,
+                          p: 1,
+                          backgroundColor: 'rgba(255,255,255,0.8)'
+                        }}
+                      >
+                        Hết hàng
+                      </Typography>
+                    </Box>
+                  )}
                   <Box
                     component="img"
                     src={pd.image_url}
@@ -95,13 +137,20 @@ import {
                     <Typography fontWeight={600}>{pd.name}</Typography>
                     <Typography variant="body2">{pd.color} | {pd.size} | {pd.material}</Typography>
                     <Typography variant="body2">Giá: {pd.price?.toLocaleString('vi-VN')}₫</Typography>
-                    <Typography variant="body2" color="text.secondary">Tồn kho: {pd.stock}</Typography>
+                    <Typography 
+                      variant="body2" 
+                      color={pd.stock < 1 ? 'error' : 'text.secondary'}
+                      fontWeight={pd.stock < 1 ? 'bold' : 'normal'}
+                    >
+                      Tồn kho: {pd.stock}
+                    </Typography>
                   </Box>
                   <FormControlLabel
                     control={
                       <Checkbox
                         checked={selectedMap[pd.id] > 0}
-                        onChange={() => toggleSelection(pd.id)}
+                        onChange={() => toggleSelection(pd.id, pd.stock)}
+                        disabled={pd.stock < 1}
                       />
                     }
                     label="Chọn"
