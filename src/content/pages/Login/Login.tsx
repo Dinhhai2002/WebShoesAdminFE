@@ -195,13 +195,13 @@ export default function Login() {
                 Đăng Nhập
               </LoadingButton>
             </Box>
-            <Grid container>
+            {/* <Grid container>
               <Grid item xs>
                 <Link className={cx('link')} to={'/forgot-password'}>
                   Quên mật khẩu?
                 </Link>
               </Grid>
-            </Grid>
+            </Grid> */}
           </Box>
         </Grid>
       </Grid>
