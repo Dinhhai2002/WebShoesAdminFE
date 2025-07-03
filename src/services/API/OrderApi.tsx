@@ -75,6 +75,12 @@ interface OrderListResponse {
     total_record: number;
 }
 
+interface PaymentStatusesQueryParams {
+    payment_statuses: string;
+    page?: number;
+    limit?: number;
+}
+
 interface CreateOrderRequest {
     price: number;
     discount_amount: number;
@@ -212,6 +218,22 @@ class OrderApi extends BaseApiService {
         try {
             const response: AxiosResponse<ApiResponse<Order>> = 
                 await this.api.post(`/order/create-by-staff`, request);
+            handleResponseApi.handleResponse(response);
+            return response.data;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    async findByPaymentStatuses(params: PaymentStatusesQueryParams): Promise<ApiResponse<OrderListResponse>> {
+        try {
+            const response: AxiosResponse<ApiResponse<OrderListResponse>> = await this.api.get("/order/by-payment-status", {
+                params: {
+                    payment_statuses: params.payment_statuses,
+                    page: params.page,
+                    limit: params.limit
+                }
+            });
             handleResponseApi.handleResponse(response);
             return response.data;
         } catch (error) {
