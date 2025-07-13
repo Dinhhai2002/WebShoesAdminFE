@@ -2,6 +2,10 @@ import React from 'react';
 
 import { Theme } from '@mui/material';
 import { PureLightTheme } from './schemes/PureLightTheme';
+import { GoldBlackTheme } from './schemes/GoldBlackTheme';
+import { GoldWhiteTheme } from './schemes/GoldWhiteTheme';
+import { GoldNavyTheme } from './schemes/GoldNavyTheme';
+import { GoldGrayTheme } from './schemes/GoldGrayTheme';
 
 export function themeCreator(theme: string): Theme {
   return themeMap[theme];
@@ -249,5 +253,9 @@ declare module '@mui/material/styles' {
 }
 
 const themeMap: { [key: string]: Theme } = {
-  PureLightTheme
+  PureLightTheme,
+  GoldBlackTheme,
+  GoldWhiteTheme,
+  GoldNavyTheme,
+  GoldGrayTheme
 };
