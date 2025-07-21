@@ -84,6 +84,10 @@ const Profile = Loader(
   lazy(() => import('src/content/applications/Profile'))
 );
 
+const ReturnRequest = Loader(
+  lazy(() => import('src/content/applications/ReturnRequest'))
+);
+
 // Components
 
 // Status
@@ -194,6 +198,10 @@ const routes: RouteObject[] = [
       {
         path: 'voucher',
         element: <ApplicationsVoucher />
+      },
+      {
+        path: 'return-request',
+        element: <ReturnRequest />
       },
       {
         path: 'profile',
