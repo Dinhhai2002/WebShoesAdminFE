@@ -283,12 +283,25 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
+                  to="/management/cancel-order"
+                  startIcon={<ReceiptLongIcon />}
+                >
+                  Quản lý đơn hàng hủy
+                </Button>
+              </ListItem>
+
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
                   to="/management/voucher"
                   startIcon={<DiscountIcon />}
                 >
                   Quản lý Voucher
                 </Button>
               </ListItem>
+
             </List>
           </SubMenuWrapper>
         </List>

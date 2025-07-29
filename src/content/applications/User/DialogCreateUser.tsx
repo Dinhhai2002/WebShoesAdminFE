@@ -16,7 +16,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import AuthenticationApiService from 'src/services/API/AuthenticationApiService';
+import AuthenticationApiService from '../../../services/API/AuthenticationApiService';
 import { validateUserSchema, ValidateUserInput } from './validateUserSchema';
 import { RoleEnum } from 'src/utils/enum/RoleEnum';
 
@@ -24,6 +24,21 @@ interface DialogCreateUserProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+}
+
+interface GHNProvince {
+  ProvinceID: number;
+  ProvinceName: string;
+}
+
+interface GHNDistrict {
+  DistrictID: number;
+  DistrictName: string;
+}
+
+interface GHNWard {
+  WardCode: string;
+  WardName: string;
 }
 
 const roleOptions = [
@@ -48,59 +63,105 @@ const DialogCreateUser: React.FC<DialogCreateUserProps> = ({ open, onClose, onSu
       ward_id: 0,
       full_address: '',
       role: RoleEnum.USER,
+      ward_name: '',
+      district_name: '',
+      city_name: ''
     }
   });
 
   const [loading, setLoading] = useState(false);
-  const [cities, setCities] = useState<any[]>([]);
-  const [districts, setDistricts] = useState<any[]>([]);
-  const [wards, setWards] = useState<any[]>([]);
+  const [provinces, setProvinces] = useState<GHNProvince[]>([]);
+  const [districts, setDistricts] = useState<GHNDistrict[]>([]);
+  const [wards, setWards] = useState<GHNWard[]>([]);
 
+  // Load tỉnh/thành phố khi mở dialog
   useEffect(() => {
     if (open) {
-      AuthenticationApiService.getAllCity().then(res => {
-        setCities(res.data || []);
-      });
+      loadProvinces();
       reset();
       setDistricts([]);
       setWards([]);
     }
   }, [open, reset]);
 
+  // Load danh sách tỉnh/thành phố
+  const loadProvinces = async () => {
+    try {
+      const response = await AuthenticationApiService.getGHNProvinces();
+      setProvinces(response.data);
+    } catch (error) {
+      console.error('Error loading provinces:', error);
+    }
+  };
+
+  // Xử lý khi chọn tỉnh/thành phố
   const cityId = watch('city_id');
   useEffect(() => {
     if (cityId) {
-      AuthenticationApiService.findDistrictByCityId(cityId).then(res => {
-        setDistricts(res.data || []);
-        setValue('district_id', 0);
-        setWards([]);
-        setValue('ward_id', 0);
-      });
-    } else {
+      const selectedProvince = provinces.find(p => p.ProvinceID === cityId);
+      if (selectedProvince) {
+        setValue('city_name', selectedProvince.ProvinceName, { shouldValidate: true });
+        loadDistricts(cityId);
+      }
+      setValue('district_id', 0, { shouldValidate: true });
+      setValue('district_name', '', { shouldValidate: true });
+      setValue('ward_id', 0, { shouldValidate: true });
+      setValue('ward_name', '', { shouldValidate: true });
       setDistricts([]);
-      setValue('district_id', 0);
       setWards([]);
-      setValue('ward_id', 0);
     }
-  }, [cityId, setValue]);
+  }, [cityId, provinces, setValue]);
 
+  // Load danh sách quận/huyện
+  const loadDistricts = async (provinceId: number) => {
+    try {
+      const response = await AuthenticationApiService.getGHNDistricts(provinceId);
+      setDistricts(response.data);
+    } catch (error) {
+      console.error('Error loading districts:', error);
+    }
+  };
+
+  // Xử lý khi chọn quận/huyện
   const districtId = watch('district_id');
   useEffect(() => {
     if (districtId) {
-      AuthenticationApiService.findWardByDistrictId(districtId).then(res => {
-        setWards(res.data || []);
-        setValue('ward_id', 0);
-      });
-    } else {
+      const selectedDistrict = districts.find(d => d.DistrictID === districtId);
+      if (selectedDistrict) {
+        setValue('district_name', selectedDistrict.DistrictName, { shouldValidate: true });
+        loadWards(districtId);
+      }
+      setValue('ward_id', 0, { shouldValidate: true });
+      setValue('ward_name', '', { shouldValidate: true });
       setWards([]);
-      setValue('ward_id', 0);
     }
-  }, [districtId, setValue]);
+  }, [districtId, districts, setValue]);
+
+  // Load danh sách phường/xã
+  const loadWards = async (districtId: number) => {
+    try {
+      const response = await AuthenticationApiService.getGHNWards(districtId);
+      setWards(response.data);
+    } catch (error) {
+      console.error('Error loading wards:', error);
+    }
+  };
+
+  // Xử lý khi chọn phường/xã
+  const wardId = watch('ward_id');
+  useEffect(() => {
+    if (wardId && Number(wardId) !== 0) {
+      const selectedWard = wards.find(w => w.WardCode === `${wardId}`);
+      if (selectedWard) {
+        setValue('ward_name', selectedWard.WardName, { shouldValidate: true });
+      }
+    }
+  }, [wardId, wards, setValue]);
 
   const onSubmit = async (data: ValidateUserInput) => {
     setLoading(true);
     try {
-      await AuthenticationApiService.register(data as any);
+      await AuthenticationApiService.Register(data as any);
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
@@ -202,8 +263,10 @@ const DialogCreateUser: React.FC<DialogCreateUserProps> = ({ open, onClose, onSu
                     onChange={e => setValue('city_id', Number(e.target.value))}
                   >
                     <MenuItem value={0}>Chọn tỉnh/thành phố</MenuItem>
-                    {cities.map(city => (
-                      <MenuItem key={city.id} value={city.id}>{city.name}</MenuItem>
+                    {provinces.map(province => (
+                      <MenuItem key={province.ProvinceID} value={province.ProvinceID}>
+                        {province.ProvinceName}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -218,7 +281,9 @@ const DialogCreateUser: React.FC<DialogCreateUserProps> = ({ open, onClose, onSu
                   >
                     <MenuItem value={0}>Chọn quận/huyện</MenuItem>
                     {districts.map(district => (
-                      <MenuItem key={district.id} value={district.id}>{district.name}</MenuItem>
+                      <MenuItem key={district.DistrictID} value={district.DistrictID}>
+                        {district.DistrictName}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>
@@ -226,14 +291,16 @@ const DialogCreateUser: React.FC<DialogCreateUserProps> = ({ open, onClose, onSu
                   <InputLabel>Phường/Xã</InputLabel>
                   <Select
                     label="Phường/Xã"
-                    value={watch('ward_id')}
-                    {...register('ward_id', { valueAsNumber: true })}
-                    onChange={e => setValue('ward_id', Number(e.target.value))}
+                    value={wardId || '0'}
+                    {...register('ward_id')}
+                    onChange={e => setValue('ward_id', Number(e.target.value), { shouldValidate: true })}
                     disabled={!districtId}
                   >
-                    <MenuItem value={0}>Chọn phường/xã</MenuItem>
+                    <MenuItem value="0">Chọn phường/xã</MenuItem>
                     {wards.map(ward => (
-                      <MenuItem key={ward.id} value={ward.id}>{ward.name}</MenuItem>
+                      <MenuItem key={ward.WardCode} value={ward.WardCode}>
+                        {ward.WardName}
+                      </MenuItem>
                     ))}
                   </Select>
                 </FormControl>

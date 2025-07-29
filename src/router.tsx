@@ -88,6 +88,10 @@ const ReturnRequest = Loader(
   lazy(() => import('src/content/applications/ReturnRequest'))
 );
 
+const CancelOrder = Loader(
+  lazy(() => import('src/content/applications/CancelOrder'))
+);
+
 // Components
 
 // Status
@@ -202,6 +206,10 @@ const routes: RouteObject[] = [
       {
         path: 'return-request',
         element: <ReturnRequest />
+      },
+      {
+        path: 'cancel-order',
+        element: <CancelOrder />
       },
       {
         path: 'profile',

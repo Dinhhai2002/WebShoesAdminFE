@@ -44,6 +44,9 @@ export const validateUserSchema = object({
     .max(255, 'Địa chỉ không được phép lớn hơn 255 kí tự'),
   role: number()
     .min(1, 'Vui lòng chọn vai trò'),
+  ward_name : string(),
+  district_name : string(),
+  city_name : string(),
 });
 
 export type ValidateUserInput = TypeOf<typeof validateUserSchema>;

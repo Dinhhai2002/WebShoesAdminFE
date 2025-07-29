@@ -94,15 +94,33 @@ function TableListProductDetail({
                 <TableCell>{product.color}</TableCell>
                 <TableCell>{product.size}</TableCell>
                 <TableCell>{product.material}</TableCell>
-                <TableCell>{product.brand}</TableCell>
-                <TableCell>{product.category}</TableCell>
+                {/* <TableCell>{product.brand}</TableCell> */}
+                {/* <TableCell>{product.category}</TableCell> */}
                 <TableCell>{formatPrice(product.price)}</TableCell>
                 <TableCell>{product.stock}</TableCell>
                 <TableCell>
                   <Chip
-                    icon={product.status === 1 ? <CheckCircleIcon /> : <BlockIcon />}
-                    label={product.status === 1 ? 'Hoạt động' : 'Tạm khóa'}
-                    color={product.status === 1 ? 'success' : 'error'}
+                    icon={
+                      product.stock === 0
+                        ? <BlockIcon />
+                        : product.status === 1
+                          ? <CheckCircleIcon />
+                          : <BlockIcon />
+                    }
+                    label={
+                      product.stock === 0
+                        ? 'Hết hàng'
+                        : product.status === 1
+                          ? 'Hoạt động'
+                          : 'Tạm khóa'
+                    }
+                    color={
+                      product.stock === 0
+                        ? 'warning'
+                        : product.status === 1
+                          ? 'success'
+                          : 'error'
+                    }
                     size="small"
                   />
                 </TableCell>

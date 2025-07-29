@@ -39,7 +39,7 @@ const productSchema = z.object({
   name: z.string().min(1, 'Tên sản phẩm không được để trống'),
   brand_id: z.number().min(0, 'Vui lòng chọn thương hiệu'),
   category_id: z.number().min(0, 'Vui lòng chọn danh mục'),
-  description: z.string().min(1, 'Mô tả không được để trống'),
+  description: z.string().min(0, 'Mô tả không được để trống'),
   price: z.union([z.string(), z.number()]).transform((val) => {
     const num = Number(val);
     if (isNaN(num) || num <= 0) {

@@ -1,22 +1,34 @@
 import handleResponseApi from "../handleResponseApi/handleResponseApi";
-import { Banner } from "./BannerApi";
 import BaseApiService from "./BaseApiService";
-import { toast } from "react-toastify";
-import { OtpEnum } from "src/utils/enum/OtpEnum";
+import { Banner } from "./BannerApi";
+import { Category } from "./CategoryApi";
 import { Brand } from "./BrandApi";
 import { Product } from "./ProductApi";
 import { Size } from "./SizeApi";
 import { Material } from "./MaterialApi";
-import { Category } from "./CategoryApi";
 import { Color } from "./ColorApi";
 import { ProductDetail } from "./ProductDetailApi";
+import { OtpEnum } from "../../utils/enum/OtpEnum";
+import { toast } from "react-toastify";
 
 const prefix = "authentication";
 
 interface ListResponse<T> {
-    limit: number;
-    list: T[];
-    total_record: number;
+  limit: number;
+  list: T[];
+  total_record: number;
+}
+
+interface ReviewResponse {
+  id: number;
+  user_id: number;
+  username: string;
+  product_id: number;
+  rating: number;
+  comment: string;
+  status: number;
+  created_at: Date;
+  updated_at: Date;
 }
 
 interface RegisterRequest {
@@ -31,7 +43,9 @@ interface RegisterRequest {
   district_id: number;
   city_id: number;
   full_address: string;
-  role : number;
+  ward_name: string;
+  district_name: string;
+  city_name: string;
 }
 
 interface UserResponse {
@@ -84,7 +98,7 @@ interface WardResponse {
 interface ApiResponse<T> {
   status: number;
   message: string;
-  data: T;    
+  data: T;
 }
 
 interface OtpRegisterRequest {
@@ -99,9 +113,91 @@ interface OtpRegisterRequest {
   district_id: number;
   city_id: number;
   full_address: string;
+  ward_name: string;
+  district_name: string;
+  city_name: string;
 }
 
+interface ProductDetailResponse {
+  id: number;
+  product_id: number;
+  name: string;
+  color_id: number;
+  size_id: number;
+  material_id: number;
+  brand_id: number;
+  category_id: number;
+  quantity: number;
+  price: number;
+  discount: number;
+  status: number;
+  created_at: Date;
+  updated_at: Date;
+}
 
+// GHN Service interfaces
+interface GHNServiceResponse {
+  service_id: number;
+  short_name: string;
+  service_type_id: number;
+}
+
+interface GHNServiceRequest {
+  shop_id: number;
+  from_district: number;
+  to_district: number;
+}
+
+// GHN Fee interfaces
+interface GHNFeeResponse {
+  total: number;
+  service_fee: number;
+  insurance_fee: number;
+  pick_station_fee: number;
+  coupon_value: number;
+  r2s_fee: number;
+  document_return: number;
+  double_check: number;
+  cod_fee: number;
+  pick_remote_areas_fee: number;
+  deliver_remote_areas_fee: number;
+  cod_failed_fee: number;
+}
+
+interface GHNFeeRequest {
+  service_id: number;
+  insurance_value: number;
+  from_district_id: number;
+  to_district_id: number;
+  from_ward_code: string;
+  to_ward_code: string;
+  height?: number;
+  length?: number;
+  weight?: number;
+  width?: number;
+}
+
+// GHN Location interfaces
+interface GHNProvinceResponse {
+  ProvinceID: number;
+  ProvinceName: string;
+  Code: string;
+}
+
+interface GHNDistrictResponse {
+  DistrictID: number;
+  ProvinceID: number;
+  DistrictName: string;
+  Code: string;
+  Type: number;
+  SupportType: number;
+}
+
+interface GHNWardResponse {
+  WardCode: string;
+  DistrictID: number;
+  WardName: string;
+}
 
 class AuthenticationApiService extends BaseApiService {
   public async Login(user_name: any, password: any): Promise<any> {
@@ -113,12 +209,12 @@ class AuthenticationApiService extends BaseApiService {
           password,
         }
       );
-      
+
       if (response.data.status === 400) {
         toast.error(response.data.message || "Đăng nhập thất bại");
         throw new Error(response.data.message);
       }
-      
+
       handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error: any) {
@@ -140,12 +236,12 @@ class AuthenticationApiService extends BaseApiService {
           fullname,
         }
       );
-      
+
       if (response.data.status === 400) {
         toast.error(response.data.message || "Đăng nhập Google thất bại");
         throw new Error(response.data.message);
       }
-      
+
       handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error: any) {
@@ -153,18 +249,18 @@ class AuthenticationApiService extends BaseApiService {
     }
   }
 
-  public async register(data: RegisterRequest): Promise<ApiResponse<UserResponse>> {
+  public async Register(data: RegisterRequest): Promise<ApiResponse<UserResponse>> {
     try {
       const response = await this.api.post(
         `/authentication/register`,
-        data
+        { ...data, role: 1 }
       );
-      
+
       if (response.data.status === 400) {
         toast.error(response.data.message || "Đăng ký thất bại");
         throw new Error(response.data.message);
       }
-      
+
       handleResponseApi.handleResponse(response);
       toast.success("Đăng ký thành công");
       return response.data;
@@ -177,14 +273,14 @@ class AuthenticationApiService extends BaseApiService {
     try {
       const response = await this.api.post(
         `/${prefix}/otp-register`,
-        data
+        { ...data, role: 1 }
       );
-      
+
       if (response.data.status === 400) {
         toast.error(response.data.message || "Gửi mã OTP thất bại");
         throw new Error(response.data.message);
       }
-      
+
       handleResponseApi.handleResponse(response);
       toast.success("Gửi mã OTP thành công");
       return response.data;
@@ -202,12 +298,12 @@ class AuthenticationApiService extends BaseApiService {
           email,
         }
       );
-      
+
       if (response.data.status === 400) {
         toast.error(response.data.message || "Gửi mã OTP thất bại");
         throw new Error(response.data.message);
       }
-      
+
       handleResponseApi.handleResponse(response);
       toast.success("Gửi mã OTP thành công");
       return response.data;
@@ -229,12 +325,12 @@ class AuthenticationApiService extends BaseApiService {
         otp,
         type: type.valueOf()
       });
-      
+
       if (response.data.status === 400) {
         toast.error(response.data.message || "Xác nhận OTP thất bại");
         throw new Error(response.data.message);
       }
-      
+
       handleResponseApi.handleResponse(response);
       toast.success("Xác nhận OTP thành công");
       return response.data;
@@ -257,12 +353,12 @@ class AuthenticationApiService extends BaseApiService {
           confirm_password,
         }
       );
-      
+
       if (response.data.status === 400) {
         toast.error(response.data.message || "Đặt lại mật khẩu thất bại");
         throw new Error(response.data.message);
       }
-      
+
       handleResponseApi.handleResponse(response);
       toast.success("Đặt lại mật khẩu thành công");
       return response.data;
@@ -274,12 +370,12 @@ class AuthenticationApiService extends BaseApiService {
   public async getAllCity(): Promise<ApiResponse<CityResponse[]>> {
     try {
       const response = await this.api.get(`/${prefix}/get-all-city`);
-      
+
       if (response.data.status === 400) {
         toast.error(response.data.message || "Không thể tải danh sách tỉnh/thành phố");
         throw new Error(response.data.message);
       }
-      
+
       handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error: any) {
@@ -290,12 +386,12 @@ class AuthenticationApiService extends BaseApiService {
   public async findDistrictByCityId(id: number): Promise<ApiResponse<DistrictResponse[]>> {
     try {
       const response = await this.api.get(`/${prefix}/${id}/get-district-by-city`);
-      
+
       if (response.data.status === 400) {
         toast.error(response.data.message || "Không thể tải danh sách quận/huyện");
         throw new Error(response.data.message);
       }
-      
+
       handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error: any) {
@@ -306,12 +402,12 @@ class AuthenticationApiService extends BaseApiService {
   public async findWardByDistrictId(id: number): Promise<ApiResponse<WardResponse[]>> {
     try {
       const response = await this.api.get(`/${prefix}/${id}/get-ward-by-district`);
-      
+
       if (response.data.status === 400) {
         toast.error(response.data.message || "Không thể tải danh sách phường/xã");
         throw new Error(response.data.message);
       }
-      
+
       handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error: any) {
@@ -521,6 +617,114 @@ class AuthenticationApiService extends BaseApiService {
   async getProductById(id: number): Promise<ApiResponse<Product>> {
     try {
       const response = await this.api.get(`/${prefix}/products/${id}`);
+      handleResponseApi.handleResponse(response);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  async getReviews(params: {
+    user_id?: number;
+    product_id?: number;
+    key_search?: string;
+    status?: number;
+    page: number;
+    limit: number;
+  }): Promise<ApiResponse<ListResponse<ReviewResponse>>> {
+    try {
+      const response = await this.api.get(`/${prefix}/reviews`, {
+        params: {
+          user_id: params.user_id || -1,
+          product_id: params.product_id || -1,
+          key_search: params.key_search || "",
+          status: params.status || -1,
+          page: params.page,
+          limit: params.limit
+        }
+      });
+
+      handleResponseApi.handleResponse(response);
+
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  // Get suggestion products
+  async getSuggestionProducts(keyword: string, page: number = 1, limit: number = 10): Promise<ApiResponse<ListResponse<ProductDetailResponse>>> {
+    try {
+      const response = await this.api.get(`/${prefix}/products/suggestion`, {
+        params: {
+          keyword,
+          page,
+          limit
+        }
+      });
+      handleResponseApi.handleResponse(response);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  // Get available GHN services
+  async getAvailableServices(request: GHNServiceRequest): Promise<ApiResponse<GHNServiceResponse[]>> {
+    try {
+      const response = await this.api.post(`/${prefix}/ghn/available-services`, request);
+      handleResponseApi.handleResponse(response);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  // Calculate GHN shipping fee
+  async calculateShippingFee(request: GHNFeeRequest): Promise<ApiResponse<GHNFeeResponse>> {
+    try {
+      const response = await this.api.post(`/${prefix}/ghn/calculate-fee`, request);
+      handleResponseApi.handleResponse(response);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  // Get GHN provinces
+  async getGHNProvinces(): Promise<ApiResponse<GHNProvinceResponse[]>> {
+    try {
+      const response = await this.api.get(`/${prefix}/ghn/provinces`);
+      handleResponseApi.handleResponse(response);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  // Get GHN districts by province ID
+  async getGHNDistricts(provinceId: number): Promise<ApiResponse<GHNDistrictResponse[]>> {
+    try {
+      const response = await this.api.get(`/${prefix}/ghn/districts`, {
+        params: {
+          province_id: provinceId
+        }
+      });
+      handleResponseApi.handleResponse(response);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  // Get GHN wards by district ID
+  async getGHNWards(districtId: number): Promise<ApiResponse<GHNWardResponse[]>> {
+    try {
+      const response = await this.api.get(`/${prefix}/ghn/wards`, {
+        params: {
+          district_id: districtId
+        }
+      });
       handleResponseApi.handleResponse(response);
       return response.data;
     } catch (error: any) {

@@ -111,8 +111,20 @@ function PageHeader({ onSuccess }: PageHeaderProps) {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.brand_id || !formData.category_id || !formData.price) {
-      toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
+    if (!formData.name) {
+      toast.error('Vui lòng nhập tên sản phẩm');
+      return;
+    }
+    if (!formData.brand_id) {
+      toast.error('Vui lòng chọn thương hiệu');
+      return;
+    }
+    if (!formData.category_id) {
+      toast.error('Vui lòng chọn danh mục');
+      return;
+    }
+    if (!formData.price) {
+      toast.error('Vui lòng nhập giá sản phẩm');
       return;
     }
 
