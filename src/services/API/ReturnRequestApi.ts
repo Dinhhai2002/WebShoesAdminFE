@@ -68,10 +68,36 @@ interface ApiResponse<T> {
   data: T;
 }
 
+interface BaseListDataResponse<T> {
+  list: T[];
+  total_record: number;
+}
+
 // API Service Class
 class ReturnRequestApi extends BaseApiService {
   constructor(token?: string) {
     super(token);
+  }
+
+  async getAll(params: {
+    user_id?: number;
+    key_search?: string;
+    status?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<ApiResponse<BaseListDataResponse<ReturnRequestResponse>>> {
+    try {
+      const response: AxiosResponse<ApiResponse<BaseListDataResponse<ReturnRequestResponse>>> = await this.api.get("/return-requests", { params });
+      
+      if (response.data.status === 400) {
+        toast.error(response.data.message || "Không thể lấy danh sách yêu cầu trả hàng");
+        throw new Error(response.data.message);
+      }
+      
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 
   // Create return request

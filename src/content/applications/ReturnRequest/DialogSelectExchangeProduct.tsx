@@ -281,6 +281,7 @@ const DialogSelectExchangeProduct = ({
                           type="number"
                           size="small"
                           value={product.quantity}
+                          disabled={true}
                           onChange={(e) => handleQuantityChange(product.old_product_detail_id, parseInt(e.target.value) || 0)}
                           inputProps={{ min: 1, max: oldProduct?.stock || 1 }}
                           sx={{ width: 80 }}

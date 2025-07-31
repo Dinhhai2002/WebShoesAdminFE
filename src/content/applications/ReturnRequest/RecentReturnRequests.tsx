@@ -1,53 +1,53 @@
-import { Card } from '@mui/material';
 import { useEffect, useState } from 'react';
-import returnRequestApi from 'src/services/API/ReturnRequestApi';
-import { toast } from 'react-toastify';
+import returnRequestApi, { ReturnRequestResponse } from 'src/services/API/ReturnRequestApi';
 import RecentReturnRequestsTable from './RecentReturnRequestsTable';
-import { ReturnStatus } from 'src/constants/ReturnRequestConstants';
+import { Card } from '@mui/material';
 
-function RecentReturnRequests({ changeData }: any) {
-  const [listReturnRequests, setListReturnRequests] = useState([]);
-  const [totalRecord, setTotalRecord] = useState<any>(0);
-  const [loading, setLoading] = useState<boolean>(false);
-  
-  const fetchReturnRequests = (status?: string) => {
-    setLoading(true);
-    returnRequestApi.getAllReturnRequests(status)
-      .then((response) => {
-        setListReturnRequests(response.data);
-        setTotalRecord(response.data.length);
-      })
-      .catch((error) => {
-        console.error('Error fetching return requests:', error);
-        toast.error(error?.message || 'Đã có lỗi xảy ra khi tải danh sách yêu cầu đổi trả hàng!');
-      })
-      .finally(() => {
-        setLoading(false);
+const RecentReturnRequests = () => {
+  const [loading, setLoading] = useState(false);
+  const [listReturnRequests, setListReturnRequests] = useState<ReturnRequestResponse[]>([]);
+  const [totalRecord, setTotalRecord] = useState(0);
+
+  const fetchReturnRequests = async (params: {
+    user_id?: number;
+    key_search?: string;
+    status?: string;
+    page?: number;
+    limit?: number;
+  } = {}) => {
+    try {
+      setLoading(true);
+      const response = await returnRequestApi.getAll({
+        key_search: params.key_search || '',
+        status: params.status || '',
+        page: params.page || 1,
+        limit: params.limit || 10,
+        user_id: params.user_id
       });
+
+      setListReturnRequests(response.data.list);
+      setTotalRecord(response.data.total_record);
+    } catch (error) {
+      console.error('Error fetching return requests:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchReturnRequests();
   }, []);
 
-  useEffect(() => {
-    fetchReturnRequests();
-  }, [changeData]);
-
-  const onClickPagination = (status?: string) => {
-    fetchReturnRequests(status);
-  };
-
   return (
     <Card>
-      <RecentReturnRequestsTable
+      <RecentReturnRequestsTable 
         listReturnRequests={listReturnRequests}
         totalRecord={totalRecord}
-        onClickPagination={onClickPagination}
         loading={loading}
+        onRefresh={fetchReturnRequests}
       />
     </Card>
   );
-}
+};
 
 export default RecentReturnRequests; 

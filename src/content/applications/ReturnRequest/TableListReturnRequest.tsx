@@ -1,34 +1,38 @@
+import { FC, useState } from 'react';
 import {
-  Box,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Chip,
+  Typography,
   IconButton,
   Tooltip,
   Button,
+  Box,
+  TableContainer,
+  Paper,
+  Chip,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  Typography
+  TextField
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  SwapHoriz as SwapHorizIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   PlayArrow as PlayArrowIcon,
-  Done as DoneIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  SwapHoriz as SwapHorizIcon
+  Done as DoneIcon
 } from '@mui/icons-material';
-import { useState } from 'react';
+import { ReturnRequestResponse } from 'src/services/API/ReturnRequestApi';
+import returnRequestApi from 'src/services/API/ReturnRequestApi';
+import exchangeRequestApi from 'src/services/API/ExchangeRequestApi';
+import { toast } from 'react-toastify';
 import {
   getReturnStatusLabel,
   getReturnStatusColor,
@@ -36,7 +40,8 @@ import {
   canAdminApproveReject,
   canAdminProcess,
   canAdminComplete,
-  isExchangeType
+  isExchangeType,
+  getReturnTypeLabel
 } from 'src/constants/ReturnRequestConstants';
 import DialogReturnRequestDetails from './DialogReturnRequestDetails';
 import DialogChangeStatus from './DialogChangeStatus';
@@ -44,27 +49,15 @@ import DialogDelete from './DialogDelete';
 import DialogSelectExchangeProduct from './DialogSelectExchangeProduct';
 
 interface TableListReturnRequestProps {
-  listReturnRequests: any[];
-  onApprove: (id: number, adminNotes?: string) => void;
-  onReject: (id: number, adminNotes?: string) => void;
-  onProcess: (id: number) => void;
-  onComplete: (id: number) => void;
-  onDelete?: (id: number) => void;
-  onChangeStatus?: (id: number, status: string, notes?: string) => void;
-  onApproveExchange?: (id: number, exchangeProducts: any[], adminNotes?: string, priceDifference?: number) => void;
+  listReturnRequests: ReturnRequestResponse[];
+  onSuccess: () => void;
 }
 
-const TableListReturnRequest = ({
+const TableListReturnRequest: FC<TableListReturnRequestProps> = ({
   listReturnRequests,
-  onApprove,
-  onReject,
-  onProcess,
-  onComplete,
-  onDelete,
-  onChangeStatus,
-  onApproveExchange
-}: TableListReturnRequestProps) => {
-  const [selectedReturnRequest, setSelectedReturnRequest] = useState<any>(null);
+  onSuccess
+}) => {
+  const [selectedReturnRequest, setSelectedReturnRequest] = useState<ReturnRequestResponse | null>(null);
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [openApproveDialog, setOpenApproveDialog] = useState(false);
   const [openRejectDialog, setOpenRejectDialog] = useState(false);
@@ -73,76 +66,218 @@ const TableListReturnRequest = ({
   const [openExchangeDialog, setOpenExchangeDialog] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
 
-  const handleViewDetails = (returnRequest: any) => {
+  const handleViewDetails = (returnRequest: ReturnRequestResponse) => {
     setSelectedReturnRequest(returnRequest);
     setOpenDetailsDialog(true);
   };
 
-  const handleApprove = (returnRequest: any) => {
+  const handleApprove = (returnRequest: ReturnRequestResponse) => {
     setSelectedReturnRequest(returnRequest);
     setOpenApproveDialog(true);
   };
 
-  const handleReject = (returnRequest: any) => {
+  const handleReject = (returnRequest: ReturnRequestResponse) => {
     setSelectedReturnRequest(returnRequest);
     setOpenRejectDialog(true);
   };
 
-  const handleChangeStatus = (returnRequest: any) => {
+  const handleChangeStatus = (returnRequest: ReturnRequestResponse) => {
     setSelectedReturnRequest(returnRequest);
     setOpenChangeStatusDialog(true);
   };
 
-  const handleDelete = (returnRequest: any) => {
+  const handleDelete = (returnRequest: ReturnRequestResponse) => {
     setSelectedReturnRequest(returnRequest);
     setOpenDeleteDialog(true);
   };
 
-  const handleSelectExchange = (returnRequest: any) => {
+  const handleSelectExchange = (returnRequest: ReturnRequestResponse) => {
     setSelectedReturnRequest(returnRequest);
     setOpenExchangeDialog(true);
   };
 
-  const handleProcess = (id: number) => {
-    onProcess(id);
+  const handleProcess = (returnRequestId: number) => {
+    handleProcessReturnRequest(returnRequestId);
   };
 
-  const handleComplete = (id: number) => {
-    onComplete(id);
+  const handleComplete = (returnRequestId: number) => {
+    handleCompleteReturnRequest(returnRequestId);
   };
 
-  const handleConfirmApprove = () => {
-    if (selectedReturnRequest) {
-      onApprove(selectedReturnRequest.id, adminNotes);
-      setOpenApproveDialog(false);
-      setAdminNotes('');
-    }
+  const handleApproveReturnRequest = (returnRequestId: number, notes?: string) => {
+    returnRequestApi.approveReturnRequest(returnRequestId, { admin_notes: notes })
+      .then(() => {
+        toast.success('Duyệt yêu cầu đổi trả hàng thành công!');
+        onSuccess();
+        setOpenApproveDialog(false);
+        setAdminNotes('');
+      })
+      .catch((error) => {
+        console.error('Error approving return request:', error);
+        toast.error(error?.message || 'Đã có lỗi xảy ra khi duyệt yêu cầu đổi trả hàng!');
+      });
   };
 
-  const handleConfirmReject = () => {
-    if (selectedReturnRequest) {
-      onReject(selectedReturnRequest.id, adminNotes);
-      setOpenRejectDialog(false);
-      setAdminNotes('');
-    }
+  const handleRejectReturnRequest = (returnRequestId: number, notes?: string) => {
+    returnRequestApi.rejectReturnRequest(returnRequestId, { admin_notes: notes })
+      .then(() => {
+        toast.success('Từ chối yêu cầu đổi trả hàng thành công!');
+        onSuccess();
+        setOpenRejectDialog(false);
+        setAdminNotes('');
+      })
+      .catch((error) => {
+        console.error('Error rejecting return request:', error);
+        toast.error(error?.message || 'Đã có lỗi xảy ra khi từ chối yêu cầu đổi trả hàng!');
+      });
   };
 
-  const handleConfirmChangeStatus = (status: string, notes?: string) => {
-    if (selectedReturnRequest && onChangeStatus) {
-      onChangeStatus(selectedReturnRequest.id, status, notes);
-    }
+  const handleProcessReturnRequest = (returnRequestId: number) => {
+    returnRequestApi.processReturnRequest(returnRequestId)
+      .then(() => {
+        toast.success('Bắt đầu xử lý yêu cầu đổi trả hàng thành công!');
+        onSuccess();
+      })
+      .catch((error) => {
+        console.error('Error processing return request:', error);
+        toast.error(error?.message || 'Đã có lỗi xảy ra khi xử lý yêu cầu đổi trả hàng!');
+      });
   };
 
-  const handleConfirmDelete = () => {
-    if (selectedReturnRequest && onDelete) {
-      onDelete(selectedReturnRequest.id);
-    }
+  const handleCompleteReturnRequest = (returnRequestId: number) => {
+    returnRequestApi.completeReturnRequest(returnRequestId)
+      .then(() => {
+        toast.success('Hoàn thành yêu cầu đổi trả hàng thành công!');
+        onSuccess();
+      })
+      .catch((error) => {
+        console.error('Error completing return request:', error);
+        toast.error(error?.message || 'Đã có lỗi xảy ra khi hoàn thành yêu cầu đổi trả hàng!');
+      });
   };
 
-  const handleConfirmExchange = (exchangeProducts: any[], adminNotes?: string, priceDifference?: number) => {
-    if (selectedReturnRequest && onApproveExchange) {
-      onApproveExchange(selectedReturnRequest.id, exchangeProducts, adminNotes, priceDifference);
-      setOpenExchangeDialog(false);
+  const handleDeleteReturnRequest = () => {
+    if (!selectedReturnRequest) return;
+    
+    returnRequestApi.deleteReturnRequest(selectedReturnRequest.id)
+      .then(() => {
+        toast.success('Xóa yêu cầu đổi trả hàng thành công!');
+        onSuccess();
+        setOpenDeleteDialog(false);
+      })
+      .catch((error) => {
+        console.error('Error deleting return request:', error);
+        toast.error(error?.message || 'Đã có lỗi xảy ra khi xóa yêu cầu đổi trả hàng!');
+      });
+  };
+
+  const handleApproveExchangeRequest = (exchangeProducts: any[], notes?: string, priceDifference?: number) => {
+    if (!selectedReturnRequest) return;
+
+    // Tạo yêu cầu đổi hàng mới
+    const exchangeRequest = {
+      return_request_id: selectedReturnRequest.id,
+      exchange_reason: `Đổi hàng theo yêu cầu #${selectedReturnRequest.id}`,
+      price_difference: priceDifference,
+      details: exchangeProducts.map(product => ({
+        old_product_id: product.old_product_id,
+        old_product_detail_id: product.old_product_detail_id,
+        new_product_id: product.new_product_id,
+        new_product_detail_id: product.new_product_detail_id,
+        quantity: product.quantity,
+        exchange_reason: product.exchange_reason,
+        condition_description: 'Sản phẩm đổi theo yêu cầu',
+        images: []
+      }))
+    };
+
+    exchangeRequestApi.createExchangeRequest(exchangeRequest)
+      .then((response) => {
+        // Sau khi tạo yêu cầu đổi hàng, duyệt nó
+        const approveRequest = {
+          admin_notes: notes,
+          price_difference: priceDifference,
+          exchange_products: exchangeProducts.map(product => ({
+            old_product_id: product.old_product_id,
+            old_product_detail_id: product.old_product_detail_id,
+            new_product_id: product.new_product_id,
+            new_product_detail_id: product.new_product_detail_id,
+            quantity: product.quantity,
+            exchange_reason: product.exchange_reason
+          }))
+        };
+
+        return exchangeRequestApi.approveExchangeRequest(response.data.id, approveRequest);
+      })
+      .then(() => {
+        // Cập nhật trạng thái yêu cầu đổi trả hàng gốc
+        return returnRequestApi.approveReturnRequest(selectedReturnRequest.id, { admin_notes: notes });
+      })
+      .then(() => {
+        toast.success('Duyệt yêu cầu đổi hàng thành công!');
+        onSuccess();
+        setOpenExchangeDialog(false);
+      })
+      .catch((error) => {
+        console.error('Error approving exchange request:', error);
+        toast.error(error?.message || 'Đã có lỗi xảy ra khi duyệt yêu cầu đổi hàng!');
+      });
+  };
+
+  const handleChangeStatusReturnRequest = (status: string, notes?: string) => {
+    if (!selectedReturnRequest) return;
+    
+    switch (status) {
+      case ReturnStatus.APPROVED:
+        returnRequestApi.approveReturnRequest(selectedReturnRequest.id, { admin_notes: notes })
+          .then(() => {
+            toast.success('Thay đổi trạng thái thành công!');
+            onSuccess();
+            setOpenChangeStatusDialog(false);
+          })
+          .catch((error) => {
+            console.error('Error changing status:', error);
+            toast.error(error?.message || 'Đã có lỗi xảy ra khi thay đổi trạng thái!');
+          });
+        break;
+      case ReturnStatus.REJECTED:
+        returnRequestApi.rejectReturnRequest(selectedReturnRequest.id, { admin_notes: notes })
+          .then(() => {
+            toast.success('Thay đổi trạng thái thành công!');
+            onSuccess();
+            setOpenChangeStatusDialog(false);
+          })
+          .catch((error) => {
+            console.error('Error changing status:', error);
+            toast.error(error?.message || 'Đã có lỗi xảy ra khi thay đổi trạng thái!');
+          });
+        break;
+      case ReturnStatus.PROCESSING:
+        returnRequestApi.processReturnRequest(selectedReturnRequest.id)
+          .then(() => {
+            toast.success('Thay đổi trạng thái thành công!');
+            onSuccess();
+            setOpenChangeStatusDialog(false);
+          })
+          .catch((error) => {
+            console.error('Error changing status:', error);
+            toast.error(error?.message || 'Đã có lỗi xảy ra khi thay đổi trạng thái!');
+          });
+        break;
+      case ReturnStatus.COMPLETED:
+        returnRequestApi.completeReturnRequest(selectedReturnRequest.id)
+          .then(() => {
+            toast.success('Thay đổi trạng thái thành công!');
+            onSuccess();
+            setOpenChangeStatusDialog(false);
+          })
+          .catch((error) => {
+            console.error('Error changing status:', error);
+            toast.error(error?.message || 'Đã có lỗi xảy ra khi thay đổi trạng thái!');
+          });
+        break;
+      default:
+        toast.error('Trạng thái không được hỗ trợ!');
     }
   };
 
@@ -172,7 +307,7 @@ const TableListReturnRequest = ({
                 <TableCell>{returnRequest.id}</TableCell>
                 <TableCell>{returnRequest.order_id}</TableCell>
                 <TableCell>{returnRequest.return_reason}</TableCell>
-                <TableCell>{returnRequest.return_type}</TableCell>
+                <TableCell>{getReturnTypeLabel(returnRequest.return_type)}</TableCell>
                 <TableCell>
                   <Chip
                     label={getReturnStatusLabel(returnRequest.status)}
@@ -197,21 +332,9 @@ const TableListReturnRequest = ({
                       </IconButton>
                     </Tooltip>
 
-                    {onChangeStatus && (
-                      <Tooltip title="Thay đổi trạng thái">
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => handleChangeStatus(returnRequest)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-
                     {canAdminApproveReject(returnRequest.status) && (
                       <>
-                        {isExchangeType(returnRequest.return_type) && onApproveExchange ? (
+                        {isExchangeType(returnRequest.return_type) && (
                           <Tooltip title="Chọn sản phẩm đổi">
                             <IconButton
                               size="small"
@@ -221,17 +344,16 @@ const TableListReturnRequest = ({
                               <SwapHorizIcon />
                             </IconButton>
                           </Tooltip>
-                        ) : (
-                          <Tooltip title="Duyệt">
-                            <IconButton
-                              size="small"
-                              color="success"
-                              onClick={() => handleApprove(returnRequest)}
-                            >
-                              <CheckCircleIcon />
-                            </IconButton>
-                          </Tooltip>
                         )}
+                        <Tooltip title="Duyệt">
+                          <IconButton
+                            size="small"
+                            color="success"
+                            onClick={() => handleApprove(returnRequest)}
+                          >
+                            <CheckCircleIcon />
+                          </IconButton>
+                        </Tooltip>
                         <Tooltip title="Từ chối">
                           <IconButton
                             size="small"
@@ -268,17 +390,15 @@ const TableListReturnRequest = ({
                       </Tooltip>
                     )}
 
-                    {onDelete && (
-                      <Tooltip title="Xóa">
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleDelete(returnRequest)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    )}
+                    <Tooltip title="Xóa">
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleDelete(returnRequest)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
                   </Box>
                 </TableCell>
               </TableRow>
@@ -287,14 +407,12 @@ const TableListReturnRequest = ({
         </Table>
       </TableContainer>
 
-      {/* Dialog chi tiết */}
       <DialogReturnRequestDetails
         open={openDetailsDialog}
         onClose={() => setOpenDetailsDialog(false)}
         returnRequest={selectedReturnRequest}
       />
 
-      {/* Dialog duyệt */}
       <Dialog open={openApproveDialog} onClose={() => setOpenApproveDialog(false)}>
         <DialogTitle>Duyệt yêu cầu đổi trả hàng</DialogTitle>
         <DialogContent>
@@ -313,13 +431,20 @@ const TableListReturnRequest = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenApproveDialog(false)}>Hủy</Button>
-          <Button onClick={handleConfirmApprove} color="success" variant="contained">
+          <Button 
+            onClick={() => {
+              if (selectedReturnRequest) {
+                handleApproveReturnRequest(selectedReturnRequest.id, adminNotes);
+              }
+            }} 
+            color="success" 
+            variant="contained"
+          >
             Duyệt
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Dialog từ chối */}
       <Dialog open={openRejectDialog} onClose={() => setOpenRejectDialog(false)}>
         <DialogTitle>Từ chối yêu cầu đổi trả hàng</DialogTitle>
         <DialogContent>
@@ -340,7 +465,11 @@ const TableListReturnRequest = ({
         <DialogActions>
           <Button onClick={() => setOpenRejectDialog(false)}>Hủy</Button>
           <Button 
-            onClick={handleConfirmReject} 
+            onClick={() => {
+              if (selectedReturnRequest) {
+                handleRejectReturnRequest(selectedReturnRequest.id, adminNotes);
+              }
+            }}
             color="error" 
             variant="contained"
             disabled={!adminNotes.trim()}
@@ -350,29 +479,26 @@ const TableListReturnRequest = ({
         </DialogActions>
       </Dialog>
 
-      {/* Dialog thay đổi trạng thái */}
       <DialogChangeStatus
         open={openChangeStatusDialog}
         onClose={() => setOpenChangeStatusDialog(false)}
-        onConfirm={handleConfirmChangeStatus}
+        onConfirm={handleChangeStatusReturnRequest}
         currentStatus={selectedReturnRequest?.status}
         title="Thay đổi trạng thái yêu cầu đổi trả hàng"
       />
 
-      {/* Dialog xóa */}
       <DialogDelete
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
-        onConfirm={handleConfirmDelete}
+        onConfirm={handleDeleteReturnRequest}
         title="Xác nhận xóa yêu cầu đổi trả hàng"
         message="Bạn có chắc chắn muốn xóa yêu cầu đổi trả hàng này?"
       />
 
-      {/* Dialog chọn sản phẩm đổi */}
       <DialogSelectExchangeProduct
         open={openExchangeDialog}
         onClose={() => setOpenExchangeDialog(false)}
-        onConfirm={handleConfirmExchange}
+        onConfirm={handleApproveExchangeRequest}
         returnRequest={selectedReturnRequest}
       />
     </>
