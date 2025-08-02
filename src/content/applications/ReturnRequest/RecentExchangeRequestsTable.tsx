@@ -85,7 +85,6 @@ const RecentExchangeRequestsTable = ({
     exchangeRequestApi.approveExchangeRequest(id, request)
       .then((response) => {
         onClickPagination();
-        toast.success('Duyệt yêu cầu đổi hàng thành công!');
       })
       .catch((error) => {
         console.error('Error approving exchange request:', error);

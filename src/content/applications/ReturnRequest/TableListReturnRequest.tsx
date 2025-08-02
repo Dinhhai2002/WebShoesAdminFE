@@ -41,7 +41,9 @@ import {
   canAdminProcess,
   canAdminComplete,
   isExchangeType,
-  getReturnTypeLabel
+  getReturnTypeLabel,
+  ReturnType,
+  isReturnType
 } from 'src/constants/ReturnRequestConstants';
 import DialogReturnRequestDetails from './DialogReturnRequestDetails';
 import DialogChangeStatus from './DialogChangeStatus';
@@ -332,7 +334,7 @@ const TableListReturnRequest: FC<TableListReturnRequestProps> = ({
                       </IconButton>
                     </Tooltip>
 
-                    {canAdminApproveReject(returnRequest.status) && (
+                    {canAdminApproveReject(returnRequest.status)  && (
                       <>
                         {isExchangeType(returnRequest.return_type) && (
                           <Tooltip title="Chọn sản phẩm đổi">
@@ -345,15 +347,19 @@ const TableListReturnRequest: FC<TableListReturnRequestProps> = ({
                             </IconButton>
                           </Tooltip>
                         )}
-                        <Tooltip title="Duyệt">
-                          <IconButton
-                            size="small"
-                            color="success"
-                            onClick={() => handleApprove(returnRequest)}
-                          >
-                            <CheckCircleIcon />
-                          </IconButton>
-                        </Tooltip>
+                        {isReturnType(returnRequest.return_type) && (
+                          <>
+                            <Tooltip title="Duyệt">
+                              <IconButton
+                                size="small"
+                              color="success"
+                                onClick={() => handleApprove(returnRequest)}
+                              >
+                                <CheckCircleIcon />
+                              </IconButton>
+                            </Tooltip>
+                          </>
+                        )}
                         <Tooltip title="Từ chối">
                           <IconButton
                             size="small"
