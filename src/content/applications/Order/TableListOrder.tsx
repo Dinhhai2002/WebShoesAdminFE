@@ -6,7 +6,9 @@ import {
   TableHead,
   TableRow,
   useTheme,
-  Button
+  Button,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import TableCellComponent from 'src/components/TableCellComponent/TableCellComponent';
 import IconActions from 'src/components/IconActions/IconActions';
@@ -180,18 +182,16 @@ function TableListOrder({
                     </TableCell>
 
                     <TableCell align="center">
-                      <Button
-                        onClick={() => handleOpenDetails(item.id)}
-                        sx={{ textTransform: 'none', minWidth: 'auto', mr: 1 }}
-                      >
-                        Xem chi tiết
-                      </Button>
-                      <Button
-                        onClick={() => handleOpenStatusChange(item.id, item.status)}
-                        sx={{ textTransform: 'none', minWidth: 'auto' }}
-                      >
-                        Thay đổi trạng thái
-                      </Button>
+                      <Tooltip title="Xem chi tiết">
+                        <IconButton onClick={() => handleOpenDetails(item.id)}>
+                          👁️
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Thay đổi trạng thái">
+                        <IconButton onClick={() => handleOpenStatusChange(item.id, item.status)}>
+                          🔄
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 );

@@ -396,7 +396,7 @@ const TableListReturnRequest: FC<TableListReturnRequestProps> = ({
                       </Tooltip>
                     )}
 
-                    <Tooltip title="Xóa">
+                    {/* <Tooltip title="Xóa">
                       <IconButton
                         size="small"
                         color="error"
@@ -404,7 +404,7 @@ const TableListReturnRequest: FC<TableListReturnRequestProps> = ({
                       >
                         <DeleteIcon />
                       </IconButton>
-                    </Tooltip>
+                    </Tooltip> */}
                   </Box>
                 </TableCell>
               </TableRow>

@@ -15,6 +15,7 @@ export interface WebsiteStatisticalResponse {
 export interface AmountStatisticalResponse {
   date: string;
   totalAmount: number;
+  totalAmountAll : number;
 }
 
 interface ApiResponse<T> {

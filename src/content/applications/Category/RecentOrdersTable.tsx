@@ -153,11 +153,11 @@ export const RecentOrdersTable = ({
                 valueSearch={valueSearch}
                 setValueSearch={setValueSearch}
                 handleSubmitSearch={handleSubmitSearch}
-                label="Search category"
+                label="Tìm kiếm danh mục"
               />
               <DropDownComponent
                 arr={statusOptions}
-                label="Status"
+                label="Trạng thái"
                 value={statusValue}
                 handleStatusChange={handleStatusChange}
                 type={0}

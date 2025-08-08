@@ -182,7 +182,7 @@ export const labelTableDanhMuc= [
   },
   {
     id: 4,
-    name: 'Actions'
+    name: 'Hành động'
   }
 ];
 
@@ -243,7 +243,7 @@ export const labelTableCourse = [
   },
   {
     id: 7,
-    name: 'Actions'
+    name: 'Hành động'
   }
 ];
 
@@ -282,7 +282,7 @@ export const labelTableExam = [
   },
   {
     id: 8,
-    name: 'Actions'
+    name: 'Hành động'
   }
 ];
 
@@ -309,7 +309,7 @@ export const labelTableUser = [
   },
   {
     id: 6,
-    name: 'Role'
+    name: 'Vai trò'
   },
   {
     id: 7,
@@ -317,7 +317,7 @@ export const labelTableUser = [
   },
   {
     id: 8,
-    name: 'Actions'
+    name: 'Hành động'
   }
 ];
 
@@ -468,7 +468,7 @@ export const labelTableBlog = [
   },
   {
     id: 6,
-    name: 'Actions'
+    name: 'Hành động'
   }
 ];
 
@@ -487,7 +487,7 @@ export const labelTableBanner = [
   },
   {
     id: 4,
-    name: 'Actions'
+    name: 'Hành động'
   }
 ];
 
@@ -514,7 +514,7 @@ export const labelTablePromotion = [
   },
   {
     id: 6,
-    name: 'Actions'
+    name: 'Hành động'
   }
 ];
 
@@ -549,7 +549,7 @@ export const labelTableOrder = [
   },
   {
     id: 8,
-    name: 'Actions'
+    name: 'Hành động'
   }
 ];
 
@@ -575,7 +575,7 @@ export const paymentStatusOptions = [
 export const labelTableBrand = [
   {
     id: 1,
-    name: 'ID'
+    name: 'Mã thương hiệu'
   },
   {
     id: 2,
@@ -591,7 +591,7 @@ export const labelTableBrand = [
   },
   {
     id: 5,
-    name: 'Actions'
+    name: 'Hành động'
   }
 ];
 
@@ -602,15 +602,15 @@ export const roleOptions = [
   },
   {
     id: 1,
-    name: 'User'
+    name: 'Người dùng'
   },
   {
     id: 2,
-    name: 'Admin'
+    name: 'Quản trị viên'
   },
   {
     id: 3,
-    name: 'Staff'
+    name: 'Nhân viên'
   }
 ];
 
@@ -621,15 +621,15 @@ export const getRoleLabel = (roleId: number): JSX.Element => {
 
   const map = {
     [RoleEnum.USER]: {
-      text: 'User',
+      text: 'Người dùng',
       color: 'info'
     },
     [RoleEnum.ADMIN]: {
-      text: 'Admin',
+      text: 'Quản trị viên',
       color: 'error'
     },
     [RoleEnum.STAFF]: {
-      text: 'Staff',
+      text: 'Nhân viên',
       color: 'warning'
     }
   };

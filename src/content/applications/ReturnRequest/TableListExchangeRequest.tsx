@@ -248,7 +248,7 @@ const TableListExchangeRequest = ({
                       </Tooltip>
                     )}
 
-                    {onDelete && (
+                    {/* {onDelete && (
                       <Tooltip title="Xóa">
                         <IconButton
                           size="small"
@@ -258,7 +258,7 @@ const TableListExchangeRequest = ({
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>
-                    )}
+                    )} */}
                   </Box>
                 </TableCell>
               </TableRow>

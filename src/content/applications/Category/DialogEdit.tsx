@@ -248,14 +248,14 @@ function DialogEdit({
               // defaultValue={category?.name || ''}
               required
               fullWidth
-              label="Category Name"
+              label="Tên danh mục"
               sx={{ mb: 2 }}
             />
 
             {/* --- Image Section --- */}
             <Box mb={2}>
               <Typography variant="subtitle1" gutterBottom>
-                Category Image
+                Ảnh danh mục
               </Typography>
 
               {/* Hidden File Input */}
@@ -306,7 +306,7 @@ function DialogEdit({
 
               {/* Upload Button */}
               <Button variant="outlined" onClick={triggerFileInput}>
-                {previewUrl ? 'Change Image' : 'Upload Image'}
+                {previewUrl ? 'Thay đổi ảnh' : 'Tải lên ảnh'}
               </Button>
             </Box>
             {/* --- End Image Section --- */}

@@ -165,7 +165,7 @@ function PageHeader({ setChangeData, changeData }) {
                   }}
                 />
                 <Button variant="contained" component="span">
-                  Upload Image
+                  Tải ảnh lên
                 </Button>
               </label>
               {preview && (

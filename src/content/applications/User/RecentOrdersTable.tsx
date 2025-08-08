@@ -143,25 +143,25 @@ export const RecentOrdersTable = ({
                 valueSearch={valueSearch}
                 setValueSearch={setValueSearch}
                 handleSubmitSearch={handleSubmitSearch}
-                label="Search user"
+                label="Tìm kiếm người dùng"
               />
               <DropDownComponent
                 arr={statusOptions}
-                label="Status"
+                label="Trạng thái"
                 value={statusValue}
                 handleStatusChange={handleChangeStatus}
                 type={0}
               />
               <DropDownComponent
                 arr={roleOptions}
-                label="Role"
+                label="Vai trò"
                 value={roleValue}
                 handleStatusChange={handleChangeRole}
                 type={0}
               />
             </Box>
           }
-          title="User List"
+          title="Danh sách người dùng"
         />
 
         <Divider />

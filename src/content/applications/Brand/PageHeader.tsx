@@ -116,12 +116,12 @@ function PageHeader({ setChangeData, changeData }: PageHeaderProps) {
           
         } catch (uploadError) {
           console.error(
-            'Error uploading brand image after creation:',
+            'Lỗi tải lên ảnh thương hiệu sau khi tạo:',
             uploadError
           );
           // Show a warning that creation succeeded but image upload failed
           toast.warning(
-            `Brand '${values.name}' created, but image upload failed: ${
+            `Thương hiệu '${values.name}' đã được tạo, nhưng tải lên ảnh thương hiệu thất bại: ${
               uploadError.response?.data?.message || uploadError.message
             }`
           );
@@ -195,7 +195,7 @@ function PageHeader({ setChangeData, changeData }: PageHeaderProps) {
               {/* --- Image Section --- */}
               <Box mb={2}>
                 <Typography variant="subtitle1" gutterBottom>
-                  Brand Image (Optional)
+                  Ảnh thương hiệu (Tùy chọn)
                 </Typography>
                 <input
                   type="file"
@@ -208,7 +208,7 @@ function PageHeader({ setChangeData, changeData }: PageHeaderProps) {
                 <Box mb={1} sx={{ position: 'relative', width: 'fit-content' }}>
                   <img
                     src={previewUrl || '/static/images/placeholders/browse.svg'} // Show preview or placeholder
-                    alt="Brand preview"
+                    alt="Ảnh thương hiệu"
                     style={{
                       maxWidth: '200px',
                       maxHeight: '200px',
@@ -238,7 +238,7 @@ function PageHeader({ setChangeData, changeData }: PageHeaderProps) {
                 </Box>
                 {/* Upload/Change Button */}
                 <Button variant="outlined" onClick={triggerFileInput}>
-                  {previewUrl ? 'Change Image' : 'Upload Image'}
+                  {previewUrl ? 'Thay đổi ảnh' : 'Tải lên ảnh'}
                 </Button>
               </Box>
               {/* --- End Image Section --- */}

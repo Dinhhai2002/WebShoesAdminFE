@@ -112,7 +112,7 @@ const RecentOrdersTable = ({
                 valueSearch={valueSearch}
                 setValueSearch={setValueSearch}
                 handleSubmitSearch={handleSubmitSearch}
-                label="Search order"
+                label="Tìm kiếm đơn hàng"
               />
               <DropDownComponent
                 arr={statusOptionsOrder}

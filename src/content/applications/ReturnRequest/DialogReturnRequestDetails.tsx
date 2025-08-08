@@ -207,7 +207,7 @@ const DialogReturnRequestDetails = ({
                                 {detail.product_detail?.color} - {detail.product_detail?.size}
                               </Typography>
                               <Typography variant="caption" color="text.secondary" display="block">
-                                Product ID: {detail.product_id}
+                                Mã sản phẩm: {detail.product_id}
                               </Typography>
                             </Box>
                           </Box>

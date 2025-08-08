@@ -174,14 +174,14 @@ function CreateStaffOrderForm() {
   return (
     <Container sx={{ mt: 2 }} >
       <Typography variant="h3" gutterBottom>
-        Tạo đơn hàng
+        Tạo đơn hàng tại quầy
       </Typography>
       <Paper sx={{ p: 3 }}>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <Stack direction="row" spacing={2} alignItems="center">
               <FormControl fullWidth>
-                <InputLabel>Địa chỉ</InputLabel>
+                <InputLabel>Địa chỉ cửa hàng</InputLabel>
                 <Select
                   value={selectedAddressId}
                   onChange={(e) => setSelectedAddressId(Number(e.target.value))}
@@ -195,7 +195,7 @@ function CreateStaffOrderForm() {
                 </Select>
               </FormControl>
               <Button variant="outlined" onClick={() => setOpenAddressDialog(true)}>
-                Tạo địa chỉ mới
+                Tạo địa chỉ mới cho cửa hàng
               </Button>
             </Stack>
           </Grid>
