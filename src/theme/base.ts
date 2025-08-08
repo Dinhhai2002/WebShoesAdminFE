@@ -6,6 +6,9 @@ import { GoldBlackTheme } from './schemes/GoldBlackTheme';
 import { GoldWhiteTheme } from './schemes/GoldWhiteTheme';
 import { GoldNavyTheme } from './schemes/GoldNavyTheme';
 import { GoldGrayTheme } from './schemes/GoldGrayTheme';
+import { ModernLightTheme } from './schemes/ModernLightTheme';
+import { LavenderLightTheme } from './schemes/LavenderLightTheme';
+
 
 export function themeCreator(theme: string): Theme {
   return themeMap[theme];
@@ -257,5 +260,7 @@ const themeMap: { [key: string]: Theme } = {
   GoldBlackTheme,
   GoldWhiteTheme,
   GoldNavyTheme,
-  GoldGrayTheme
+  GoldGrayTheme,
+  ModernLightTheme,
+  LavenderLightTheme
 };
