@@ -124,7 +124,7 @@ function HeaderUserbox() {
         <List sx={{ p: 1 }} component="nav">
           <ListItem button to="/management/profile/details" component={NavLink}>
             <AccountBoxTwoToneIcon fontSize="small" />
-            <ListItemText primary="My Profile" />
+            <ListItemText primary="Trang cá nhân" />
           </ListItem>
           {/* <ListItem button to="/messenger" component={NavLink}>
             <InboxTwoToneIcon fontSize="small" />
@@ -143,7 +143,7 @@ function HeaderUserbox() {
         <Box sx={{ m: 1 }}>
           <Button component={NavLink} to="/login" color="primary" fullWidth>
             <LockOpenTwoToneIcon sx={{ mr: 1 }} />
-            Sign out
+            Đăng xuất
           </Button>
         </Box>
       </Popover>
