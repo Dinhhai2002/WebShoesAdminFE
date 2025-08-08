@@ -30,7 +30,7 @@ class Utils {
       case 1:
         return 'Người dùng';
       case 2:
-        return 'Admin';
+        return 'Quản trị viên';
       case 3:
         return 'Nhân viên';
       default:

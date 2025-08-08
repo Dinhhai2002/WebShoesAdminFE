@@ -51,7 +51,7 @@ function TableListUser({
                       {getRoleLabel(item.role)}
                     </TableCell>
                     <TableCell align="center">
-                      {getStatusLabel(item.is_active, 'Active', 'Inactive')}
+                      {getStatusLabel(item.is_active, 'Hoạt động', 'Khóa')}
                     </TableCell>
                     <TableCell align="center">
                       {item.is_active === StatusEnum.ON ? (

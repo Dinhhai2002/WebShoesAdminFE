@@ -139,8 +139,8 @@ function DialogEditBrand({
         finalBrandData = nameUpdateResponse.data;
         nameOrImageUpdated = true;
       } catch (error) {
-        console.error("Error updating brand name:", error);
-        toast.error(error.message || 'Failed to update brand name.');
+        console.error("Lỗi cập nhật tên thương hiệu:", error);
+        toast.error(error.message || 'Lỗi cập nhật tên thương hiệu.');
         setLoading(false);
         return;
       }
@@ -153,8 +153,8 @@ function DialogEditBrand({
         finalBrandData = nameUpdateResponse.data; // Temporarily update data
         nameOrImageUpdated = true; // Mark as updated because name changed
        } catch (error) {
-        console.error("Error updating brand name (before image upload):", error);
-        toast.error(error.message || 'Failed to update brand name.');
+        console.error("Lỗi cập nhật tên thương hiệu (trước khi tải lên ảnh):", error);
+        toast.error(error.message || 'Lỗi cập nhật tên thương hiệu.');
         setLoading(false);
         return;
        }
@@ -167,8 +167,8 @@ function DialogEditBrand({
         finalBrandData = imageUploadResponse.data; // Update with the latest data after image upload
         nameOrImageUpdated = true; // Mark as updated because image changed
       } catch (error) {
-        console.error("Error uploading brand image:", error);
-        toast.error(error.response?.data?.message || 'Failed to upload brand image.');
+        console.error("Lỗi tải lên ảnh thương hiệu:", error);
+        toast.error(error.response?.data?.message || 'Lỗi tải lên ảnh thương hiệu.');
         // Continue even if image upload fails, name might have been updated
       }
     }
@@ -182,7 +182,7 @@ function DialogEditBrand({
       handleClose(); // Close the dialog
     } else if (!nameChanged && !selectedFile) {
       setConfirmOpen(false)
-      toast.info('No changes detected.');
+      toast.info('Không có thay đổi nào được phát hiện.');
       handleClose();
     } else {
       setConfirmOpen(false)
@@ -239,7 +239,7 @@ function DialogEditBrand({
             {/* --- Image Section --- */}
             <Box mb={2}>
               <Typography variant="subtitle1" gutterBottom>
-                Brand Image
+                Ảnh thương hiệu
               </Typography>
               <input
                 type="file"
@@ -265,7 +265,7 @@ function DialogEditBrand({
                 )}
               </Box>
               <Button variant="outlined" onClick={triggerFileInput}>
-                {previewUrl ? 'Change Image' : 'Upload Image'}
+                {previewUrl ? 'Thay đổi ảnh' : 'Tải lên ảnh'}
               </Button>
             </Box>
             {/* --- End Image Section --- */}

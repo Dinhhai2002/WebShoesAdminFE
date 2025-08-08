@@ -43,7 +43,7 @@ function TableListBanner({
             <TableCell>ID</TableCell>
             <TableCell>Hình ảnh</TableCell>
             <TableCell>Trạng thái</TableCell>
-            <TableCell align="center">Action</TableCell>
+            <TableCell align="center">Hành động</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

@@ -18,7 +18,7 @@ import {
   Stack
 } from '@mui/material';
 import { ReturnRequestResponse } from 'src/services/API/ReturnRequestApi';
-import { ReturnStatus } from 'src/constants/ReturnRequestConstants';
+import { RETURN_STATUS_LABELS, ReturnStatus } from 'src/constants/ReturnRequestConstants';
 import TableListReturnRequest from './TableListReturnRequest';
 
 interface RecentReturnRequestsTableProps {
@@ -115,7 +115,7 @@ const RecentReturnRequestsTable: FC<RecentReturnRequestsTableProps> = ({
               onChange={handleStatusChange}
             >
               <MenuItem value="">Tất cả</MenuItem>
-              {Object.entries(ReturnStatus).map(([key, value]) => (
+              {Object.entries(RETURN_STATUS_LABELS).map(([key, value]) => (
                 <MenuItem key={key} value={key}>
                   {value}
                 </MenuItem>

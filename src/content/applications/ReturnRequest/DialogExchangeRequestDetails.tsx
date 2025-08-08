@@ -203,7 +203,7 @@ const DialogExchangeRequestDetails = ({
                                   {detail.old_product_detail?.color} - {detail.old_product_detail?.size}
                                 </Typography>
                                 <Typography variant="caption" color="text.secondary" display="block">
-                                  Product ID: {detail.old_product_id}
+                                  Mã sản phẩm: {detail.old_product_id}
                                 </Typography>
                               </Box>
                             </Box>
@@ -223,7 +223,7 @@ const DialogExchangeRequestDetails = ({
                                   {detail.new_product_detail?.color} - {detail.new_product_detail?.size}
                                 </Typography>
                                 <Typography variant="caption" color="text.secondary" display="block">
-                                  Product ID: {detail.new_product_id}
+                                  Mã sản phẩm: {detail.new_product_id}
                                 </Typography>
                               </Box>
                             </Box>

@@ -189,7 +189,7 @@ const TableListCancelOrder = ({
                       </>
                     )}
 
-                    {onDelete && (
+                    {/* {onDelete && (
                       <Tooltip title="Xóa">
                         <IconButton
                           size="small"
@@ -199,7 +199,7 @@ const TableListCancelOrder = ({
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>
-                    )}
+                    )} */}
                   </Box>
                 </TableCell>
               </TableRow>

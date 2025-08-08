@@ -1,15 +1,35 @@
-import { useState, useEffect } from "react";
+import { FC, useEffect, useState } from 'react';
 import {
   Box,
   Card,
-  CardContent,
   Grid,
-  CardHeader,
-  Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
   TablePagination,
+  TableRow,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+  Tooltip,
+  Divider,
+  Stack,
+  Paper,
+  InputAdornment,
+  Typography,
+  Chip,
   useTheme,
-  useMediaQuery,
-} from "@mui/material";
+  useMediaQuery
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import ClearIcon from '@mui/icons-material/Clear';
+import { LoadingButton } from '@mui/lab';
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import TableListProductDetail from "./TableListProductDetail";
@@ -58,11 +78,11 @@ const labelTable = [
   { id: 11, label: "Trạng thái" },
 ];
 
-function RecentProductDetailsTable({
+const RecentProductDetailsTable: FC<RecentProductDetailsTableProps> = ({
   listProductDetail,
   totalRecord,
   onClickPagination,
-}: RecentProductDetailsTableProps) {
+}) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
   const [page, setPage] = useState<number>(0);
@@ -361,33 +381,107 @@ function RecentProductDetailsTable({
   return (
     <Card>
       <ToastContainer />
-      <CardHeader
-        action={
-          <Box width={900}>
-            <Grid container spacing={1} alignItems="center">
-              <Grid item xs={12} sm={12} md={6} lg={6} sx={{ display: 'flex', alignItems: 'center' }}>
-                <Search
-                  valueSearch={keySearch}
-                  setValueSearch={setKeySearch}
-                  handleSubmitSearch={() =>
-                    onClickPagination(
-                      keySearch,
-                      1,
-                      limit,
-                      status,
-                      productId,
-                      categoryId,
-                      colorId,
-                      materialId,
-                      brandId,
-                      sizeId
-                    )
-                  }
-                  label="Tìm kiếm chi tiết sản phẩm"
-                />
+      <Box p={3}>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                mb: 3,
+                bgcolor: 'background.default'
+              }}
+            >
+              <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                <FilterListIcon />
+                <Typography variant="h5">Bộ lọc tìm kiếm</Typography>
+              </Stack>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6} md={3}>
+                  <TextField
+                    fullWidth
+                    label="Tìm kiếm"
+                    variant="outlined"
+                    value={keySearch}
+                    onChange={(e) => setKeySearch(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon />
+                        </InputAdornment>
+                      ),
+                      endAdornment: keySearch && (
+                        <InputAdornment position="end">
+                          <IconButton
+                            size="small"
+                            onClick={() => setKeySearch('')}
+                          >
+                            <ClearIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <DropDownComponent
+                    arr={productOptions}
+                    label="Sản phẩm"
+                    value={productId}
+                    handleStatusChange={handleProductChange}
+                    type={0}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <DropDownComponent
+                    arr={categoryOptions}
+                    label="Danh mục"
+                    value={categoryId}
+                    handleStatusChange={handleCategoryChange}
+                    type={0}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <DropDownComponent
+                    arr={colorOptions}
+                    label="Màu sắc"
+                    value={colorId}
+                    handleStatusChange={handleColorChange}
+                    type={0}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <DropDownComponent
+                    arr={materialOptions}
+                    label="Chất liệu"
+                    value={materialId}
+                    handleStatusChange={handleMaterialChange}
+                    type={0}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <DropDownComponent
+                    arr={brandOptions}
+                    label="Thương hiệu"
+                    value={brandId}
+                    handleStatusChange={handleBrandChange}
+                    type={0}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <DropDownComponent
+                    arr={sizeOptions}
+                    label="Kích cỡ"
+                    value={sizeId}
+                    handleStatusChange={handleSizeChange}
+                    type={0}
+                  />
+                </Grid>
+              </Grid>
+              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                 <Button
                   variant="outlined"
-                  sx={{ ml: 1 }}
+                  color="inherit"
                   onClick={() => {
                     setProductId(-1);
                     setCategoryId(-1);
@@ -401,107 +495,85 @@ function RecentProductDetailsTable({
                 >
                   Xóa bộ lọc
                 </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <DropDownComponent
-                  arr={statusOptions}
-                  label="Trạng thái"
-                  value={status}
-                  handleStatusChange={handleStatusChange}
-                  type={0}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <DropDownComponent
-                  arr={productOptions}
-                  label="Sản phẩm"
-                  value={productId}
-                  handleStatusChange={handleProductChange}
-                  type={0}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <DropDownComponent
-                  arr={categoryOptions}
-                  label="Danh mục"
-                  value={categoryId}
-                  handleStatusChange={handleCategoryChange}
-                  type={0}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <DropDownComponent
-                  arr={colorOptions}
-                  label="Màu sắc"
-                  value={colorId}
-                  handleStatusChange={handleColorChange}
-                  type={0}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <DropDownComponent
-                  arr={materialOptions}
-                  label="Chất liệu"
-                  value={materialId}
-                  handleStatusChange={handleMaterialChange}
-                  type={0}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <DropDownComponent
-                  arr={brandOptions}
-                  label="Thương hiệu"
-                  value={brandId}
-                  handleStatusChange={handleBrandChange}
-                  type={0}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={4} lg={3}>
-                <DropDownComponent
-                  arr={sizeOptions}
-                  label="Kích cỡ"
-                  value={sizeId}
-                  handleStatusChange={handleSizeChange}
-                  type={0}
-                />
-              </Grid>
-            </Grid>
-          </Box>
-        }
-        title="Danh sách chi tiết sản phẩm"
-      />
-
-      <Divider />
-
-      <CardContent>
-        <Grid container spacing={3}>
+                <LoadingButton
+                  variant="contained"
+                  onClick={() => {
+                    onClickPagination(
+                      keySearch,
+                      1,
+                      limit,
+                      status,
+                      productId,
+                      categoryId,
+                      colorId,
+                      materialId,
+                      brandId,
+                      sizeId
+                    );
+                  }}
+                  loading={false} // Assuming loading state is managed elsewhere or not needed here
+                  startIcon={<SearchIcon />}
+                >
+                  Tìm kiếm
+                </LoadingButton>
+              </Box>
+            </Paper>
+          </Grid>
           <Grid item xs={12}>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <TableListProductDetail
-                listProductDetail={listProductDetail}
-                labelTable={labelTable}
-                handleClickOpenStatus={handleClickOpenStatus}
-                handleChangeStatus={handleChangeStatus}
-                onRefresh={handleRefresh}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Typography variant="h5">
+                Danh sách chi tiết sản phẩm
+                {totalRecord > 0 && (
+                  <Chip
+                    label={`${totalRecord} chi tiết`}
+                    size="small"
+                    sx={{ ml: 1 }}
+                  />
+                )}
+              </Typography>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setProductId(-1);
+                  setCategoryId(-1);
+                  setColorId(-1);
+                  setMaterialId(-1);
+                  setBrandId(-1);
+                  setSizeId(-1);
+                  setKeySearch("");
+                  onClickPagination("", 1, limit, status, -1, -1, -1, -1, -1, -1);
+                }}
+              >
+                Thêm mới
+              </Button>
+            </Box>
+            <TableListProductDetail
+              listProductDetail={listProductDetail}
+              labelTable={labelTable}
+              handleClickOpenStatus={handleClickOpenStatus}
+              handleChangeStatus={handleChangeStatus}
+              onRefresh={handleRefresh}
+            />
+            <Box p={2}>
+              <TablePagination
+                component="div"
+                count={totalRecord}
+                page={page}
+                onPageChange={handleChangePage}
+                rowsPerPage={limit}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={[5, 10, 25, 50]}
+                labelRowsPerPage="Số hàng mỗi trang:"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} trên ${count}`}
               />
             </Box>
           </Grid>
         </Grid>
-      </CardContent>
+      </Box>
 
-      <TablePagination
-        component="div"
-        count={totalRecord}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={limit}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        rowsPerPageOptions={[5, 10, 25, 50]}
-        labelRowsPerPage="Số hàng mỗi trang:"
-        labelDisplayedRows={({ from, to, count }) => `${from}-${to} trên ${count}`}
-      />
+      {/* ... existing dialogs ... */}
     </Card>
   );
-}
+};
 
 export default RecentProductDetailsTable;
