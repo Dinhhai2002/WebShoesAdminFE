@@ -17,7 +17,7 @@ function Footer() {
         justifyContent="space-between"
       >
         <Box>
-          <Typography variant="subtitle1">Web Shoes</Typography>
+          <Typography variant="subtitle1">Web KamenRider</Typography>
         </Box>
         <Typography
           sx={{
@@ -27,11 +27,11 @@ function Footer() {
         >
           dev:
           <Link
-            href="https://www.facebook.com/profile.php?id=100010823251886"
+            href="#"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Web Shoes
+            Web KamenRider
           </Link>
         </Typography>
       </Box>

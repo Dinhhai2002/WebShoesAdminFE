@@ -104,9 +104,19 @@ function StatisticalAmountView() {
     return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
   };
 
+  const formatYAxisValue = (value: number) => {
+    if (value >= 1000000000) {
+      return `${(value / 1000000000).toFixed(1)}B`;
+    }
+    if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1)}M`;
+    }
+    return value.toLocaleString('vi-VN');
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Typography variant="h4" gutterBottom>
           Thống kê doanh thu
         </Typography>
@@ -180,7 +190,7 @@ function StatisticalAmountView() {
                       <LineChart data={data} margin={{ top: 20, right: 20, left: 0, bottom: 10 }}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="date" />
-                        <YAxis />
+                        <YAxis tickFormatter={formatYAxisValue} />
                         <Tooltip formatter={(value: any) => formatCurrency(value)} />
                         <Line 
                           type="monotone" 
