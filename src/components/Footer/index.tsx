@@ -27,7 +27,7 @@ function Footer() {
         >
           dev:
           <Link
-            href="https://www.facebook.com/profile.php?id=100010823251886"
+            href="#"
             target="_blank"
             rel="noopener noreferrer"
           >
