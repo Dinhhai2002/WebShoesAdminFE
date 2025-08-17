@@ -17,7 +17,7 @@ function Footer() {
         justifyContent="space-between"
       >
         <Box>
-          <Typography variant="subtitle1">Web KamenRider</Typography>
+          <Typography variant="subtitle1">Web CoatZ</Typography>
         </Box>
         <Typography
           sx={{
@@ -31,7 +31,7 @@ function Footer() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Web KamenRider
+            Web CoatZ
           </Link>
         </Typography>
       </Box>
