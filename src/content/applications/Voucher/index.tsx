@@ -44,6 +44,33 @@ const DiscountTypeEnum = {
   CASH: 2
 };
 
+const VoucherStatusEnum = {
+  PENDING: 'Chưa diễn ra',
+  ONGOING: 'Đang diễn ra',
+  ENDED: 'Kết thúc',
+  OUT_OF_STOCK: 'Hết lượt'
+};
+
+const getVoucherStatus = (voucher: Voucher) => {
+  const now = dayjs();
+  const startDate = dayjs(voucher.start_date, 'DD/MM/YYYY HH:mm:ss');
+  const endDate = dayjs(voucher.end_date, 'DD/MM/YYYY HH:mm:ss');
+
+  if (voucher.usage_limit <= voucher.used_count) {
+    return VoucherStatusEnum.OUT_OF_STOCK;
+  }
+  
+  if (now.isBefore(startDate)) {
+    return VoucherStatusEnum.PENDING;
+  }
+  
+  if (now.isAfter(endDate)) {
+    return VoucherStatusEnum.ENDED;
+  }
+  
+  return VoucherStatusEnum.ONGOING;
+};
+
 function VoucherManagement() {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [selectedVoucher, setSelectedVoucher] = useState<Partial<Voucher> | null>(null);
@@ -55,6 +82,10 @@ function VoucherManagement() {
   const [totalRecord, setTotalRecord] = useState(0);
   const [loading, setLoading] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{ open: boolean; id: number; currentStatus: number } | null>(null);
+  const [dateErrors, setDateErrors] = useState<{
+    startDate: string;
+    endDate: string;
+  }>({ startDate: '', endDate: '' });
 
   const fetchVouchers = () => {
     voucherApi
@@ -85,24 +116,55 @@ function VoucherManagement() {
       used_count: 0,
       status: 1
     });
+    setDateErrors({ startDate: '', endDate: '' });
     setOpenDialog(true);
   };
 
   const handleEdit = (voucher: Voucher) => {
+    const status = getVoucherStatus(voucher);
+    if (status === VoucherStatusEnum.ENDED) {
+      toast.error('Không thể chỉnh sửa voucher đã kết thúc');
+      return;
+    }
     setSelectedVoucher({
       ...voucher,
       start_date: voucher.start_date,
       end_date: voucher.end_date
     });
+    setDateErrors({ startDate: '', endDate: '' });
     setOpenDialog(true);
+  };
+
+  const validateDates = (start: string, end: string) => {
+    const startDate = dayjs(start, 'DD/MM/YYYY HH:mm:ss');
+    const endDate = dayjs(end, 'DD/MM/YYYY HH:mm:ss');
+    
+    if (!startDate.isValid() || !endDate.isValid()) {
+      return {
+        startDate: '',
+        endDate: ''
+      };
+    }
+
+    if (startDate.isAfter(endDate)) {
+      return {
+        startDate: 'Ngày bắt đầu không được lớn hơn ngày kết thúc',
+        endDate: ''
+      };
+    }
+    
+    return {
+      startDate: '',
+      endDate: ''
+    };
   };
 
   const handleSave = async () => {
     if (!selectedVoucher) return;
 
-    // Validate start_date must be less than end_date
-    if (dayjs(selectedVoucher.start_date, 'DD/MM/YYYY HH:mm:ss').isAfter(dayjs(selectedVoucher.end_date, 'DD/MM/YYYY HH:mm:ss'))) {
-      toast.error('Ngày bắt đầu phải nhỏ hơn ngày kết thúc');
+    const errors = validateDates(selectedVoucher.start_date, selectedVoucher.end_date);
+    if (errors.startDate || errors.endDate) {
+      setDateErrors(errors);
       return;
     }
 
@@ -163,7 +225,7 @@ function VoucherManagement() {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Mã</TableCell>
+                  <TableCell>Tên Voucher</TableCell>
                   <TableCell>Loại</TableCell>
                   <TableCell>Giá trị</TableCell>
                   <TableCell>Giảm tối đa</TableCell>
@@ -193,16 +255,31 @@ function VoucherManagement() {
                     <TableCell>{v.usage_limit}</TableCell>
                     <TableCell>{v.used_count}</TableCell>
                     <TableCell>
-                      <Typography color={v.status === 1 ? 'success.main' : 'error.main'} fontWeight="bold">
-                        {v.status === 1 ? 'Hoạt động' : 'Tạm khóa'}
+                      <Typography 
+                        color={
+                          getVoucherStatus(v) === VoucherStatusEnum.ONGOING
+                            ? 'success.main'
+                            : getVoucherStatus(v) === VoucherStatusEnum.PENDING
+                            ? 'info.main'
+                            : 'error.main'
+                        } 
+                        fontWeight="bold"
+                      >
+                        {getVoucherStatus(v)}
                       </Typography>
                     </TableCell>
                     <TableCell align="center">
                       <Stack direction="row" spacing={1} justifyContent="center">
-                        <IconButton onClick={() => handleEdit(v)} color="primary">
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton onClick={() => setConfirmDialog({ open: true, id: v.id, currentStatus: v.status })} color="warning">
+                        {getVoucherStatus(v) !== VoucherStatusEnum.ENDED && (
+                          <IconButton onClick={() => handleEdit(v)} color="primary">
+                            <EditIcon />
+                          </IconButton>
+                        )}
+                        <IconButton 
+                          onClick={() => setConfirmDialog({ open: true, id: v.id, currentStatus: v.status })} 
+                          color="warning"
+                          disabled={getVoucherStatus(v) === VoucherStatusEnum.ENDED}
+                        >
                           {v.status === 1 ? <LockIcon /> : <LockOpenIcon />}
                         </IconButton>
                       </Stack>
@@ -228,19 +305,70 @@ function VoucherManagement() {
         <DialogTitle>{selectedVoucher?.id ? 'Chỉnh sửa' : 'Tạo mới'} voucher</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} mt={1}>
-            <Grid item xs={12}><TextField label="Mã" fullWidth value={selectedVoucher?.code} onChange={(e) => setSelectedVoucher((prev) => ({ ...prev, code: e.target.value }))} /></Grid>
+            <Grid item xs={12}><TextField label="Tên Voucher" fullWidth value={selectedVoucher?.code} onChange={(e) => setSelectedVoucher((prev) => ({ ...prev, code: e.target.value }))} /></Grid>
             <Grid item xs={12}><FormControl fullWidth><InputLabel>Loại</InputLabel><Select value={selectedVoucher?.discount_type} label="Loại" onChange={(e) => setSelectedVoucher((prev) => ({ ...prev, discount_type: Number(e.target.value) }))}><MenuItem value={1}>Phần trăm</MenuItem><MenuItem value={2}>Tiền mặt</MenuItem></Select></FormControl></Grid>
             <Grid item xs={6}><TextField label="Giá trị" type="number" fullWidth value={selectedVoucher?.discount_value} onChange={(e) => setSelectedVoucher((prev) => ({ ...prev, discount_value: Number(e.target.value) }))} /></Grid>
             <Grid item xs={6}><TextField label="Giảm tối đa" type="number" fullWidth value={selectedVoucher?.max_discount} onChange={(e) => setSelectedVoucher((prev) => ({ ...prev, max_discount: Number(e.target.value) }))} /></Grid>
             <Grid item xs={6}><TextField label="Đơn tối thiểu" type="number" fullWidth value={selectedVoucher?.min_order_value} onChange={(e) => setSelectedVoucher((prev) => ({ ...prev, min_order_value: Number(e.target.value) }))} /></Grid>
             <Grid item xs={6}><TextField label="Giới hạn" type="number" fullWidth value={selectedVoucher?.usage_limit} onChange={(e) => setSelectedVoucher((prev) => ({ ...prev, usage_limit: Number(e.target.value) }))} /></Grid>
-            <Grid item xs={6}><DesktopDatePicker label="Bắt đầu" value={dayjs(selectedVoucher?.start_date, 'DD/MM/YYYY HH:mm:ss')} onChange={(newDate) => setSelectedVoucher((prev) => ({ ...prev, start_date: newDate?.format('DD/MM/YYYY HH:mm:ss') || '' }))} slotProps={{ textField: { fullWidth: true } }} /></Grid>
-            <Grid item xs={6}><DesktopDatePicker label="Kết thúc" value={dayjs(selectedVoucher?.end_date, 'DD/MM/YYYY HH:mm:ss')} onChange={(newDate) => setSelectedVoucher((prev) => ({ ...prev, end_date: newDate?.format('DD/MM/YYYY HH:mm:ss') || '' }))} slotProps={{ textField: { fullWidth: true } }} /></Grid>
+            <Grid item xs={6}>
+              <DesktopDatePicker 
+                label="Bắt đầu" 
+                value={dayjs(selectedVoucher?.start_date, 'DD/MM/YYYY HH:mm:ss')} 
+                onChange={(newDate) => {
+                  const newStartDate = newDate?.format('DD/MM/YYYY HH:mm:ss') || '';
+                  setSelectedVoucher((prev) => ({ 
+                    ...prev, 
+                    start_date: newStartDate
+                  }));
+                  if (selectedVoucher?.end_date) {
+                    setDateErrors(validateDates(newStartDate, selectedVoucher.end_date));
+                  }
+                }} 
+                slotProps={{ 
+                  textField: { 
+                    fullWidth: true,
+                    error: !!dateErrors.startDate,
+                    helperText: dateErrors.startDate
+                  } 
+                }} 
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <DesktopDatePicker 
+                label="Kết thúc" 
+                value={dayjs(selectedVoucher?.end_date, 'DD/MM/YYYY HH:mm:ss')} 
+                onChange={(newDate) => {
+                  const newEndDate = newDate?.format('DD/MM/YYYY HH:mm:ss') || '';
+                  setSelectedVoucher((prev) => ({ 
+                    ...prev, 
+                    end_date: newEndDate
+                  }));
+                  if (selectedVoucher?.start_date) {
+                    setDateErrors(validateDates(selectedVoucher.start_date, newEndDate));
+                  }
+                }} 
+                slotProps={{ 
+                  textField: { 
+                    fullWidth: true,
+                    error: !!dateErrors.endDate,
+                    helperText: dateErrors.endDate
+                  } 
+                }} 
+              />
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Hủy</Button>
-          <LoadingButton onClick={handleSave} loading={loading} variant="contained">Lưu</LoadingButton>
+          <LoadingButton 
+            onClick={handleSave} 
+            loading={loading} 
+            variant="contained"
+            disabled={!!dateErrors.startDate || !!dateErrors.endDate}
+          >
+            Lưu
+          </LoadingButton>
         </DialogActions>
       </Dialog>
 

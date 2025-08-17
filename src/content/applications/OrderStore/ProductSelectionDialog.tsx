@@ -136,6 +136,7 @@ import {
                   <Box flexGrow={1}>
                     <Typography fontWeight={600}>{pd.name}</Typography>
                     <Typography variant="body2">{pd.color} | {pd.size} | {pd.material}</Typography>
+                    <Typography variant="body2" color="text.secondary">Barcode: {pd.barcode || 'N/A'}</Typography>
                     <Typography variant="body2">Giá: {pd.price?.toLocaleString('vi-VN')}₫</Typography>
                     <Typography 
                       variant="body2" 

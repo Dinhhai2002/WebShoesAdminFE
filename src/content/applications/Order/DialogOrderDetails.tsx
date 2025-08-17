@@ -318,10 +318,10 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
           {order.payment_method === 3 ? "Địa chỉ cửa hàng" : "Địa chỉ giao hàng"}
         </Typography>
         <Typography variant="body1" gutterBottom>
-          {order.payment_method === 3 ? "Nhân viên" : "Người nhận"}: {order.shipping_name}
+          {order.payment_method === 3 ? "" : "Người nhận"}: {order.shipping_name}
         </Typography>
         <Typography variant="body1" gutterBottom>
-        {order.payment_method === 3 ? "Địa chỉ cửa hàng" : "Địa chỉ giao hàng"}: {order.shipping_address}, {order.shipping_ward_name}, {order.shipping_district_name}, {order.shipping_city_name}
+        {order.payment_method === 3 ? "" : "Địa chỉ giao hàng"}: {order.shipping_address}, {order.shipping_ward_name}, {order.shipping_district_name}, {order.shipping_city_name}
         </Typography>
         <Typography variant="body1" gutterBottom>
           {order.payment_method === PaymentMethodEnum.STORE ? "Số điện thoại khách hàng" : "Số điện thoại người nhận"}: 
@@ -489,27 +489,27 @@ function DialogOrderDetails({ open, onClose, orderId }: DialogOrderDetailsProps)
           )}
           {/* Shipping Information */}
           <Grid item xs={12}>
-          
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Box>
                   <Typography variant="subtitle2" color="text.secondary">
-                  {order.payment_method === 3 ? "Nhân viên" : "Người nhận"}
+                  {order.payment_method === PaymentMethodEnum.STORE ? "" : "Người nhận"}
                   </Typography>
                   <Typography>{order.shipping_name}</Typography>
                 </Box>
               </Grid>
-              
+              {order.payment_method !== PaymentMethodEnum.STORE && (
               <Grid item xs={12}>
                 <Box>
                   <Typography variant="subtitle2" color="text.secondary">
-                  {order.payment_method === PaymentMethodEnum.STORE ? "Địa chỉ cửa hàng" : "Địa chỉ giao hàng"}
+                  "Địa chỉ giao hàng"
                   </Typography>
                   <Typography>
                     {order.shipping_address}, {order.shipping_ward_name}, {order.shipping_district_name}, {order.shipping_city_name}
                   </Typography>
                 </Box>
               </Grid>
+              )}
 
               <Grid item xs={12}>
                 <Box>

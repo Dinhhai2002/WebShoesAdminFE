@@ -108,8 +108,10 @@ interface StaffOrderRequest {
     total_price: number;
     payment_method: number;
     address_id: number;
+    voucher_id: number;
     products: StaffOrderProductRequest[];
     customer_phone: string;
+    customer_name: string;
 }
 
 interface ApiResponse<T> {

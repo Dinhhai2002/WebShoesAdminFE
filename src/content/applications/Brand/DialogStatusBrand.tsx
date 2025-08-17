@@ -4,10 +4,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   useMediaQuery,
   useTheme,
   Zoom,
@@ -15,7 +11,6 @@ import {
   Box
 } from '@mui/material';
 import { StatusEnum } from 'src/utils/enum/StatusEnum';
-import { useState } from 'react';
 import Label from 'src/components/Label';
 
 interface DialogStatusBrandProps {
@@ -35,11 +30,6 @@ function DialogStatusBrand({
 }: DialogStatusBrandProps) {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [selectedStatus, setSelectedStatus] = useState<number>(currentStatus);
-
-  const handleChange = (event: any) => {
-    setSelectedStatus(event.target.value);
-  };
 
   const handleSubmit = () => {
     handleChangeStatus(id);
@@ -68,6 +58,10 @@ function DialogStatusBrand({
     }
   };
 
+  const getNewStatus = (currentStatus: number) => {
+    return currentStatus === StatusEnum.ON ? 'không hoạt động' : 'hoạt động';
+  };
+
   return (
     <Dialog
       fullScreen={fullScreen}
@@ -80,30 +74,22 @@ function DialogStatusBrand({
       fullWidth
     >
       <DialogTitle id="responsive-dialog-title">
-        Thay đổi trạng thái thương hiệu #{id}
+        Xác nhận thay đổi trạng thái
       </DialogTitle>
       <DialogContent>
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-            Trạng thái hiện tại:
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body1" gutterBottom>
+            Bạn có chắc chắn muốn thay đổi trạng thái của thương hiệu #{id} từ{' '}
+            <Label color={getStatusColor(currentStatus)}>
+              {getStatusText(currentStatus)}
+            </Label>
+            {' '}sang{' '}
+            <Label color={getStatusColor(currentStatus === StatusEnum.ON ? StatusEnum.OFF : StatusEnum.ON)}>
+              {getStatusText(currentStatus === StatusEnum.ON ? StatusEnum.OFF : StatusEnum.ON)}
+            </Label>
+            ?
           </Typography>
-          <Label color={getStatusColor(currentStatus)}>
-            {getStatusText(currentStatus)}
-          </Label>
         </Box>
-        <FormControl fullWidth>
-          <InputLabel id="status-select-label">Chọn trạng thái mới</InputLabel>
-          <Select
-            labelId="status-select-label"
-            id="status-select"
-            value={selectedStatus}
-            label="Chọn trạng thái mới"
-            onChange={handleChange}
-          >
-            <MenuItem value={StatusEnum.ON}>Hoạt động</MenuItem>
-            <MenuItem value={StatusEnum.OFF}>Không hoạt động</MenuItem>
-          </Select>
-        </FormControl>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} variant="outlined">
@@ -117,4 +103,4 @@ function DialogStatusBrand({
   );
 }
 
-export default DialogStatusBrand; 
+export default DialogStatusBrand;
