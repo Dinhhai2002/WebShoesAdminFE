@@ -21,15 +21,33 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Paper,
+  Stack,
+  Grid,
+  Avatar,
+  useTheme,
+  alpha,
+  InputAdornment
 } from '@mui/material';
-import { CheckCircle, Block, Add } from '@mui/icons-material';
+import { 
+  CheckCircle, 
+  Block, 
+  Add,
+  Search as SearchIcon,
+  FilterList as FilterListIcon,
+  Refresh as RefreshIcon,
+  Visibility as VisibilityIcon,
+  LocationOn as LocationOnIcon,
+  Phone as PhoneIcon
+} from '@mui/icons-material';
 import { toast } from 'react-toastify';
 import addressBookApi from 'src/services/API/AddressBookApi';
 import { PAGE_DEFAULT, LIMIT_DEFAULT } from 'src/utils/Constant';
 import DialogViewAddressBook from './DialogViewAddressBook';
 
 function AddressBookManagement() {
+  const theme = useTheme();
   const [list, setList] = useState([]);
   const [totalRecord, setTotalRecord] = useState(0);
   const [page, setPage] = useState(0);
@@ -85,52 +103,142 @@ function AddressBookManagement() {
 
   return (
     <Container maxWidth="xl">
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h4">Quản lý Sổ Địa Chỉ</Typography>
-        <Button variant="contained" startIcon={<Add />} disabled>
+      {/* Header Section */}
+      <Box
+        sx={{
+          pb: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}
+      >
+        <Typography variant="h3">
+          Quản lý Sổ Địa Chỉ
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<Add />}
+          disabled
+          sx={{
+            px: 2.5,
+            py: 1
+          }}
+        >
           Thêm địa chỉ mới
         </Button>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
-        <TextField
-          label="Tìm kiếm theo tên hoặc SĐT"
-          variant="outlined"
-          size="small"
-          value={keySearch}
-          onChange={(e) => setKeySearch(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-        />
-        <FormControl size="small" sx={{ minWidth: 160 }}>
-          <InputLabel>Trạng thái</InputLabel>
-          <Select
-            value={status}
-            onChange={(e) => {
-              setStatus(Number(e.target.value));
-              setPage(0);
-            }}
-            label="Trạng thái"
-          >
-            <MenuItem value={-1}>Tất cả</MenuItem>
-            <MenuItem value={1}>Hoạt động</MenuItem>
-            <MenuItem value={0}>Tạm khóa</MenuItem>
-          </Select>
-        </FormControl>
-        <Button variant="outlined" onClick={handleSearch}>Tìm kiếm</Button>
-      </Box>
+      {/* Filter Section */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 3,
+          borderRadius: 2,
+          border: `1px solid ${theme.palette.divider}`
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={1} mb={3}>
+          <FilterListIcon />
+          <Typography variant="h5">Bộ lọc tìm kiếm</Typography>
+        </Stack>
 
-      <Card>
-        <CardHeader title="Danh sách địa chỉ người dùng" />
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              fullWidth
+              placeholder="Tìm kiếm theo tên hoặc SĐT"
+              value={keySearch}
+              onChange={(e) => setKeySearch(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                )
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth>
+              <InputLabel>Trạng thái</InputLabel>
+              <Select
+                value={status}
+                onChange={(e) => {
+                  setStatus(Number(e.target.value));
+                  setPage(0);
+                }}
+                label="Trạng thái"
+              >
+                <MenuItem value={-1}>Tất cả</MenuItem>
+                <MenuItem value={1}>Hoạt động</MenuItem>
+                <MenuItem value={0}>Tạm khóa</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleSearch}
+              startIcon={<SearchIcon />}
+            >
+              Tìm kiếm
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={() => {
+                setKeySearch('');
+                setStatus(-1);
+                setPage(0);
+                fetchAddressBooks(1, limit, '', -1);
+              }}
+              startIcon={<RefreshIcon />}
+            >
+              Làm mới
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* Table Section */}
+      <Card
+        sx={{
+          borderRadius: 2,
+          border: `1px solid ${theme.palette.divider}`,
+          boxShadow: 'none'
+        }}
+      >
+        <CardHeader 
+          title={
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography variant="h5">Danh sách địa chỉ người dùng</Typography>
+              {totalRecord > 0 && (
+                <Chip 
+                  label={`${totalRecord} địa chỉ`}
+                  size="small"
+                  sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main' }}
+                />
+              )}
+            </Stack>
+          }
+        />
         <Divider />
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow
+                sx={{
+                  backgroundColor: alpha(theme.palette.primary.main, 0.05)
+                }}
+              >
                 <TableCell>ID</TableCell>
-                <TableCell>Họ tên</TableCell>
-                <TableCell>SĐT</TableCell>
-                <TableCell>Địa chỉ đầy đủ</TableCell>
-                <TableCell>Mặc định</TableCell>
+                <TableCell>Thông tin người dùng</TableCell>
+                <TableCell>Địa chỉ</TableCell>
                 <TableCell>Trạng thái</TableCell>
                 <TableCell align="right">Thao tác</TableCell>
               </TableRow>
@@ -139,15 +247,37 @@ function AddressBookManagement() {
               {list.map((item: any) => (
                 <TableRow key={item.id} hover>
                   <TableCell>{item.id}</TableCell>
-                  <TableCell>{item.full_name}</TableCell>
-                  <TableCell>{item.phone}</TableCell>
-                  <TableCell>{item.full_address}</TableCell>
                   <TableCell>
-                    <Chip
-                      label={item.is_default ? 'Mặc định' : 'Không'}
-                      color={item.is_default ? 'primary' : 'default'}
-                      size="small"
-                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Avatar 
+                        sx={{ 
+                          bgcolor: alpha(theme.palette.primary.main, 0.1),
+                          color: 'primary.main'
+                        }}
+                      >
+                        {item.full_name.charAt(0)}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="body1">{item.full_name}</Typography>
+                        <Stack direction="row" spacing={0.5} alignItems="center">
+                          <PhoneIcon fontSize="small" color="action" />
+                          <Typography variant="body2" color="text.secondary">
+                            {item.phone}
+                          </Typography>
+                        </Stack>
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Stack spacing={1}>
+                      <Typography variant="body2" noWrap>{item.full_address}</Typography>
+                      <Chip
+                        size="small"
+                        label={item.is_default ? 'Địa chỉ mặc định' : 'Địa chỉ phụ'}
+                        color={item.is_default ? 'primary' : 'default'}
+                        sx={{ width: 'fit-content' }}
+                      />
+                    </Stack>
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -159,8 +289,16 @@ function AddressBookManagement() {
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Xem chi tiết">
-                      <IconButton onClick={() => handleOpenView(item.id)}>
-                        👁️
+                      <IconButton 
+                        onClick={() => handleOpenView(item.id)}
+                        sx={{
+                          color: 'primary.main',
+                          '&:hover': {
+                            bgcolor: alpha(theme.palette.primary.main, 0.1)
+                          }
+                        }}
+                      >
+                        <VisibilityIcon />
                       </IconButton>
                     </Tooltip>
                   </TableCell>
@@ -169,7 +307,8 @@ function AddressBookManagement() {
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
+        <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+                  <TablePagination
           component="div"
           count={totalRecord}
           page={page}
@@ -180,6 +319,7 @@ function AddressBookManagement() {
           labelRowsPerPage="Số hàng mỗi trang"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} trên ${count}`}
         />
+        </Box>
       </Card>
 
       {selectedId && (

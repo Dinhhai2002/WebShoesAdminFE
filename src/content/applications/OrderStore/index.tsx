@@ -18,7 +18,8 @@ import {
   DialogContent,
   DialogActions,
   Autocomplete,
-  CircularProgress
+  CircularProgress,
+  Divider
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import orderApi from 'src/services/API/OrderApi';
@@ -214,63 +215,28 @@ function CreateStaffOrderForm() {
   // Removed handleCreateCustomer as customer creation is now handled in order creation
 
   return (
-    <Container sx={{ mt: 2 }} >
-      <Typography variant="h3" gutterBottom>
-        Tạo đơn hàng tại quầy
-      </Typography>
-      <Paper sx={{ p: 3 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <Stack direction="row" spacing={2}>
-              <TextField
-                label="Số điện thoại khách hàng"
-                value={customerPhone}
-                onChange={(e) => handlePhoneChange(e.target.value)}
-                fullWidth
-                placeholder="Để trống nếu là khách vãng lai"
-              />
-              {customerPhone && !selectedCustomer && (
-                <TextField
-                  label="Tên khách hàng"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  fullWidth
-                  placeholder="Nhập tên để tạo khách hàng mới"
-                />
-              )}
-              {selectedCustomer && (
-                <TextField
-                  label="Tên khách hàng"
-                  value={selectedCustomer.name}
-                  fullWidth
-                  disabled
-                />
-              )}
-            </Stack>
-          </Grid>
+    <Container maxWidth="xl" sx={{ mt: 2 }}>
+      <Grid container spacing={2}>
+        {/* Left Column */}
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 3, height: '100%' }}>
+            {/* Header */}
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+              <Typography variant="h3">
+                Tạo đơn hàng tại quầy
+              </Typography>
+              <Stack direction="row" spacing={1}>
+                <Button variant="contained" onClick={() => setOpenDialog(true)}>
+                  Thêm sản phẩm
+                </Button>
+                <Button variant="outlined" color="secondary" onClick={() => setBarcodeScanOpen(true)}>
+                  Quét mã barcode
+                </Button>
+              </Stack>
+            </Box>
 
-          {customers.length > 0 && !selectedCustomer && (
-            <Grid item xs={12}>
-              <Paper variant="outlined" sx={{ p: 2 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Khách hàng tìm thấy:
-                </Typography>
-                {customers.map((customer) => (
-                  <Button
-                    key={customer.id}
-                    variant="outlined"
-                    onClick={() => handleCustomerSelect(customer)}
-                    sx={{ mr: 1, mb: 1 }}
-                  >
-                    {customer.name} - {customer.phone}
-                  </Button>
-                ))}
-              </Paper>
-            </Grid>
-          )}
-
-          {products.length > 0 && (
-            <Grid item xs={12}>
+            {/* Product List */}
+            {products.length > 0 ? (
               <Table>
                 <TableHead>
                   <TableRow>
@@ -321,76 +287,155 @@ function CreateStaffOrderForm() {
                   })}
                 </TableBody>
               </Table>
-            </Grid>
-          )}
+            ) : (
+              <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" py={8}>
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  Chưa có sản phẩm nào trong đơn hàng
+                </Typography>
+                <Typography variant="body2" color="text.secondary" mb={2}>
+                  Hãy thêm sản phẩm bằng cách nhấn nút "Thêm sản phẩm" hoặc quét mã barcode
+                </Typography>
+              </Box>
+            )}
+          </Paper>
+        </Grid>
 
-          <Grid display="flex" justifyContent="flex-end" item xs={12}>
-            <Button variant="contained" onClick={() => setOpenDialog(true)} sx={{ mt: 1 }}>
-              Thêm sản phẩm
-            </Button>
-            <Button variant="outlined" color="secondary" onClick={() => setBarcodeScanOpen(true)} sx={{ mt: 1, ml: 1 }}>
-              Quét mã barcode
-            </Button>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Box display="flex" justifyContent="flex-end" flexDirection="column" alignItems="flex-end" gap={1}>
-              <Stack spacing={1}>
-                {discountAmount > 0 && (
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <LocalOfferIcon color="info" />
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      Giảm giá: <span style={{ color: '#0288d1' }}>{discountAmount.toLocaleString('vi-VN')}₫</span>
-                    </Typography>
-                  </Box>
+        {/* Right Column */}
+        <Grid item xs={12} md={4}>
+          <Stack spacing={2}>
+            {/* Customer Information */}
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Thông tin khách hàng
+              </Typography>
+              <Stack spacing={2}>
+                <TextField
+                  label="Số điện thoại khách hàng"
+                  value={customerPhone}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
+                  fullWidth
+                  placeholder="Để trống nếu là khách vãng lai"
+                />
+                {customerPhone && !selectedCustomer && (
+                  <TextField
+                    label="Tên khách hàng"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    fullWidth
+                    placeholder="Nhập tên để tạo khách hàng mới"
+                  />
                 )}
-                <Box display="flex" alignItems="center" gap={1}>
-                  <MonetizationOnIcon color="success" />
-                  <Typography variant="h6" fontWeight="bold">
-                    Tổng tiền: <span style={{ color: '#2e7d32' }}>{(calculatePrice() - discountAmount).toLocaleString('vi-VN')}₫</span>
+                {selectedCustomer && (
+                  <TextField
+                    label="Tên khách hàng"
+                    value={selectedCustomer.name}
+                    fullWidth
+                    disabled
+                  />
+                )}
+              </Stack>
+
+              {customers.length > 0 && !selectedCustomer && (
+                <Box mt={2}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Khách hàng tìm thấy:
+                  </Typography>
+                  <Stack direction="row" flexWrap="wrap" gap={1}>
+                    {customers.map((customer) => (
+                      <Button
+                        key={customer.id}
+                        variant="outlined"
+                        size="small"
+                        onClick={() => handleCustomerSelect(customer)}
+                      >
+                        {customer.name} - {customer.phone}
+                      </Button>
+                    ))}
+                  </Stack>
+                </Box>
+              )}
+            </Paper>
+
+            {/* Order Summary */}
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Tổng quan đơn hàng
+              </Typography>
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Tạm tính
+                  </Typography>
+                  <Typography variant="h6">
+                    {calculatePrice().toLocaleString('vi-VN')}₫
                   </Typography>
                 </Box>
-                <Stack direction="row" spacing={1}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<LocalOfferIcon />}
-                    onClick={() => setVoucherDialogOpen(true)}
-                    disabled={calculatePrice() === 0}
-                  >
-                    {discountAmount > 0 ? 'Thay đổi voucher' : 'Thêm voucher'}
-                  </Button>
-                  {discountAmount > 0 && (
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => {
-                        setDiscountAmount(0);
-                        setSelectedVoucherId(null);
-                        toast.success('Đã bỏ chọn voucher');
-                      }}
-                    >
-                      Bỏ chọn voucher
-                    </Button>
-                  )}
-                </Stack>
+
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Giảm giá
+                  </Typography>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Typography variant="h6" color="info.main">
+                      {discountAmount.toLocaleString('vi-VN')}₫
+                    </Typography>
+                    <Stack direction="row" spacing={1} flex={1} justifyContent="flex-end">
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<LocalOfferIcon />}
+                        onClick={() => setVoucherDialogOpen(true)}
+                        disabled={calculatePrice() === 0}
+                      >
+                        {discountAmount > 0 ? 'Thay đổi' : 'Thêm voucher'}
+                      </Button>
+                      {discountAmount > 0 && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          color="error"
+                          onClick={() => {
+                            setDiscountAmount(0);
+                            setSelectedVoucherId(null);
+                            toast.success('Đã bỏ chọn voucher');
+                          }}
+                        >
+                          Bỏ chọn
+                        </Button>
+                      )}
+                    </Stack>
+                  </Stack>
+                </Box>
+
+                <Divider />
+
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Tổng cộng
+                  </Typography>
+                  <Typography variant="h4" color="primary.main">
+                    {(calculatePrice() - discountAmount).toLocaleString('vi-VN')}₫
+                  </Typography>
+                </Box>
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  fullWidth
+                  onClick={handleSubmit}
+                  disabled={loading}
+                >
+                  Xác nhận tạo đơn hàng
+                  {loading && <CircularProgress size={24} sx={{ position: 'absolute', left: '50%', top: '50%', ml: '-12px', mt: '-12px' }} />}
+                </Button>
               </Stack>
-            </Box>
-          </Grid>
-
-          <Grid display="flex" justifyContent="flex-end" item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              Xác nhận tạo đơn hàng
-              {loading && <CircularProgress size={24} sx={{ position: 'absolute', left: '50%', top: '50%', ml: '-12px', mt: '-12px' }} />}
-            </Button>
-          </Grid>
+            </Paper>
+          </Stack>
         </Grid>
-      </Paper>
+      </Grid>
 
+      {/* Dialogs */}
       <Dialog
         open={confirmOpen}
         onClose={handleConfirmClose}

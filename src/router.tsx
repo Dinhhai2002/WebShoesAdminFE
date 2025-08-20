@@ -92,6 +92,10 @@ const CancelOrder = Loader(
   lazy(() => import('src/content/applications/CancelOrder'))
 );
 
+const ApplicationsCustomer = Loader(
+  lazy(() => import('src/content/applications/Customer'))
+);
+
 // Components
 
 // Status
@@ -202,6 +206,10 @@ const routes: RouteObject[] = [
       {
         path: 'voucher',
         element: <ApplicationsVoucher />
+      },
+      {
+        path: 'customers',
+        element: <ApplicationsCustomer />
       },
       {
         path: 'return-request',

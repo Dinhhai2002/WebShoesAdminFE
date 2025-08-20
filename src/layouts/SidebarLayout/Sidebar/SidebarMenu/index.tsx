@@ -261,6 +261,17 @@ function SidebarMenu() {
                   disableRipple
                   component={RouterLink}
                   onClick={closeSidebar}
+                  to="/management/customers"
+                  startIcon={<PeopleAltTwoToneIcon />}
+                >
+                  Quản lý khách hàng
+                </Button>
+              </ListItem>
+              <ListItem component="div">
+                <Button
+                  disableRipple
+                  component={RouterLink}
+                  onClick={closeSidebar}
                   to="/management/order"
                   startIcon={<ReceiptLongIcon />}
                 >

@@ -50,6 +50,8 @@ import sizeApi from "src/services/API/SizeApi";
 interface RecentProductDetailsTableProps {
   listProductDetail: ProductDetail[];
   totalRecord: number;
+  isLoading: boolean;
+  viewMode: 'list' | 'grid';
   onClickPagination: (
     keySearch: string,
     page: number,
@@ -67,10 +69,11 @@ interface RecentProductDetailsTableProps {
 const labelTable = [
   { id: 1, label: "ID" },
   { id: 2, label: "Tên chi tiết sản phẩm" },
-  { id: 3, label: "Sản phẩm" },
-  { id: 4, label: "Màu sắc" },
-  { id: 5, label: "Size" },
-  { id: 6, label: "Chất liệu" },
+  { id: 3, label: "Thuộc tính" },
+  // { id: 3, label: "Sản phẩm" },
+  // { id: 4, label: "Màu sắc" },
+  // { id: 5, label: "Size" },
+  // { id: 6, label: "Chất liệu" },
   // { id: 7, label: "Thương hiệu" },
   // { id: 8, label: "Danh mục" },
   { id: 9, label: "Giá" },
@@ -82,6 +85,8 @@ const RecentProductDetailsTable: FC<RecentProductDetailsTableProps> = ({
   listProductDetail,
   totalRecord,
   onClickPagination,
+  isLoading,
+  viewMode
 }) => {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
@@ -385,137 +390,218 @@ const RecentProductDetailsTable: FC<RecentProductDetailsTableProps> = ({
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Paper
-              elevation={0}
+              elevation={3}
               sx={{
-                p: 3,
+                p: 0,
                 mb: 3,
-                bgcolor: 'background.default'
+                borderRadius: 2,
+                overflow: 'hidden'
               }}
             >
-              <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+              {/* Filter Header */}
+              <Box
+                sx={{
+                  p: 2,
+                  background: theme.palette.primary.main,
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1
+                }}
+              >
                 <FilterListIcon />
                 <Typography variant="h5">Bộ lọc tìm kiếm</Typography>
-              </Stack>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField
-                    fullWidth
-                    label="Tìm kiếm"
-                    variant="outlined"
-                    value={keySearch}
-                    onChange={(e) => setKeySearch(e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon />
-                        </InputAdornment>
-                      ),
-                      endAdornment: keySearch && (
-                        <InputAdornment position="end">
-                          <IconButton
-                            size="small"
-                            onClick={() => setKeySearch('')}
-                          >
-                            <ClearIcon />
-                          </IconButton>
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <DropDownComponent
-                    arr={productOptions}
-                    label="Sản phẩm"
-                    value={productId}
-                    handleStatusChange={handleProductChange}
-                    type={0}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <DropDownComponent
-                    arr={categoryOptions}
-                    label="Danh mục"
-                    value={categoryId}
-                    handleStatusChange={handleCategoryChange}
-                    type={0}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <DropDownComponent
-                    arr={colorOptions}
-                    label="Màu sắc"
-                    value={colorId}
-                    handleStatusChange={handleColorChange}
-                    type={0}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <DropDownComponent
-                    arr={materialOptions}
-                    label="Chất liệu"
-                    value={materialId}
-                    handleStatusChange={handleMaterialChange}
-                    type={0}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <DropDownComponent
-                    arr={brandOptions}
-                    label="Thương hiệu"
-                    value={brandId}
-                    handleStatusChange={handleBrandChange}
-                    type={0}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <DropDownComponent
-                    arr={sizeOptions}
-                    label="Kích cỡ"
-                    value={sizeId}
-                    handleStatusChange={handleSizeChange}
-                    type={0}
-                  />
-                </Grid>
-              </Grid>
-              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                <Button
+              </Box>
+
+              {/* Search Bar */}
+              <Box sx={{ p: 3, borderBottom: `1px solid ${theme.palette.divider}` }}>
+                <TextField
+                  fullWidth
+                  placeholder="Tìm kiếm theo tên sản phẩm, mã sản phẩm..."
                   variant="outlined"
-                  color="inherit"
-                  onClick={() => {
-                    setProductId(-1);
-                    setCategoryId(-1);
-                    setColorId(-1);
-                    setMaterialId(-1);
-                    setBrandId(-1);
-                    setSizeId(-1);
-                    setKeySearch("");
-                    onClickPagination("", 1, limit, status, -1, -1, -1, -1, -1, -1);
+                  value={keySearch}
+                  onChange={(e) => setKeySearch(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon color="action" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: keySearch && (
+                      <InputAdornment position="end">
+                        <IconButton
+                          size="small"
+                          onClick={() => setKeySearch('')}
+                        >
+                          <ClearIcon />
+                        </IconButton>
+                      </InputAdornment>
+                    )
                   }}
-                >
-                  Xóa bộ lọc
-                </Button>
-                <LoadingButton
-                  variant="contained"
-                  onClick={() => {
-                    onClickPagination(
-                      keySearch,
-                      1,
-                      limit,
-                      status,
-                      productId,
-                      categoryId,
-                      colorId,
-                      materialId,
-                      brandId,
-                      sizeId
-                    );
-                  }}
-                  loading={false} // Assuming loading state is managed elsewhere or not needed here
-                  startIcon={<SearchIcon />}
-                >
-                  Tìm kiếm
-                </LoadingButton>
+                />
+              </Box>
+
+              {/* Filter Options */}
+              <Box sx={{ p: 3 }}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <DropDownComponent
+                      arr={productOptions}
+                      label="Sản phẩm"
+                      value={productId}
+                      handleStatusChange={handleProductChange}
+                      type={0}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <DropDownComponent
+                      arr={categoryOptions}
+                      label="Danh mục"
+                      value={categoryId}
+                      handleStatusChange={handleCategoryChange}
+                      type={0}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <DropDownComponent
+                      arr={colorOptions}
+                      label="Màu sắc"
+                      value={colorId}
+                      handleStatusChange={handleColorChange}
+                      type={0}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <DropDownComponent
+                      arr={materialOptions}
+                      label="Chất liệu"
+                      value={materialId}
+                      handleStatusChange={handleMaterialChange}
+                      type={0}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <DropDownComponent
+                      arr={brandOptions}
+                      label="Thương hiệu"
+                      value={brandId}
+                      handleStatusChange={handleBrandChange}
+                      type={0}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <DropDownComponent
+                      arr={sizeOptions}
+                      label="Kích cỡ"
+                      value={sizeId}
+                      handleStatusChange={handleSizeChange}
+                      type={0}
+                    />
+                  </Grid>
+                </Grid>
+
+                {/* Active Filters */}
+                {(productId !== -1 || categoryId !== -1 || colorId !== -1 || 
+                  materialId !== -1 || brandId !== -1 || sizeId !== -1 || keySearch) && (
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                      Bộ lọc đang áp dụng:
+                    </Typography>
+                    <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+                      {keySearch && (
+                        <Chip
+                          label={`Tìm kiếm: ${keySearch}`}
+                          onDelete={() => setKeySearch('')}
+                          size="small"
+                        />
+                      )}
+                      {productId !== -1 && (
+                        <Chip
+                          label={`Sản phẩm: ${productOptions.find(p => p.id === productId)?.name}`}
+                          onDelete={() => setProductId(-1)}
+                          size="small"
+                        />
+                      )}
+                      {categoryId !== -1 && (
+                        <Chip
+                          label={`Danh mục: ${categoryOptions.find(c => c.id === categoryId)?.name}`}
+                          onDelete={() => setCategoryId(-1)}
+                          size="small"
+                        />
+                      )}
+                      {colorId !== -1 && (
+                        <Chip
+                          label={`Màu sắc: ${colorOptions.find(c => c.id === colorId)?.name}`}
+                          onDelete={() => setColorId(-1)}
+                          size="small"
+                        />
+                      )}
+                      {materialId !== -1 && (
+                        <Chip
+                          label={`Chất liệu: ${materialOptions.find(m => m.id === materialId)?.name}`}
+                          onDelete={() => setMaterialId(-1)}
+                          size="small"
+                        />
+                      )}
+                      {brandId !== -1 && (
+                        <Chip
+                          label={`Thương hiệu: ${brandOptions.find(b => b.id === brandId)?.name}`}
+                          onDelete={() => setBrandId(-1)}
+                          size="small"
+                        />
+                      )}
+                      {sizeId !== -1 && (
+                        <Chip
+                          label={`Kích cỡ: ${sizeOptions.find(s => s.id === sizeId)?.name}`}
+                          onDelete={() => setSizeId(-1)}
+                          size="small"
+                        />
+                      )}
+                    </Stack>
+                  </Box>
+                )}
+
+                {/* Action Buttons */}
+                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                  <Button
+                    variant="outlined"
+                    color="inherit"
+                    onClick={() => {
+                      setProductId(-1);
+                      setCategoryId(-1);
+                      setColorId(-1);
+                      setMaterialId(-1);
+                      setBrandId(-1);
+                      setSizeId(-1);
+                      setKeySearch("");
+                      onClickPagination("", 1, limit, status, -1, -1, -1, -1, -1, -1);
+                    }}
+                    startIcon={<ClearIcon />}
+                  >
+                    Xóa bộ lọc
+                  </Button>
+                  <LoadingButton
+                    variant="contained"
+                    onClick={() => {
+                      onClickPagination(
+                        keySearch,
+                        1,
+                        limit,
+                        status,
+                        productId,
+                        categoryId,
+                        colorId,
+                        materialId,
+                        brandId,
+                        sizeId
+                      );
+                    }}
+                    loading={false}
+                    startIcon={<SearchIcon />}
+                  >
+                    Tìm kiếm
+                  </LoadingButton>
+                </Box>
               </Box>
             </Paper>
           </Grid>

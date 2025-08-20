@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   CardContent,
-  CardHeader,
   Container,
   Dialog,
   DialogActions,
@@ -24,8 +23,29 @@ import {
   TablePagination,
   TableRow,
   TextField,
-  Typography
+  Typography,
+  Paper,
+  Chip,
+  Avatar,
+  useTheme,
+  alpha,
+  InputAdornment,
+  Tooltip,
+  Divider
 } from '@mui/material';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Lock as LockIcon,
+  LockOpen as LockOpenIcon,
+  Search as SearchIcon,
+  FilterList as FilterListIcon,
+  Refresh as RefreshIcon,
+  LocalOffer as LocalOfferIcon,
+  AccessTime as AccessTimeIcon,
+  CalendarToday as CalendarTodayIcon,
+  MonetizationOn as MonetizationOnIcon
+} from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import voucherApi, { Voucher } from 'src/services/API/VoucherApi';
 import { toast } from 'react-toastify';
@@ -33,9 +53,6 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LoadingButton } from '@mui/lab';
-import EditIcon from '@mui/icons-material/Edit';
-import LockIcon from '@mui/icons-material/Lock';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
 
 // Extend dayjs to parse custom formats
 dayjs.extend(customParseFormat);
@@ -72,6 +89,7 @@ const getVoucherStatus = (voucher: Voucher) => {
 };
 
 function VoucherManagement() {
+  const theme = useTheme();
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [selectedVoucher, setSelectedVoucher] = useState<Partial<Voucher> | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -201,95 +219,280 @@ function VoucherManagement() {
 
   return (
     <Container maxWidth="xl">
-      <Card>
-        <CardHeader title="Quản lý Voucher" action={<Button variant='contained' onClick={handleOpenCreate}>Tạo mới</Button>} />
-        <CardContent>
-          <Stack direction="row" spacing={2} mb={2}>
-            <TextField label="Tìm kiếm" value={keySearch} onChange={(e) => setKeySearch(e.target.value)} />
-            <FormControl>
+      {/* Header Section */}
+      <Box
+        sx={{
+          pb: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Avatar
+            sx={{
+              width: 40,
+              height: 40,
+              bgcolor: alpha(theme.palette.primary.main, 0.1),
+              color: 'primary.main'
+            }}
+          >
+            <LocalOfferIcon />
+          </Avatar>
+          <Typography variant="h3">
+            Quản lý Voucher
+          </Typography>
+        </Stack>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={handleOpenCreate}
+          sx={{
+            px: 2.5,
+            py: 1
+          }}
+        >
+          Tạo voucher mới
+        </Button>
+      </Box>
+
+      {/* Filter Section */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 3,
+          borderRadius: 2,
+          border: `1px solid ${theme.palette.divider}`
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={1} mb={3}>
+          <FilterListIcon />
+          <Typography variant="h5">Bộ lọc tìm kiếm</Typography>
+        </Stack>
+
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              fullWidth
+              placeholder="Tìm kiếm theo mã voucher"
+              value={keySearch}
+              onChange={(e) => setKeySearch(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                )
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth>
               <InputLabel>Trạng thái</InputLabel>
               <Select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(Number(e.target.value))}
                 label="Trạng thái"
-                sx={{ minWidth: 150 }}
               >
                 <MenuItem value={-1}>Tất cả</MenuItem>
                 <MenuItem value={1}>Hoạt động</MenuItem>
                 <MenuItem value={0}>Tạm khóa</MenuItem>
               </Select>
             </FormControl>
-          </Stack>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={() => {
+                setPage(0);
+                fetchVouchers();
+              }}
+              startIcon={<SearchIcon />}
+            >
+              Tìm kiếm
+            </Button>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={() => {
+                setKeySearch('');
+                setStatusFilter(-1);
+                setPage(0);
+                fetchVouchers();
+              }}
+              startIcon={<RefreshIcon />}
+            >
+              Làm mới
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
 
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Tên Voucher</TableCell>
-                  <TableCell>Loại</TableCell>
-                  <TableCell>Giá trị</TableCell>
-                  <TableCell>Giảm tối đa</TableCell>
-                  <TableCell>Đơn tối thiểu</TableCell>
-                  <TableCell>Ngày bắt đầu</TableCell>
-                  <TableCell>Ngày kết thúc</TableCell>
-                  <TableCell>Giới hạn</TableCell>
-                  <TableCell>Đã dùng</TableCell>
-                  <TableCell>Trạng thái</TableCell>
-                  <TableCell align="center">Hành động</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {vouchers.map((v) => (
-                  <TableRow key={v.id} hover>
-                    <TableCell>{v.code}</TableCell>
-                    <TableCell>{v.discount_type === DiscountTypeEnum.PERCENT ? 'Phần trăm' : 'Tiền mặt'}</TableCell>
-                    <TableCell>
-                      {v.discount_type === DiscountTypeEnum.PERCENT
-                        ? `${v.discount_value}%`
-                        : `${v.discount_value.toLocaleString('vi-VN')}₫`}
-                    </TableCell>
-                    <TableCell>{v.max_discount.toLocaleString('vi-VN')}₫</TableCell>
-                    <TableCell>{v.min_order_value.toLocaleString('vi-VN')}₫</TableCell>
-                    <TableCell>{dayjs(v.start_date, 'DD/MM/YYYY HH:mm:ss').format('DD/MM/YYYY')}</TableCell>
-                    <TableCell>{dayjs(v.end_date, 'DD/MM/YYYY HH:mm:ss').format('DD/MM/YYYY')}</TableCell>
-                    <TableCell>{v.usage_limit}</TableCell>
-                    <TableCell>{v.used_count}</TableCell>
-                    <TableCell>
-                      <Typography 
+      {/* Table Section */}
+      <Card
+        sx={{
+          borderRadius: 2,
+          border: `1px solid ${theme.palette.divider}`,
+          boxShadow: 'none'
+        }}
+      >
+        <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography variant="h5">Danh sách Voucher</Typography>
+            {totalRecord > 0 && (
+              <Chip 
+                label={`${totalRecord} voucher`}
+                size="small"
+                sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: 'primary.main' }}
+              />
+            )}
+          </Stack>
+        </Box>
+
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+                <TableCell>Thông tin Voucher</TableCell>
+                <TableCell>Giá trị giảm</TableCell>
+                <TableCell>Điều kiện</TableCell>
+                <TableCell>Thời gian</TableCell>
+                <TableCell>Sử dụng</TableCell>
+                <TableCell align="right">Thao tác</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {vouchers.map((v) => (
+                <TableRow key={v.id} hover>
+                  <TableCell>
+                    <Stack spacing={1}>
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Avatar
+                          sx={{
+                            width: 32,
+                            height: 32,
+                            bgcolor: alpha(theme.palette.primary.main, 0.1),
+                            color: 'primary.main'
+                          }}
+                        >
+                          <LocalOfferIcon fontSize="small" />
+                        </Avatar>
+                        <Box>
+                          <Typography variant="subtitle2">{v.code}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {v.discount_type === DiscountTypeEnum.PERCENT ? 'Giảm theo phần trăm' : 'Giảm theo số tiền'}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                      <Chip
+                        size="small"
+                        label={getVoucherStatus(v)}
                         color={
                           getVoucherStatus(v) === VoucherStatusEnum.ONGOING
-                            ? 'success.main'
+                            ? 'success'
                             : getVoucherStatus(v) === VoucherStatusEnum.PENDING
-                            ? 'info.main'
-                            : 'error.main'
-                        } 
-                        fontWeight="bold"
-                      >
-                        {getVoucherStatus(v)}
+                            ? 'info'
+                            : 'error'
+                        }
+                        sx={{ width: 'fit-content' }}
+                      />
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <Stack spacing={1}>
+                      <Box>
+                        <Typography variant="subtitle2" color="primary.main">
+                          {v.discount_type === DiscountTypeEnum.PERCENT
+                            ? `Giảm ${v.discount_value}%`
+                            : `Giảm ${v.discount_value.toLocaleString('vi-VN')}₫`}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Tối đa: {v.max_discount.toLocaleString('vi-VN')}₫
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <MonetizationOnIcon fontSize="small" color="action" />
+                      <Typography variant="body2">
+                        Đơn tối thiểu: {v.min_order_value.toLocaleString('vi-VN')}₫
                       </Typography>
-                    </TableCell>
-                    <TableCell align="center">
-                      <Stack direction="row" spacing={1} justifyContent="center">
-                        {getVoucherStatus(v) !== VoucherStatusEnum.ENDED && (
-                          <IconButton onClick={() => handleEdit(v)} color="primary">
-                            <EditIcon />
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <Stack spacing={1}>
+                      <Stack direction="row" spacing={0.5} alignItems="center">
+                        <CalendarTodayIcon fontSize="small" color="action" />
+                        <Typography variant="body2">
+                          {dayjs(v.start_date, 'DD/MM/YYYY HH:mm:ss').format('DD/MM/YYYY')}
+                        </Typography>
+                      </Stack>
+                      <Stack direction="row" spacing={0.5} alignItems="center">
+                        <AccessTimeIcon fontSize="small" color="action" />
+                        <Typography variant="body2">
+                          {dayjs(v.end_date, 'DD/MM/YYYY HH:mm:ss').format('DD/MM/YYYY')}
+                        </Typography>
+                      </Stack>
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <Box>
+                      <Typography variant="subtitle2">
+                        {v.used_count}/{v.usage_limit}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Còn lại: {v.usage_limit - v.used_count} lượt
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell align="right">
+                    <Stack direction="row" spacing={1} justifyContent="flex-end">
+                      {getVoucherStatus(v) !== VoucherStatusEnum.ENDED && (
+                        <Tooltip title="Chỉnh sửa">
+                          <IconButton 
+                            onClick={() => handleEdit(v)}
+                            sx={{
+                              color: 'primary.main',
+                              '&:hover': {
+                                bgcolor: alpha(theme.palette.primary.main, 0.1)
+                              }
+                            }}
+                          >
+                            <EditIcon fontSize="small" />
                           </IconButton>
-                        )}
+                        </Tooltip>
+                      )}
+                      <Tooltip title={v.status === 1 ? 'Khóa voucher' : 'Mở khóa'}>
                         <IconButton 
                           onClick={() => setConfirmDialog({ open: true, id: v.id, currentStatus: v.status })} 
-                          color="warning"
                           disabled={getVoucherStatus(v) === VoucherStatusEnum.ENDED}
+                          sx={{
+                            color: v.status === 1 ? 'error.main' : 'success.main',
+                            '&:hover': {
+                              bgcolor: alpha(
+                                v.status === 1 ? theme.palette.error.main : theme.palette.success.main,
+                                0.1
+                              )
+                            }
+                          }}
                         >
-                          {v.status === 1 ? <LockIcon /> : <LockOpenIcon />}
+                          {v.status === 1 ? <LockIcon fontSize="small" /> : <LockOpenIcon fontSize="small" />}
                         </IconButton>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                      </Tooltip>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
+        <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
           <TablePagination
             component="div"
             count={totalRecord}
@@ -297,8 +500,11 @@ function VoucherManagement() {
             onPageChange={(_, newPage) => setPage(newPage)}
             rowsPerPage={limit}
             onRowsPerPageChange={(e) => setLimit(parseInt(e.target.value, 10))}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            labelRowsPerPage="Số hàng mỗi trang"
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} trên ${count}`}
           />
-        </CardContent>
+        </Box>
       </Card>
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>

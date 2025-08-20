@@ -6,12 +6,21 @@ import {
   TableHead,
   TableRow,
   useTheme,
-  Button,
   IconButton,
-  Tooltip
+  Tooltip,
+  Box,
+  Typography,
+  Avatar,
+  Stack,
+  Chip,
+  Paper
 } from '@mui/material';
-import TableCellComponent from 'src/components/TableCellComponent/TableCellComponent';
-import IconActions from 'src/components/IconActions/IconActions';
+import {
+  Visibility as VisibilityIcon,
+  Edit as EditIcon,
+  LocalShipping as ShippingIcon,
+  Payment as PaymentIcon
+} from '@mui/icons-material';
 import { StatusOrderEnum } from 'src/utils/enum/StatusOrderEnum';
 import { PaymentStatusEnum } from 'src/utils/enum/PaymentStatusEnum';
 import { PaymentMethodEnum } from 'src/utils/enum/PaymentMethodEnum';
@@ -145,53 +154,128 @@ function TableListOrder({
     }
   };
 
+  const getPaymentMethodIcon = (method: number) => {
+    switch (method) {
+      case PaymentMethodEnum.COD:
+        return <PaymentIcon fontSize="small" />;
+      case PaymentMethodEnum.VNPAY:
+        return <PaymentIcon fontSize="small" />;
+      case PaymentMethodEnum.STORE:
+        return <ShippingIcon fontSize="small" />;
+      default:
+        return <PaymentIcon fontSize="small" />;
+    }
+  };
+
   return (
     <>
-      <TableContainer>
+      <TableContainer component={Paper} sx={{ mx: 2, my: 1, borderRadius: 1 }}>
         <Table>
           <TableHead>
             <TableRow>
-              {labelTable.map((item: any) => (
-                <TableCell align="center" key={item.id}>
-                  {item.name}
-                </TableCell>
-              ))}
+              <TableCell sx={{ fontWeight: 'bold' }}>Mã đơn hàng</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Khách hàng</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="right">Tổng tiền</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Thanh toán</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }}>Ngày đặt</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="center">Trạng thái</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="center">Thanh toán</TableCell>
+              <TableCell sx={{ fontWeight: 'bold' }} align="center">Thao tác</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {listOrder &&
               listOrder.map((item: any) => {
                 return (
-                  <TableRow hover key={item.id}>
-                    <TableCellComponent position={'center'} value={item.id} />
-                    <TableCellComponent position={'center'} value={item.user_id} />
-                    <TableCellComponent position={'center'} value={formatCurrency(item.total_price)} />
-                    <TableCellComponent position={'center'} value={getPaymentMethodText(item.payment_method)} />
-                    <TableCellComponent position={'center'} value={item.created_at} />
-
+                  <TableRow 
+                    hover 
+                    key={item.id}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: theme.palette.action.hover,
+                        cursor: 'pointer'
+                      }
+                    }}
+                  >
+                    <TableCell>
+                      <Typography variant="body2" color="text.secondary">
+                        #{item.id}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Avatar 
+                          sx={{ 
+                            width: 30, 
+                            height: 30,
+                            backgroundColor: theme.palette.primary.light,
+                            color: theme.palette.primary.main,
+                            fontSize: '0.875rem',
+                            mr: 1
+                          }}
+                        >
+                          {item.user_id}
+                        </Avatar>
+                        <Typography variant="body2">
+                          Khách hàng {item.user_id}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell align="right">
+                      <Typography variant="body2" fontWeight="bold" color="success.main">
+                        {formatCurrency(item.total_price)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        icon={getPaymentMethodIcon(item.payment_method)}
+                        label={getPaymentMethodText(item.payment_method)}
+                        size="small"
+                        variant="outlined"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" color="text.secondary">
+                        {item.created_at}
+                      </Typography>
+                    </TableCell>
                     <TableCell align="center">
                       <Label color={getStatusColor(item.status)}>
                         {getStatusText(item.status)}
                       </Label>
                     </TableCell>
-
                     <TableCell align="center">
                       <Label color={getPaymentStatusColor(item.payment_status)}>
                         {getPaymentStatusText(item.payment_status)}
                       </Label>
                     </TableCell>
-
                     <TableCell align="center">
-                      <Tooltip title="Xem chi tiết">
-                        <IconButton onClick={() => handleOpenDetails(item.id)}>
-                          👁️
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Thay đổi trạng thái">
-                        <IconButton onClick={() => handleOpenStatusChange(item.id, item.status)}>
-                          🔄
-                        </IconButton>
-                      </Tooltip>
+                      <Stack direction="row" spacing={1} justifyContent="center">
+                        <Tooltip title="Xem chi tiết">
+                          <IconButton 
+                            size="small"
+                            onClick={() => handleOpenDetails(item.id)}
+                            sx={{ 
+                              color: theme.palette.primary.main,
+                              '&:hover': { backgroundColor: theme.palette.primary.light }
+                            }}
+                          >
+                            <VisibilityIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Thay đổi trạng thái">
+                          <IconButton 
+                            size="small"
+                            onClick={() => handleOpenStatusChange(item.id, item.status)}
+                            sx={{ 
+                              color: theme.palette.warning.main,
+                              '&:hover': { backgroundColor: theme.palette.warning.light }
+                            }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
                     </TableCell>
                   </TableRow>
                 );
