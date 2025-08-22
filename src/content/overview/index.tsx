@@ -7,13 +7,10 @@ import {
   Card,
   CardContent,
   Divider,
-  Avatar,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow
+  Avatar
 } from '@mui/material';
+import TopProductsList from './components/TopProductsList';
+import TopOrdersList from './components/TopOrdersList';
 import { People, ShoppingCart, Store, MonetizationOn } from '@mui/icons-material';
 import statisticalApi, { WebsiteStatisticalResponse } from 'src/services/API/StatisticalApi';
 import productApi, { Product } from 'src/services/API/ProductApi';
@@ -122,55 +119,23 @@ function Overview() {
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <Typography variant="h5" gutterBottom>
-            Top 10 sản phẩm mới
-          </Typography>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Tên</TableCell>
-                <TableCell>Thương hiệu</TableCell>
-                <TableCell>Danh mục</TableCell>
-                <TableCell align="right">Giá</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {topProducts.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.brand_name}</TableCell>
-                  <TableCell>{product.category_name}</TableCell>
-                  <TableCell align="right">{product.price.toLocaleString('vi-VN')}₫</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <TopProductsList
+            products={topProducts}
+            onViewProduct={(product) => {
+              // Xử lý xem chi tiết sản phẩm
+              console.log('View product:', product);
+            }}
+          />
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Typography variant="h5" gutterBottom>
-            Top 10 đơn hàng mới
-          </Typography>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>#</TableCell>
-                <TableCell>Khách</TableCell>
-                <TableCell>Số điện thoại</TableCell>
-                <TableCell align="right">Tổng tiền</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {topOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell>{order.id}</TableCell>
-                  <TableCell>{order.shipping_name}</TableCell>
-                  <TableCell>{order.shipping_phone}</TableCell>
-                  <TableCell align="right">{order.total_price.toLocaleString('vi-VN')}₫</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <TopOrdersList
+            orders={topOrders}
+            onViewOrder={(order) => {
+              // Xử lý xem chi tiết đơn hàng
+              console.log('View order:', order);
+            }}
+          />
         </Grid>
       </Grid>
     </Container>

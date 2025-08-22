@@ -1,32 +1,35 @@
 import {
   Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  IconButton,
-  Tooltip,
-  Button,
+  Grid,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  Button,
   TextField,
-  Typography
+  Typography,
+  Skeleton,
+  Card,
+  CardHeader,
+  Divider,
+  useTheme,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  InputAdornment,
+  IconButton,
+  OutlinedInput
 } from '@mui/material';
 import {
-  Visibility as VisibilityIcon,
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon,
-  Delete as DeleteIcon
+  Search as SearchIcon,
+  Clear as ClearIcon,
+  FilterList as FilterListIcon
 } from '@mui/icons-material';
 import { useState } from 'react';
 import DialogCancelOrderDetails from './DialogCancelOrderDetails';
 import DialogDelete from './DialogDelete';
+import CancelOrderCard from './components/CancelOrderCard';
 
 interface TableListCancelOrderProps {
   listCancelOrders: any[];
@@ -41,12 +44,15 @@ const TableListCancelOrder = ({
   onReject,
   onDelete
 }: TableListCancelOrderProps) => {
+  const theme = useTheme();
   const [selectedCancelOrder, setSelectedCancelOrder] = useState<any>(null);
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
   const [openApproveDialog, setOpenApproveDialog] = useState(false);
   const [openRejectDialog, setOpenRejectDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const handleViewDetails = (cancelOrder: any) => {
     setSelectedCancelOrder(cancelOrder);
@@ -91,122 +97,92 @@ const TableListCancelOrder = ({
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN');
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return 'Chờ duyệt';
-      case 'APPROVED':
-        return 'Đã duyệt';
-      case 'REJECTED':
-        return 'Từ chối';
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return '#FFA500'; // Orange
-      case 'APPROVED':
-        return '#4CAF50'; // Green
-      case 'REJECTED':
-        return '#F44336'; // Red
-      default:
-        return '#000000';
-    }
-  };
+  const filteredOrders = listCancelOrders.filter(order => {
+    const matchesSearch = searchTerm === '' || 
+      order.order_id.toString().includes(searchTerm) ||
+      order.cancel_reason.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="cancel orders table">
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Mã đơn hàng</TableCell>
-              <TableCell>Lý do hủy</TableCell>
-              <TableCell>Trạng thái</TableCell>
-              <TableCell>Ngày tạo</TableCell>
-              <TableCell>Ghi chú</TableCell>
-              <TableCell align="center">Thao tác</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {listCancelOrders.map((cancelOrder) => (
-              <TableRow key={cancelOrder.id}>
-                <TableCell>{cancelOrder.id}</TableCell>
-                <TableCell>#{cancelOrder.order_id}</TableCell>
-                <TableCell>{cancelOrder.cancel_reason}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={getStatusLabel(cancelOrder.status)}
-                    color="primary"
-                    size="small"
-                    sx={{
-                      backgroundColor: getStatusColor(cancelOrder.status),
-                      color: 'white'
-                    }}
-                  />
-                </TableCell>
-                <TableCell>{formatDate(cancelOrder.created_at)}</TableCell>
-                <TableCell>{cancelOrder.admin_notes || '-'}</TableCell>
-                <TableCell align="center">
-                  <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                    <Tooltip title="Xem chi tiết">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleViewDetails(cancelOrder)}
-                      >
-                        <VisibilityIcon />
-                      </IconButton>
-                    </Tooltip>
-
-                    {cancelOrder.status === 'PENDING' && (
-                      <>
-                        <Tooltip title="Duyệt">
-                          <IconButton
-                            size="small"
-                            color="success"
-                            onClick={() => handleApprove(cancelOrder)}
-                          >
-                            <CheckCircleIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Từ chối">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => handleReject(cancelOrder)}
-                          >
-                            <CancelIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </>
-                    )}
-
-                    {/* {onDelete && (
-                      <Tooltip title="Xóa">
+      <Card sx={{ mb: 3 }}>
+        <CardHeader title="Bộ lọc tìm kiếm" />
+        <Divider />
+        <Box p={2}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={4}>
+              <FormControl fullWidth variant="outlined">
+                <InputLabel>Tìm kiếm</InputLabel>
+                <OutlinedInput
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Tìm theo mã đơn hoặc lý do..."
+                  startAdornment={
+                    <InputAdornment position="start">
+                      <SearchIcon color="action" />
+                    </InputAdornment>
+                  }
+                  endAdornment={
+                    searchTerm && (
+                      <InputAdornment position="end">
                         <IconButton
                           size="small"
-                          color="error"
-                          onClick={() => handleDelete(cancelOrder)}
+                          onClick={() => setSearchTerm('')}
                         >
-                          <DeleteIcon />
+                          <ClearIcon />
                         </IconButton>
-                      </Tooltip>
-                    )} */}
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                      </InputAdornment>
+                    )
+                  }
+                  label="Tìm kiếm"
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <FormControl fullWidth>
+                <InputLabel>Trạng thái</InputLabel>
+                <Select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  label="Trạng thái"
+                >
+                  <MenuItem value="all">Tất cả</MenuItem>
+                  <MenuItem value="PENDING">Chờ duyệt</MenuItem>
+                  <MenuItem value="APPROVED">Đã duyệt</MenuItem>
+                  <MenuItem value="REJECTED">Từ chối</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </Box>
+      </Card>
+
+      <Grid container spacing={3}>
+        {filteredOrders.length > 0 ? (
+          filteredOrders.map((cancelOrder) => (
+            <Grid item xs={12} sm={6} md={4} key={cancelOrder.id}>
+              <CancelOrderCard
+                cancelOrder={cancelOrder}
+                onViewDetails={() => handleViewDetails(cancelOrder)}
+                onApprove={() => handleApprove(cancelOrder)}
+                onReject={() => handleReject(cancelOrder)}
+              />
+            </Grid>
+          ))
+        ) : (
+          <Grid item xs={12}>
+            <Card sx={{ p: 3, textAlign: 'center' }}>
+              <Typography variant="h6" color="text.secondary">
+                Không tìm thấy yêu cầu hủy đơn hàng nào
+              </Typography>
+            </Card>
+          </Grid>
+        )}
+      </Grid>
 
       {/* Dialog chi tiết */}
       <DialogCancelOrderDetails
@@ -283,4 +259,4 @@ const TableListCancelOrder = ({
   );
 };
 
-export default TableListCancelOrder; 
+export default TableListCancelOrder;

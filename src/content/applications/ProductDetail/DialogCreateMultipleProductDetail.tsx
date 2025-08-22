@@ -321,7 +321,7 @@ function DialogCreateMultipleProductDetail({ open, onClose, onSuccess }: DialogC
           fullWidth
           margin="normal"
           label="Tiền tố tên (Prefix)"
-          placeholder="VD: Giày Mùa Hè"
+          placeholder="VD: Áo khoác"
           value={namePrefix}
           onChange={(e) => setNamePrefix(e.target.value)}
         />

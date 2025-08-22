@@ -18,20 +18,21 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Divider
+  Divider,
+  useTheme
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import statisticalApi, { AmountStatisticalResponse } from 'src/services/API/StatisticalApi';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
+import StatisticsCharts from './components/StatisticsCharts';
 
 const typeLabels = {
-  1: 'Giờ trong ngày',
-  3: 'Ngày trong tháng',
-  4: 'Tháng trong năm'
+  1: 'Ngày',
+  3: 'Tháng',
+  4: 'Năm'
 };
 
 const periodLabels = {
@@ -41,6 +42,7 @@ const periodLabels = {
 };
 
 function StatisticalAmountView() {
+  const theme = useTheme();
   const [data, setData] = useState<AmountStatisticalResponse[]>([]);
   const [type, setType] = useState<number>(1);
   const [date, setDate] = useState(dayjs());
@@ -146,9 +148,9 @@ function StatisticalAmountView() {
                         label="Thống kê theo" 
                         onChange={(e) => setType(Number(e.target.value))}
                       >
-                        <MenuItem value={1}>Giờ trong ngày</MenuItem>
-                        <MenuItem value={3}>Ngày trong tháng</MenuItem>
-                        <MenuItem value={4}>Tháng trong năm</MenuItem>
+                        <MenuItem value={1}>Ngày</MenuItem>
+                        <MenuItem value={3}>Tháng</MenuItem>
+                        <MenuItem value={4}>Năm</MenuItem>
                       </Select>
                     </FormControl>
                   </Grid>
@@ -178,84 +180,152 @@ function StatisticalAmountView() {
           </Grid>
 
           <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                {loading ? (
+            {loading ? (
+              <Card>
+                <CardContent>
                   <Box height={400} display="flex" alignItems="center" justifyContent="center">
                     <Skeleton variant="rectangular" width="100%" height={400} />
                   </Box>
-                ) : (
-                  <Box height={400}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={data} margin={{ top: 20, right: 20, left: 0, bottom: 10 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis tickFormatter={formatYAxisValue} />
-                        <Tooltip formatter={(value: any) => formatCurrency(value)} />
-                        <Line 
-                          type="monotone" 
-                          dataKey="totalAmount" 
-                          name="Doanh thu"
-                          stroke="#1976d2" 
-                          strokeWidth={2} 
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ) : (
+              <StatisticsCharts
+                data={data}
+                loading={loading}
+                formatYAxis={formatYAxisValue}
+                formatTooltip={formatCurrency}
+              />
+            )}
           </Grid>
 
           <Grid item xs={12}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Chi tiết doanh thu theo {periodLabels[type as keyof typeof periodLabels].toLowerCase()}
-                </Typography>
-                <Divider sx={{ my: 2 }} />
-                {loading ? (
-                  <Skeleton variant="rectangular" width="100%" height={300} />
-                ) : (
-                  <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
-                    <Table stickyHeader>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>
-                            {periodLabels[type as keyof typeof periodLabels]}
-                          </TableCell>
-                          <TableCell align="right">Doanh thu</TableCell>
-                          <TableCell align="right">Tỷ lệ</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {data.map((row) => (
-                          <TableRow key={row.date}>
-                            <TableCell>{row.date}</TableCell>
-                            <TableCell align="right">
-                              {formatCurrency(row.totalAmount)}
-                            </TableCell>
-                            <TableCell align="right">
-                              {totalAmount ? 
-                                `${((row.totalAmount / totalAmount) * 100).toFixed(1)}%` 
-                                : '0%'
-                              }
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                        {data.length === 0 && (
-                          <TableRow>
-                            <TableCell colSpan={3} align="center">
-                              Không có dữ liệu
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+            <Box mb={3}>
+              <Typography variant="h5" gutterBottom>
+                Chi tiết theo {periodLabels[type as keyof typeof periodLabels].toLowerCase()}
+              </Typography>
+              <Typography variant="subtitle2" color="text.secondary">
+                Tổng doanh thu: {formatCurrency(totalAmount)}
+              </Typography>
+            </Box>
+            {loading ? (
+              <Grid container spacing={2}>
+                {[1,2,3,4].map((i) => (
+                  <Grid item xs={12} sm={6} md={3} key={i}>
+                    <Skeleton variant="rectangular" height={160} sx={{ borderRadius: 2 }} />
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Grid container spacing={2}>
+                {data.map((row, index) => {
+                  const percentage = totalAmount ? (row.totalAmount / totalAmount) * 100 : 0;
+                  const isHighest = row.totalAmount === Math.max(...data.map(d => d.totalAmount));
+                  const isLowest = row.totalAmount === Math.min(...data.map(d => d.totalAmount));
+                  
+                  return (
+                    <Grid item xs={12} sm={6} md={3} key={row.date}>
+                      <Card
+                        sx={{
+                          p: 2,
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          position: 'relative',
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s, box-shadow 0.2s',
+                          '&:hover': {
+                            transform: 'translateY(-4px)',
+                            boxShadow: 6
+                          },
+                          ...(isHighest && {
+                            bgcolor: 'success.lighter',
+                            borderColor: 'success.light'
+                          }),
+                          ...(isLowest && {
+                            bgcolor: 'error.lighter',
+                            borderColor: 'error.light'
+                          })
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            top: 12,
+                            right: 12,
+                            width: 32,
+                            height: 32,
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            bgcolor: isHighest ? 'success.main' : isLowest ? 'error.main' : 'grey.300',
+                            color: '#fff',
+                            fontSize: '0.875rem',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {index + 1}
+                        </Box>
+
+                        <Typography variant="h6" gutterBottom>
+                          {row.date}
+                        </Typography>
+
+                        <Typography
+                          variant="h4"
+                          color={isHighest ? 'success.main' : isLowest ? 'error.main' : 'primary.main'}
+                          sx={{ mb: 2, mt: 'auto' }}
+                        >
+                          {formatCurrency(row.totalAmount)}
+                        </Typography>
+
+                        <Box
+                          sx={{
+                            width: '100%',
+                            height: 8,
+                            bgcolor: 'background.default',
+                            borderRadius: 4,
+                            overflow: 'hidden',
+                            position: 'relative'
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              height: '100%',
+                              width: `${percentage}%`,
+                              bgcolor: isHighest ? 'success.main' : isLowest ? 'error.main' : 'primary.main',
+                              borderRadius: 4,
+                              transition: 'width 1s ease-in-out'
+                            }}
+                          />
+                        </Box>
+                        
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          align="right"
+                          sx={{ mt: 1 }}
+                        >
+                          {percentage.toFixed(1)}% tổng doanh thu
+                        </Typography>
+                      </Card>
+                    </Grid>
+                  );
+                })}
+                {data.length === 0 && (
+                  <Grid item xs={12}>
+                    <Card sx={{ p: 4, textAlign: 'center' }}>
+                      <Typography variant="subtitle1" color="text.secondary">
+                        Không có dữ liệu
+                      </Typography>
+                    </Card>
+                  </Grid>
                 )}
-              </CardContent>
-            </Card>
+              </Grid>
+            )}
           </Grid>
         </Grid>
       </Container>
