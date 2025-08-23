@@ -65,14 +65,17 @@ const VoucherStatusEnum = {
   PENDING: 'Chưa diễn ra',
   ONGOING: 'Đang diễn ra',
   ENDED: 'Kết thúc',
-  OUT_OF_STOCK: 'Hết lượt'
+  OUT_OF_STOCK: 'Hết lượt',
+  LOCKED: 'Khóa'
 };
 
 const getVoucherStatus = (voucher: Voucher) => {
   const now = dayjs();
   const startDate = dayjs(voucher.start_date, 'DD/MM/YYYY HH:mm:ss');
   const endDate = dayjs(voucher.end_date, 'DD/MM/YYYY HH:mm:ss');
-
+  if(voucher.status === 0) {
+    return VoucherStatusEnum.LOCKED;
+  }
   if (voucher.usage_limit <= voucher.used_count) {
     return VoucherStatusEnum.OUT_OF_STOCK;
   }

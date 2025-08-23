@@ -245,6 +245,8 @@ function DialogCreateProductDetail({ open, onClose, onSuccess }: DialogCreatePro
                 {...register('price', { valueAsNumber: true })}
                 fullWidth
                 margin="normal"
+                error={!!formState.errors.price}
+                helperText={formState.errors.price?.message}
               />
             </FormControl>
             <TextField

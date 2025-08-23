@@ -128,6 +128,10 @@ function PageHeader({ onSuccess }: PageHeaderProps) {
       return;
     }
 
+    if (Number(formData.price) <= 0) {
+      toast.error('Giá sản phẩm phải lớn hơn 0');
+      return;
+    }
     try {
       setLoading(true);
       await productApi.create({
