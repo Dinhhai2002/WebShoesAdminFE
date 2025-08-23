@@ -127,6 +127,10 @@ function PageHeader({ onSuccess }: PageHeaderProps) {
       toast.error('Vui lòng nhập giá sản phẩm');
       return;
     }
+    if (Number(formData.price) <= 0) {
+      toast.error('Giá sản phẩm phải lớn hơn 0');
+      return;
+    }
 
     try {
       setLoading(true);
