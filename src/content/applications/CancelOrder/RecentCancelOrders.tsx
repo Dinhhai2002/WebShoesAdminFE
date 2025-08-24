@@ -1,20 +1,24 @@
 import { Card } from '@mui/material';
 import { useEffect, useState } from 'react';
-import cancelOrderApi from 'src/services/API/CancelOrderApi';
+import cancelOrderApi, { CancelOrderResponse } from 'src/services/API/CancelOrderApi';
 import { toast } from 'react-toastify';
 import RecentCancelOrdersTable from './RecentCancelOrdersTable';
 
 function RecentCancelOrders({ changeData }: any) {
-  const [listCancelOrders, setListCancelOrders] = useState([]);
-  const [totalRecord, setTotalRecord] = useState<any>(0);
+  const [listCancelOrders, setListCancelOrders] = useState<CancelOrderResponse[]>([]);
+  const [totalRecord, setTotalRecord] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   
-  const fetchCancelOrders = (status?: string) => {
+  const fetchCancelOrders = (limit: number, page: number, status?: string) => {
     setLoading(true);
-    cancelOrderApi.getAllCancelRequests(status)
+    cancelOrderApi.getAll({
+      page: page,
+      limit: limit,
+      status: status
+    })
       .then((response) => {
-        setListCancelOrders(response.data);
-        setTotalRecord(response.data.length);
+        setListCancelOrders(response.data.list);
+        setTotalRecord(response.data.total_record);
       })
       .catch((error) => {
         console.error('Error fetching cancel orders:', error);
@@ -26,15 +30,15 @@ function RecentCancelOrders({ changeData }: any) {
   };
 
   useEffect(() => {
-    fetchCancelOrders();
+    fetchCancelOrders(10, 1);
   }, []);
 
   useEffect(() => {
-    fetchCancelOrders();
+    fetchCancelOrders(10, 1);
   }, [changeData]);
 
-  const onClickPagination = (status?: string) => {
-    fetchCancelOrders(status);
+  const onClickPagination = (limit?: number, page?: number, status?: string) => {
+    fetchCancelOrders(limit, page, status);
   };
 
   return (
@@ -49,4 +53,4 @@ function RecentCancelOrders({ changeData }: any) {
   );
 }
 
-export default RecentCancelOrders; 
+export default RecentCancelOrders;

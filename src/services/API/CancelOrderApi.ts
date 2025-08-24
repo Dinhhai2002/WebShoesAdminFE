@@ -36,7 +36,7 @@ interface ApiResponse<T> {
 
 interface BaseListDataResponse<T> {
   list: T[];
-  totalRecord: number;
+  total_record: number;
 }
 
 // API Service Class
