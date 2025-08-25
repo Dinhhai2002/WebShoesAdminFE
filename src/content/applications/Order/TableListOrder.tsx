@@ -174,7 +174,7 @@ function TableListOrder({
           <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: 'bold' }}>Mã đơn hàng</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Khách hàng</TableCell>
+              {/* <TableCell sx={{ fontWeight: 'bold' }}>Khách hàng</TableCell> */}
               <TableCell sx={{ fontWeight: 'bold' }} align="right">Tổng tiền</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Thanh toán</TableCell>
               <TableCell sx={{ fontWeight: 'bold' }}>Ngày đặt</TableCell>
@@ -202,7 +202,7 @@ function TableListOrder({
                         #{item.id}
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Avatar 
                           sx={{ 
@@ -220,7 +220,7 @@ function TableListOrder({
                           Khách hàng {item.user_id}
                         </Typography>
                       </Box>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell align="right">
                       <Typography variant="body2" fontWeight="bold" color="success.main">
                         {formatCurrency(item.total_price)}
