@@ -531,7 +531,7 @@ const RecentProductDetailsTable: FC<RecentProductDetailsTableProps> = ({
                   />
                 )}
               </Typography>
-              <Button
+              {/* <Button
                 variant="contained"
                 onClick={() => {
                   setProductId(-1);
@@ -545,7 +545,7 @@ const RecentProductDetailsTable: FC<RecentProductDetailsTableProps> = ({
                 }}
               >
                 Thêm mới
-              </Button>
+              </Button> */}
             </Box>
             <TableListProductDetail
               listProductDetail={listProductDetail}
