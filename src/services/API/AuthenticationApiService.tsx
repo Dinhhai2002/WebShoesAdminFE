@@ -253,7 +253,7 @@ class AuthenticationApiService extends BaseApiService {
     try {
       const response = await this.api.post(
         `/authentication/register`,
-        { ...data, role: 1 }
+        { ...data}
       );
 
       if (response.data.status === 400) {

@@ -19,6 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import AuthenticationApiService from '../../../services/API/AuthenticationApiService';
 import { validateUserSchema, ValidateUserInput } from './validateUserSchema';
 import { RoleEnum } from 'src/utils/enum/RoleEnum';
+import { toast } from 'react-toastify';
 
 interface DialogCreateUserProps {
   open: boolean;
@@ -45,7 +46,7 @@ const roleOptions = [
   { value: RoleEnum.USER, label: 'Người dùng' },
   { value: RoleEnum.ADMIN, label: 'Quản trị viên' },
   { value: RoleEnum.STAFF, label: 'Nhân viên' },
-];
+] as const;
 
 const DialogCreateUser: React.FC<DialogCreateUserProps> = ({ open, onClose, onSuccess }) => {
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<ValidateUserInput>({
@@ -62,7 +63,7 @@ const DialogCreateUser: React.FC<DialogCreateUserProps> = ({ open, onClose, onSu
       district_id: 0,
       ward_id: 0,
       full_address: '',
-      role: RoleEnum.USER,
+      role: 0, // Set to 0 initially to force selection
       ward_name: '',
       district_name: '',
       city_name: ''
@@ -241,9 +242,13 @@ const DialogCreateUser: React.FC<DialogCreateUserProps> = ({ open, onClose, onSu
                   <Select
                     label="Vai trò"
                     value={watch('role')}
-                    {...register('role')}
-                    onChange={e => setValue('role', Number(e.target.value))}
+                    {...register('role', { valueAsNumber: true })}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      setValue('role', value, { shouldValidate: true });
+                    }}
                   >
+                    <MenuItem value={0}>Chọn vai trò</MenuItem>
                     {roleOptions.map(role => (
                       <MenuItem key={role.value} value={role.value}>{role.label}</MenuItem>
                     ))}

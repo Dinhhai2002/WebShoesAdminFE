@@ -9,12 +9,12 @@ function RecentCancelOrders({ changeData }: any) {
   const [totalRecord, setTotalRecord] = useState<any>(0);
   const [loading, setLoading] = useState<boolean>(false);
   
-  const fetchCancelOrders = (status?: string) => {
+  const fetchCancelOrders = (page: number, limit: number, status?: string) => {
     setLoading(true);
-    cancelOrderApi.getAllCancelRequests(status)
+    cancelOrderApi.getAll({ page, limit, status })
       .then((response) => {
-        setListCancelOrders(response.data);
-        setTotalRecord(response.data.length);
+        setListCancelOrders(response.data.list || []);
+        setTotalRecord(response.data.total_record || 0);
       })
       .catch((error) => {
         console.error('Error fetching cancel orders:', error);
@@ -26,15 +26,15 @@ function RecentCancelOrders({ changeData }: any) {
   };
 
   useEffect(() => {
-    fetchCancelOrders();
+    fetchCancelOrders(1, 10);
   }, []);
 
   useEffect(() => {
-    fetchCancelOrders();
+    fetchCancelOrders(1, 10);
   }, [changeData]);
 
-  const onClickPagination = (status?: string) => {
-    fetchCancelOrders(status);
+  const onClickPagination = (page: number, limit: number, status?: string) => {
+    fetchCancelOrders(page, limit, status);
   };
 
   return (

@@ -13,23 +13,35 @@ import {
     Pagination
   } from '@mui/material';
   import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-toastify';
   
   interface ProductSelectionDialogProps {
-    open: boolean;
-    onClose: () => void;
-    productDetails: any[];
-    onSelect: (selected: { product_detail_id: number; quantity: number }[]) => void;
-  }
+  open: boolean;
+  onClose: () => void;
+  productDetails: any[];
+  onSelect: (selected: { product_detail_id: number; quantity: number }[]) => void;
+  selectedProducts?: { product_detail_id: number; quantity: number }[];
+}
   
   const ITEMS_PER_PAGE = 6;
   
-  function ProductSelectionDialog({ open, onClose, productDetails, onSelect }: ProductSelectionDialogProps) {
+  function ProductSelectionDialog({ open, onClose, productDetails, onSelect, selectedProducts = [] }: ProductSelectionDialogProps) {
+  // Tính toán số lượng tồn kho thực tế (đã trừ đi số lượng đang chọn bên ngoài)
+  // Tính toán số lượng tồn kho thực tế (đã trừ đi số lượng đang chọn bên ngoài và trong dialog)
+  const getActualStock = (productId: number, originalStock: number) => {
+    const selectedProduct = selectedProducts.find(p => p.product_detail_id === productId);
+    const selectedInDialog = selectedMap[productId] || 0;
+    return selectedProduct 
+      ? originalStock - selectedProduct.quantity - selectedInDialog
+      : originalStock - selectedInDialog;
+  };
     const [filter, setFilter] = useState('');
     const [selectedMap, setSelectedMap] = useState<Record<number, number>>({});
     const [page, setPage] = useState(1);
   
     const toggleSelection = (id: number, stock: number) => {
-      if (stock < 1) return;
+      const actualStock = getActualStock(id, stock);
+      if (actualStock < 1 && !selectedMap[id]) return;
       
       setSelectedMap((prev) =>
         prev[id] ? { ...prev, [id]: 0 } : { ...prev, [id]: 1 }
@@ -37,6 +49,15 @@ import {
     };
   
     const setQuantity = (id: number, quantity: number) => {
+      const product = productDetails.find(p => p.id === id);
+      if (!product) return;
+      
+      const actualStock = getActualStock(id, product.stock);
+      if (quantity > actualStock) {
+        toast.error('Số lượng vượt quá tồn kho');
+        return;
+      }
+      
       setSelectedMap((prev) => ({ ...prev, [id]: quantity }));
     };
   
@@ -138,13 +159,24 @@ import {
                     <Typography variant="body2">{pd.color} | {pd.size} | {pd.material}</Typography>
                     <Typography variant="body2" color="text.secondary">Barcode: {pd.barcode || 'N/A'}</Typography>
                     <Typography variant="body2">Giá: {pd.price?.toLocaleString('vi-VN')}₫</Typography>
-                    <Typography 
-                      variant="body2" 
-                      color={pd.stock < 1 ? 'error' : 'text.secondary'}
-                      fontWeight={pd.stock < 1 ? 'bold' : 'normal'}
-                    >
-                      Tồn kho: {pd.stock}
-                    </Typography>
+                    <Box>
+                      <Typography 
+                        variant="body2" 
+                        color={getActualStock(pd.id, pd.stock) < 1 ? 'error' : 'text.secondary'}
+                        fontWeight={getActualStock(pd.id, pd.stock) < 1 ? 'bold' : 'normal'}
+                      >
+                        Tồn kho khả dụng: {getActualStock(pd.id, pd.stock)}
+                      </Typography>
+                      {(selectedMap[pd.id] > 0 || selectedProducts.some(p => p.product_detail_id === pd.id)) && (
+                        <Typography 
+                          variant="body2" 
+                          color="primary"
+                          sx={{ mt: 0.5 }}
+                        >
+                          Đã chọn: {(selectedMap[pd.id] || 0) + (selectedProducts.find(p => p.product_detail_id === pd.id)?.quantity || 0)}
+                        </Typography>
+                      )}
+                    </Box>
                   </Box>
                   <FormControlLabel
                     control={

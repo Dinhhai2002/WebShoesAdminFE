@@ -466,6 +466,7 @@ function CreateStaffOrderForm() {
         onClose={() => setOpenDialog(false)}
         productDetails={productDetails}
         onSelect={handleAddProducts}
+        selectedProducts={products}
       />
 
       <Dialog open={barcodeScanOpen} onClose={() => setBarcodeScanOpen(false)} maxWidth="md" fullWidth>

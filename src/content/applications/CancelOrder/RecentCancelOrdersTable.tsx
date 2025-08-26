@@ -20,7 +20,7 @@ import TableListCancelOrder from './TableListCancelOrder';
 interface RecentCancelOrdersTableProps {
   listCancelOrders: any[];
   totalRecord: number;
-  onClickPagination: (status?: string) => void;
+  onClickPagination: (page: number, limit: number, status?: string) => void;
   loading?: boolean;
 }
 
@@ -62,17 +62,19 @@ const RecentCancelOrdersTable = ({
 
   useEffect(() => {
     const status = statusValue === -1 ? undefined : statusOptions.find(s => s.id === statusValue)?.name;
-    onClickPagination(status);
+    onClickPagination(page + 1, limit, status);
   }, [page, statusValue]);
 
   useEffect(() => {
-    onClickPagination();
+    onClickPagination(1, limit);
+    setPage(0);
   }, [limit]);
 
   const handleApproveCancelOrder = (id: number, adminNotes?: string) => {
     cancelOrderApi.approveCancelRequest(id, { admin_notes: adminNotes })
       .then((response) => {
-        onClickPagination();
+        const status = statusValue === -1 ? undefined : statusOptions.find(s => s.id === statusValue)?.name;
+        onClickPagination(page + 1, limit, status);
         toast.success('Duyệt yêu cầu hủy đơn hàng thành công!');
       })
       .catch((error) => {
@@ -84,7 +86,8 @@ const RecentCancelOrdersTable = ({
   const handleRejectCancelOrder = (id: number, adminNotes?: string) => {
     cancelOrderApi.rejectCancelRequest(id, { admin_notes: adminNotes })
       .then((response) => {
-        onClickPagination();
+        const status = statusValue === -1 ? undefined : statusOptions.find(s => s.id === statusValue)?.name;
+        onClickPagination(page + 1, limit, status);
         toast.success('Từ chối yêu cầu hủy đơn hàng thành công!');
       })
       .catch((error) => {
@@ -96,7 +99,8 @@ const RecentCancelOrdersTable = ({
   const handleDeleteCancelOrder = (id: number) => {
     cancelOrderApi.deleteCancelRequest(id)
       .then((response) => {
-        onClickPagination();
+        const status = statusValue === -1 ? undefined : statusOptions.find(s => s.id === statusValue)?.name;
+        onClickPagination(page + 1, limit, status);
         toast.success('Xóa yêu cầu hủy đơn hàng thành công!');
       })
       .catch((error) => {
@@ -106,11 +110,14 @@ const RecentCancelOrdersTable = ({
   };
 
   const handleSubmitSearch = () => {
-    onClickPagination();
+    const status = statusValue === -1 ? undefined : statusOptions.find(s => s.id === statusValue)?.name;
+    onClickPagination(1, limit, status);
+    setPage(0);
   };
 
   const onChangeValue = () => {
-    onClickPagination();
+    const status = statusValue === -1 ? undefined : statusOptions.find(s => s.id === statusValue)?.name;
+    onClickPagination(page + 1, limit, status);
   };
 
   return (
